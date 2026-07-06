@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let basePath = '';
   if (isNested) {
     if (isCandidateRole || isManagerRole || isAdminRole) {
-      basePath = '../../../../';
+      basePath = '../../../';
     } else {
       basePath = '../../';
     }
   }
 
-  const candidatePath = isNested ? (isCandidateRole ? '' : `${basePath}Features/User/Candidate/`) : 'Features/User/Candidate/';
+  const candidatePath = isNested ? (isCandidateRole ? '' : `${basePath}features/User/Candidate/`) : 'features/User/Candidate/';
   const bookingsPath = isNested ? (path.includes('/bookings/') ? '' : `${basePath}features/bookings/`) : 'features/bookings/';
   const hotelsPath = isNested ? (path.includes('/hotels/') ? '' : `${basePath}features/hotels/`) : 'features/hotels/';
 

@@ -104,20 +104,30 @@ class PageBackButton {
     } else if (url.includes('payment_portal.html')) {
       destination = 'invoice_summary.html';
     } else if (url.includes('booking_success.html')) {
-      destination = 'my_bookings.html';
+      destination = '../User/Candidate/my_bookings.html';
     } else if (url.includes('my_bookings.html')) {
-      destination = '../../index.html';
+      destination = '../../../index.html';
     } else if (url.includes('modify_booking_step1.html')) {
-      destination = 'my_bookings.html';
+      destination = '../User/Candidate/my_bookings.html';
       hasUnsavedChanges = true; // Modification details unsaved
     } else if (url.includes('modify_booking_step2.html')) {
       destination = 'modify_booking_step1.html';
     } else if (url.includes('modify_booking_step3.html')) {
       destination = 'modify_booking_step2.html';
     } else if (url.includes('notifications.html')) {
-      destination = '../../index.html';
+      // Check if it's the admin/manager notification page vs customer notification page
+      if (url.includes('/Admin/') || url.includes('/Manager/')) {
+        destination = 'dashboard.html';
+      } else {
+        destination = '../../index.html';
+      }
     } else if (url.includes('profile.html')) {
-      destination = '../../index.html';
+      // Check if it's the admin/manager profile page vs candidate profile page
+      if (url.includes('/Admin/') || url.includes('/Manager/')) {
+        destination = 'dashboard.html';
+      } else {
+        destination = '../../../index.html';
+      }
       hasUnsavedChanges = true; // Contact details fields changes unsaved
     }
 
