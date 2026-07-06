@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!isLoggedIn) {
         if (window.showApkToast) {
           window.showApkToast('Please login to continue.', () => {
-            window.location.href = 'features/authentication/login.html';
+            window.location.href = 'features/Auth/login.html';
           });
         } else {
           alert('Please login to continue.');
-          window.location.href = 'features/authentication/login.html';
+          window.location.href = 'features/Auth/login.html';
         }
         return;
       }

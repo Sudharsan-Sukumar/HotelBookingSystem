@@ -181,11 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isLoggedIn) {
       if (window.showApkToast) {
         window.showApkToast('Please login to continue.', () => {
-          window.location.href = `${basePath}features/authentication/login.html`;
+          window.location.href = `${basePath}features/Auth/login.html`;
         });
       } else {
         alert('Please login to continue.');
-        window.location.href = `${basePath}features/authentication/login.html`;
+        window.location.href = `${basePath}features/Auth/login.html`;
       }
       return;
     }
@@ -204,11 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           if (window.showApkToast) {
             window.showApkToast('Please login to continue.', () => {
-              window.location.href = `${basePath}features/authentication/login.html`;
+              window.location.href = `${basePath}features/Auth/login.html`;
             });
           } else {
             alert('Please login to continue.');
-            window.location.href = `${basePath}features/authentication/login.html`;
+            window.location.href = `${basePath}features/Auth/login.html`;
           }
         }
       }
@@ -222,11 +222,11 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         if (window.showApkToast) {
           window.showApkToast('Please login to continue.', () => {
-            window.location.href = `${basePath}features/authentication/login.html`;
+            window.location.href = `${basePath}features/Auth/login.html`;
           });
         } else {
           alert('Please login to continue.');
-          window.location.href = `${basePath}features/authentication/login.html`;
+          window.location.href = `${basePath}features/Auth/login.html`;
         }
       }
     });
