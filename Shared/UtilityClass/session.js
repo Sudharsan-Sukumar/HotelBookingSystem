@@ -279,12 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('btnConfirmLogout').addEventListener('click', () => {
       localStorage.clear();
-      const path = window.location.pathname;
-      if (path.includes('features/')) {
-        window.location.href = '../../index.html';
-      } else {
-        window.location.href = 'index.html';
-      }
+      window.location.href = `${basePath}index.html`;
     });
   }
 
