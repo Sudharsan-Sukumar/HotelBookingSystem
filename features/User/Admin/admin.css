@@ -1,0 +1,264 @@
+body.admin-body {
+  background-color: #F8F7F4 !important;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.825rem !important; /* Compact design theme for high density viewing */
+}
+
+/* Specific elements scaling */
+body.admin-body .navbar-brand {
+  font-family: "Playfair Display", Georgia, serif !important;
+  font-weight: 700 !important;
+  font-size: 1.45rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+body.admin-body .navbar-brand span {
+  font-weight: 400 !important;
+  font-size: 1.45rem !important;
+  color: #D4AF37 !important;
+}
+
+body.admin-body h1, body.admin-body .h1 {
+  font-size: 1.5rem !important;
+}
+
+body.admin-body h2, body.admin-body .h2 {
+  font-size: 1.2rem !important;
+}
+
+body.admin-body h5, body.admin-body .h5 {
+  font-size: 0.95rem !important;
+}
+
+body.admin-body p, body.admin-body span, body.admin-body td, body.admin-body th, body.admin-body select, body.admin-body input, body.admin-body button {
+  font-size: 0.8rem !important;
+}
+
+body.admin-body .kpi-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+body.admin-body .kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+body.admin-body .card {
+  border-radius: 16px !important;
+}
+
+/* System Health row styling */
+body.admin-body .health-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 10px 0;
+}
+
+body.admin-body .health-row:last-child {
+  border-bottom: none;
+}
+
+/* Two-Row Navigation Overrides */
+body.admin-body .manager-top-nav {
+  min-height: auto !important;
+  height: 128px !important; /* 72px + 56px */
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1050 !important;
+  background-color: #1A0A2E !important;
+  border-bottom: 2px solid #D4AF37 !important;
+}
+
+body.admin-body .admin-nav-row1 {
+  height: 72px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 32px !important;
+  width: 100% !important;
+}
+
+body.admin-body .admin-nav-row2 {
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important; /* Centered menu */
+  padding: 0 32px !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+body.admin-body .admin-nav-row2 .navbar-nav {
+  margin: 0 auto !important; /* Center secondary menu */
+}
+
+body.admin-body .admin-nav-row2 .d-flex.align-items-center {
+  position: absolute !important;
+  right: 32px !important; /* Lock bell to the far right */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+body.admin-body .admin-nav-row1,
+body.admin-body .admin-nav-row2 {
+  /* Restores container padding */
+}
+
+/* Primary Link Tabs (Row 1 & Row 2) */
+body.admin-body .admin-nav-row1 .nav-link,
+body.admin-body .admin-nav-row2 .nav-link {
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease-in-out !important;
+  border: 1px solid transparent !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+body.admin-body .admin-nav-row1 .nav-link i,
+body.admin-body .admin-nav-row2 .nav-link i {
+  font-size: 16px !important;
+  margin-right: 6px !important;
+}
+
+body.admin-body .admin-nav-row1 .nav-link:hover,
+body.admin-body .admin-nav-row2 .nav-link:hover {
+  color: #D4AF37 !important;
+  background-color: rgba(212, 175, 55, 0.10) !important;
+}
+
+body.admin-body .admin-nav-row1 .nav-link.active,
+body.admin-body .admin-nav-row2 .nav-link.active,
+body.admin-body .admin-nav-row1 .nav-link.active:hover,
+body.admin-body .admin-nav-row2 .nav-link.active:hover,
+body.admin-body .admin-nav-row1 .nav-link.active:focus,
+body.admin-body .admin-nav-row2 .nav-link.active:focus {
+  color: #1A0A2E !important;
+  font-weight: 700 !important;
+  background-color: #D4AF37 !important;
+  border: 1px solid #D4AF37 !important;
+}
+
+/* spacing gaps */
+body.admin-body .admin-nav-row1 .navbar-nav,
+body.admin-body .admin-nav-row2 .navbar-nav {
+  gap: 16px !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+
+body.admin-body .admin-nav-row2 .dropdown-toggle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Backup Flow Animations */
+@keyframes flowData {
+  0% {
+    left: 0%;
+    opacity: 0.1;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0.1;
+  }
+}
+
+@keyframes pulseNode {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+body.admin-body .pulse-ring {
+  animation: pulseNode 2s infinite ease-out;
+}
+
+body.admin-body .restore-data-packet {
+  animation: flowData 2s infinite linear reverse;
+}
+
+/* Reports Tab One-Time Tooltip Popup */
+.reports-tooltip-popup {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1A0A2E;
+  color: #FFFFFF;
+  border: 1.5px solid #D4AF37;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem !important;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1060;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.reports-tooltip-popup::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #1A0A2E transparent transparent;
+  display: block;
+  width: 0;
+}
+
+.reports-tooltip-popup::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px 7px 0;
+  border-style: solid;
+  border-color: #D4AF37 transparent transparent;
+  display: block;
+  width: 0;
+  z-index: -1;
+}
+
+.reports-tooltip-popup.show-tooltip {
+  opacity: 1;
+}
+
+
+

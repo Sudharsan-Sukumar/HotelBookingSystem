@@ -1,0 +1,417 @@
+.manager-body {
+  background-color: #FAF8F4 !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: #1A0A2E !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+// -------------------------------------------------------------
+// TOP HORIZONTAL NAVIGATION (Solid Luxury Dark Purple #1A0A2E)
+// -------------------------------------------------------------
+.manager-top-nav {
+  background-color: #1A0A2E !important;
+  border-bottom: 2px solid #D4AF37 !important;
+  min-height: 72px !important;
+  height: auto !important;
+  z-index: 1050 !important;
+  padding-right: 24px !important;
+  padding-left: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  position: sticky !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+.manager-top-nav .brand-text {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 700 !important;
+  font-size: 1.35rem !important;
+  color: #FFFFFF !important;
+  letter-spacing: 0.5px !important;
+}
+
+.manager-top-nav .brand-text span {
+  color: #D4AF37 !important;
+}
+
+.manager-top-nav .nav-link {
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-size: 0.78rem !important; // Slightly smaller to prevent text wrap on zoom
+  font-weight: 600 !important;
+  padding: 0.4rem 0.75rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease-in-out !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+.manager-top-nav .nav-link:hover {
+  color: #D4AF37 !important;
+  border-color: #D4AF37 !important;
+  background-color: rgba(212, 175, 55, 0.08) !important;
+}
+
+.manager-top-nav .nav-link.active {
+  color: #D4AF37 !important;
+  font-weight: 700 !important;
+  background-color: rgba(212, 175, 55, 0.15) !important;
+  border-color: #D4AF37 !important;
+}
+
+.manager-top-nav .search-input-group {
+  display: flex !important;
+  align-items: center !important;
+  padding: 4px 14px !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 24px !important;
+  height: 48px !important;
+  width: 100% !important;
+  max-width: 260px !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.manager-top-nav .search-input-group:focus-within {
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4) !important;
+}
+
+.manager-top-nav .search-input-group input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 0.85rem !important;
+  padding: 4px 8px !important;
+  color: #FFFFFF !important;
+  width: 100% !important;
+}
+
+.manager-top-nav .search-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.manager-top-nav .notification-bell-btn {
+  color: #FFFFFF !important;
+}
+
+.manager-top-nav .date-picker-badge {
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: transparent !important;
+}
+
+.profile-avatar-circle {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background-color: #2E1560 !important;
+  color: #D4AF37 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  border: 1.5px solid #D4AF37 !important;
+}
+
+// -------------------------------------------------------------
+// LEFT SIDEBAR (Width: 280px)
+// -------------------------------------------------------------
+.manager-sidebar {
+  width: 280px !important;
+  background-color: #1A0A2E !important;
+  position: fixed !important;
+  top: 72px !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 1040 !important;
+  overflow-y: auto !important;
+  border-right: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.manager-sidebar .nav-link-item {
+  height: 56px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-decoration: none !important;
+  padding-left: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out !important;
+  border-left: 4px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.manager-sidebar .nav-link-item i {
+  font-size: 20px !important;
+  margin-right: 16px !important;
+  width: 24px !important;
+  text-align: center !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.manager-sidebar .nav-link-item:hover {
+  background-color: rgba(212, 175, 55, 0.08) !important;
+  color: #D4AF37 !important;
+}
+
+.manager-sidebar .nav-link-item:hover i {
+  color: #D4AF37 !important;
+}
+
+.manager-sidebar .nav-link-item.active {
+  background-color: rgba(212, 175, 55, 0.12) !important;
+  color: #D4AF37 !important;
+  border-left-color: #D4AF37 !important;
+  font-weight: 600 !important;
+}
+
+.manager-sidebar .nav-link-item.active i {
+  color: #D4AF37 !important;
+}
+
+.manager-sidebar .nav-category-header {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  padding: 1.5rem 0 0.5rem 24px !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.bg-gold-badge {
+  background-color: #D4AF37 !important;
+  color: #1A0A2E !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  margin-right: 24px !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.branch-selector-card {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+
+// -------------------------------------------------------------
+// MAIN WORKSPACE & TYPOGRAPHY RULES
+// -------------------------------------------------------------
+.main-content-workspace {
+  margin-left: 0 !important; // Removed sidebar offset
+  margin-top: 0 !important; // Removed absolute offset due to sticky navbar
+  min-height: calc(100vh - 72px) !important;
+  padding: 24px !important;
+}
+
+// Page titles & large headings utilize Playfair Display
+.font-serif, .welcome-heading, .fs-5 {
+  font-family: 'Playfair Display', serif !important;
+}
+
+.welcome-heading {
+  font-size: 1.85rem !important;
+  font-weight: 700 !important;
+  color: #1A0A2E !important;
+}
+
+.welcome-sub {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 0.85rem !important;
+}
+
+// -------------------------------------------------------------
+// KPI CARDS (Standardized rounded cards with soft shadow & padding)
+// -------------------------------------------------------------
+.kpi-card {
+  border-radius: 18px !important;
+  box-shadow: 0 8px 30px rgba(26, 10, 46, 0.05) !important;
+  border-color: #ECE6D8 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 35px rgba(26, 10, 46, 0.08) !important;
+}
+
+.kpi-card .kpi-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+}
+
+.kpi-card .kpi-icon.purple { background-color: rgba(46, 21, 96, 0.08) !important; color: #2E1560 !important; }
+.kpi-card .kpi-icon.green { background-color: #E2F6EA !important; color: #1F8B4C !important; }
+.kpi-card .kpi-icon.blue { background-color: #EBF5FF !important; color: #1E40AF !important; }
+.kpi-card .kpi-icon.orange { background-color: #FEF08A !important; color: #854D0E !important; }
+.kpi-card .kpi-icon.red { background-color: #FDE8E8 !important; color: #F05252 !important; }
+.kpi-card .kpi-icon.gold { background-color: rgba(212, 175, 55, 0.12) !important; color: #D4AF37 !important; }
+
+// -------------------------------------------------------------
+// PREMIUM TABLES
+// -------------------------------------------------------------
+.manager-premium-table th {
+  height: 64px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
+  color: #1A0A2E !important;
+  background-color: #FAF8F4 !important;
+  border-bottom: 2px solid #ECE6D8 !important;
+}
+
+.manager-premium-table td {
+  height: 72px !important;
+  border-bottom: 1px solid #ECE6D8 !important;
+}
+
+.manager-premium-table tbody tr {
+  transition: all 0.15s ease-in-out !important;
+}
+
+.manager-premium-table tbody tr:hover {
+  background-color: #FAF8F4 !important;
+}
+
+// -------------------------------------------------------------
+// PENDING REQUEST CARDS
+// -------------------------------------------------------------
+.request-item-card {
+  border-color: #ECE6D8 !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.01) !important;
+}
+
+.request-item-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(26,10,46,0.05) !important;
+}
+
+.request-item-card .req-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background-color: rgba(212, 175, 55, 0.12) !important;
+  color: #D4AF37 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.05rem !important;
+}
+
+.bg-success-light { background-color: rgba(25, 135, 84, 0.1) !important; }
+.bg-warning-light { background-color: rgba(255, 193, 7, 0.1) !important; }
+.bg-info-light { background-color: rgba(13, 110, 253, 0.1) !important; }
+
+// -------------------------------------------------------------
+// QUICK ACTIONS
+// -------------------------------------------------------------
+.btn-action-quick {
+  background-color: #FFFFFF !important;
+  color: #1A0A2E !important;
+  border-color: #ECE6D8 !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-action-quick:hover {
+  background-color: rgba(212, 175, 55, 0.08) !important;
+  border-color: #D4AF37 !important;
+  box-shadow: 0 4px 15px rgba(212,175,55,0.05) !important;
+}
+
+// -------------------------------------------------------------
+// RESPONSIVE FIXES
+// -------------------------------------------------------------
+@media (max-width: 1200px) {
+  .manager-sidebar {
+    display: none !important; // Toggleable in mobile/tablet views
+  }
+  .manager-sidebar.show {
+    display: flex !important;
+    position: fixed !important;
+    top: 72px !important;
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+  .main-content-workspace {
+    margin-left: 0 !important;
+    margin-top: 72px !important;
+  }
+}
+
+// -------------------------------------------------------------
+// DROPDOWN NAV ITEM OVERRIDES
+// -------------------------------------------------------------
+body .manager-top-nav .dropdown-menu {
+  background-color: #1A0A2E !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;
+  padding: 0.5rem !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item {
+  color: #FFFFFF !important;
+  font-weight: 500 !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 8px !important;
+  padding: 12px 18px !important;
+  transition: all 0.2s ease-in-out !important;
+  background-color: transparent !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item:hover,
+body .manager-top-nav .dropdown-menu .dropdown-item:focus {
+  background-color: #2E1560 !important;
+  border-left: 4px solid #D4AF37 !important;
+  color: #FFFFFF !important;
+  cursor: pointer !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item:hover i {
+  color: #D4AF37 !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item.active,
+body .manager-top-nav .dropdown-menu .dropdown-item:active {
+  background-color: rgba(212, 175, 55, 0.15) !important;
+  border-left: 4px solid #D4AF37 !important;
+  color: #D4AF37 !important;
+  font-weight: 600 !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item.active i,
+body .manager-top-nav .dropdown-menu .dropdown-item:active i {
+  color: #D4AF37 !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item.disabled,
+body .manager-top-nav .dropdown-menu .dropdown-item:disabled {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  cursor: not-allowed !important;
+  border-left: 4px solid transparent !important;
+}
+
+body .manager-top-nav .dropdown-menu .dropdown-item.disabled:hover,
+body .manager-top-nav .dropdown-menu .dropdown-item:disabled:hover {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  border-left: 4px solid transparent !important;
+}
+

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <!-- Custom Compiled Stylesheet -->
-  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="Shared/Abstracts/global.css">
   <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
@@ -30,7 +30,7 @@
       <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
       </button>
-
+ 
       <!-- Collapse Container -->
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <!-- Navigation Menu (Centered) -->
@@ -42,13 +42,13 @@
             <a class="nav-link" href="features/hotels/search_results.html">Hotels</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-nowrap" href="features/bookings/my_bookings.html">My Bookings</a>
+            <a class="nav-link text-nowrap" href="Features/User/Candidate/my_bookings.html">My Bookings</a>
           </li>
           <li class="nav-item">
             <a class="nav-link text-nowrap" href="features/bookings/notifications.html">Notifications</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="features/bookings/profile.html">Profile</a>
+            <a class="nav-link" href="Features/User/Candidate/profile.html">Profile</a>
           </li>
         </ul>
 
@@ -821,7 +821,7 @@
   <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Leaflet Map JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="js/session.js"></script>
+  <script src="Shared/UtilityClass/session.js"></script>
   <script src="features/landing/landing.js"></script>
   <script>
     let pendingRoomSelection = null;
@@ -846,7 +846,7 @@
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       if (!isLoggedIn) {
         showApkToast('Please login to continue with room booking.', () => {
-          window.location.href = 'features/authentication/login.html';
+          window.location.href = 'Features/Auth/login.html';
         });
         return;
       }
@@ -865,7 +865,7 @@
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       if (!isLoggedIn) {
         showApkToast('Please login to continue.', () => {
-          window.location.href = 'features/authentication/login.html';
+          window.location.href = 'Features/Auth/login.html';
         });
         return;
       }

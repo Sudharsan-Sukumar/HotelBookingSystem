@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management - Elegant Enclave Admin</title>
+  <link rel='icon' type='image/png' href='../../assets/images/logo.png'>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../manager/dashboard.css?v=1.9">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .nav-tabs-premium {
+      border-bottom: 2px solid rgba(0,0,0,0.05);
+    }
+    .nav-tabs-premium .nav-link {
+      border: none;
+      color: #6c757d;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .nav-tabs-premium .nav-link.active {
+      color: #1A0A2E;
+      font-weight: 600;
+      border-bottom: 2px solid #D4AF37;
+      background: transparent;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- TOP NAVIGATION -->
+  <nav class="navbar navbar-expand-md manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid d-flex flex-column align-items-stretch p-0">
+      
+      <!-- ROW 1 -->
+      <div class="admin-nav-row1">
+        <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
+          <img src="../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+          <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+        </a>
+
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          
+          <li class="nav-item"><a class="nav-link" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+        </ul>
+
+        <div class="dropdown">
+          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+            <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
+            <div class="lh-sm text-start text-white">
+              <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
+              <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
+            </div>
+            <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+            <li><a class="dropdown-item py-2 px-3 text-white small" href="profile.html">View Profile</a></li>
+            
+            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+            <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="admin-nav-row2">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup & Recovery</a></li>
+          <li class="nav-item"><a class="nav-link" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Booking Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link" href="audit_logs.html"><i class="bi bi-shield-fill-check me-1"></i> Audit Logs</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+            <i class="bi bi-bell-fill text-warning" style="font-size: 1.2rem;"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(50%, -50%) !important;">3</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4 py-4" style="min-height: calc(100vh - 128px);">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Users</li>
+      </ol>
+    </nav>
+
+    <div class="mb-4 text-start">
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">User Management</h1>
+      <p class="text-secondary small mb-0">View, manage and control system users and their access levels.</p>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4 text-start">
+      <div class="col-md">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Users</span>
+            <strong class="fs-5 text-dark" id="kpiTotal">24</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">All active credentials</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-person-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Customers</span>
+            <strong class="fs-5 text-dark" id="kpiCustomers">14</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Registered accounts</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-person-badge-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Managers</span>
+            <strong class="fs-5 text-dark" id="kpiManagers">7</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Hotel managers</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-purple bg-opacity-10 text-purple" style="font-size: 1.25rem;"><i class="bi bi-shield-fill-check"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">System Admins</span>
+            <strong class="fs-5 text-dark" id="kpiAdmins">3</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Administrators</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Pending Approval</span>
+            <strong class="fs-5 text-dark" id="kpiPending">2</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Awaiting verification</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS AND ADD USER ROW -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom mb-4">
+      <ul class="nav nav-tabs-premium text-start" id="userTabs" style="border: none;">
+        <li class="nav-item"><a class="nav-link active" href="#" data-tab="all">All Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="Customer">Customers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="Manager">Managers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="Pending">Pending Approval</a></li>
+      </ul>
+      <button class="btn btn-purple btn-sm" onclick="location.href='add_user.html'"><i class="bi bi-person-plus me-1"></i> Add User</button>
+    </div>
+
+    <!-- ADVANCED FILTER BAR -->
+    <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
+      <div class="row g-2 align-items-end text-start">
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Search</label>
+          <input type="text" class="form-control form-control-sm" id="userSearch" placeholder="Search by name, email, ID...">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold text-purple">Role</label>
+          <select class="form-select form-select-sm" id="userRoleFilter">
+            <option value="all">All Roles</option>
+            <option value="Customer">Customer</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold text-purple">Status</label>
+          <select class="form-select form-select-sm" id="userStatusFilter">
+            <option value="all">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Blocked">Blocked</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Branch</label>
+          <select class="form-select form-select-sm" id="userBranchFilter">
+            <option value="all">All Branches</option>
+            <option value="Salem">Salem</option>
+            <option value="Coimbatore">Coimbatore</option>
+            <option value="Chennai">Chennai</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-outline-purple btn-sm w-50" id="btnResetFilters">Reset</button>
+          <button class="btn btn-purple btn-sm w-50" id="btnApplyFilters">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DATA TABLE -->
+    <div class="card border shadow-sm bg-white p-3 mb-4" style="border-radius: 12px;">
+      <div class="table-responsive text-start">
+        <table class="table align-middle manager-premium-table small mb-0" id="tblUsers">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Branch</th>
+              <th>Status</th>
+              <th>Last Login</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loaded dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS TOAST -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="statusToast" class="toast align-items-center text-white border-0 shadow" role="alert">
+      <div class="d-flex">
+        <div class="toast-body small" id="toastMessage">Updates saved.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-toast="dismiss"></button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-4 text-center mt-5" style="background-color: #1A0A2E; border-top: 2px solid #D4AF37;">
+    <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="users.js"></script>
+  <script src="../../js/session.js"></script>
+</body>
+</html>

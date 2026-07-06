@@ -10,15 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Dynamically resolve parent path depths to locate index.html and routes
   const path = window.location.pathname;
-  const isNested = path.includes('features/');
-  const basePath = isNested ? '../../' : '';
-  const bookingsPath = isNested ? (path.includes('/bookings/') ? '' : '../bookings/') : 'features/bookings/';
-  const hotelsPath = isNested ? (path.includes('/hotels/') ? '' : '../hotels/') : 'features/hotels/';
+  const isNested = path.includes('Features/') || path.includes('features/');
+  const isCandidateRole = path.includes('/Candidate/');
+  const isManagerRole = path.includes('/Manager/');
+  const isAdminRole = path.includes('/Admin/');
+  
+  // Calculate relative basePath depth offset
+  let basePath = '';
+  if (isNested) {
+    if (isCandidateRole || isManagerRole || isAdminRole) {
+      basePath = '../../../../';
+    } else {
+      basePath = '../../';
+    }
+  }
+
+  const candidatePath = isNested ? (isCandidateRole ? '' : `${basePath}Features/User/Candidate/`) : 'Features/User/Candidate/';
+  const bookingsPath = isNested ? (path.includes('/bookings/') ? '' : `${basePath}features/bookings/`) : 'features/bookings/';
+  const hotelsPath = isNested ? (path.includes('/hotels/') ? '' : `${basePath}features/hotels/`) : 'features/hotels/';
 
   // Rebuild the navbar anchors to work globally from any page location
   const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
   // Check if we are inside the admin module directory to avoid overriding admin specific routing links
-  const isAdminModule = path.includes('/admin/');
+  const isAdminModule = path.includes('/Admin/') || path.includes('/admin/');
   navLinks.forEach(link => {
     if (isAdminModule) return;
     const text = link.textContent.trim().toLowerCase();
@@ -40,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         link.setAttribute('aria-current', 'page');
       }
     } else if (text === 'my bookings') {
-      link.href = `${bookingsPath}my_bookings.html`;
-      if (path.includes('my_bookings.html') || path.includes('booking_details.html') || path.includes('modify_booking_') || path.includes('invoice_summary.html')) {
+      link.href = `${candidatePath}my_bookings.html`;
+      if (path.includes('my_bookings.html')) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
       }
@@ -52,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
         link.setAttribute('aria-current', 'page');
       }
     } else if (text === 'profile') {
-      link.href = `${bookingsPath}profile.html`;
-      if (path.includes('/bookings/profile.html') || path.endsWith('/profile.html')) {
+      link.href = `${candidatePath}profile.html`;
+      if (path.includes('/Candidate/profile.html') || path.endsWith('/profile.html')) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
       }
@@ -142,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dropLinkProfile').addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          window.location.href = `${bookingsPath}profile.html`;
+          window.location.href = `${candidatePath}profile.html`;
         });
 
         document.getElementById('dropLinkLogout').addEventListener('click', (e) => {
