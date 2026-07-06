@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
           alert(`Successfully Authenticated!\nWelcome back, ${matchedAccount.name}`);
           if (matchedAccount.role === 'Manager') {
-            window.location.href = '../manager/dashboard.html';
+            window.location.href = '../User/Manager/dashboard.html';
           } else if (matchedAccount.role === 'Admin') {
-            window.location.href = '../admin/dashboard.html';
+            window.location.href = '../User/Admin/dashboard.html';
           } else {
             window.location.href = '../../index.html';
           }
