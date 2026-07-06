@@ -136,11 +136,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.deleteUser = function(id) {
-    if (confirm('Are you sure you want to delete this user credentials profile?')) {
+    const reason = prompt('Are you sure you want to delete this user? Please provide a reason for deletion:');
+    if (reason !== null) {
+      if (reason.trim() === '') {
+        alert('Deletion cancelled: A reason is required to delete a user profile.');
+        return;
+      }
       const idx = users.findIndex(x => x.id === id);
       if (idx !== -1) {
+        const u = users[idx];
         users.splice(idx, 1);
-        showToast('User deleted from system records.', true);
+        showToast(`Profile ${u.id} deleted. Reason: "${reason.trim()}"`, true);
         renderTable();
       }
     }
