@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Report | Elegant Enclave Hotel Management</title>
+  <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="dashboard.css?v=1.9">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .report-sidebar-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #495057;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .report-sidebar-link:hover {
+      background-color: rgba(26, 10, 46, 0.04);
+      color: #1A0A2E;
+    }
+    .report-sidebar-link.active {
+      background-color: rgba(26, 10, 46, 0.08);
+      color: #1A0A2E;
+      font-weight: 600;
+      border-left: 3px solid #D4AF37;
+    }
+    .chart-container-card {
+      min-height: 260px;
+    }
+    .badge-staying {
+      background-color: rgba(46, 125, 50, 0.12) !important;
+      color: #2E7D32 !important;
+      border: 1px solid rgba(46, 125, 50, 0.25) !important;
+    }
+    .badge-upcoming {
+      background-color: rgba(212, 175, 55, 0.12) !important;
+      color: #B58D1D !important;
+      border: 1px solid rgba(212, 175, 55, 0.25) !important;
+    }
+    .badge-blacklisted {
+      background-color: rgba(220, 53, 69, 0.12) !important;
+      color: #DC3545 !important;
+      border: 1px solid rgba(220, 53, 69, 0.25) !important;
+    }
+  </style>
+</head>
+<body class="manager-body">
+
+  <!-- TOP HORIZONTAL NAVIGATION -->
+  <nav class="navbar navbar-expand-md manager-top-nav py-2 sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
+      
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold fs-4">Elegant<span>Enclave</span></span>
+      </a>
+
+      <!-- Horizontal Menu Tabs -->
+      <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2" id="topNavbarCollapse">
+        <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
+          </li>
+          <!-- Bookings Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navBookings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-calendar-check-fill me-1"></i> Bookings
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navBookings" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="bookings.html">All Bookings</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="check_in.html">Check-in</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="check_out.html">Check-out</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_calendar.html">Booking Calendar</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_history.html">Booking History</a></li>
+            </ul>
+          </li>
+          <!-- Rooms Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-building-fill me-1"></i> Rooms
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navRooms" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html">Room Management</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=types">Room Types</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=availability">Room Availability</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=housekeeping">Housekeeping</a></li>
+              
+            </ul>
+          </li>
+          <!-- Guests Dropdown -->
+          <!-- Guests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="guests.html" id="navGuests">
+              <i class="bi bi-people-fill me-1"></i> Guests
+            </a>
+          </li>
+          <!-- Requests Dropdown -->
+          <!-- Requests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="requests.html" id="navRequests">
+              <i class="bi bi-hourglass-split me-1"></i> Requests <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.65rem;">6</span>
+            </a>
+          </li>
+          <!-- Reports Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" id="navReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bar-chart-line-fill me-1"></i> Reports
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navReports" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="reports_occupancy.html">Occupancy Report</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_bookings.html">Booking Report</a></li>
+              
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_payments.html">Payment Report</a></li>
+              
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Right Aligned Widgets Cluster -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <!-- Notification Bell -->
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-2" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+            <i class="bi bi-bell-fill text-warning"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">12</span>
+          </a>
+
+          <!-- Profile Dropdown Menu -->
+          <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent !important; box-shadow: none !important;">
+              <div class="profile-avatar-circle">SK</div>
+              <div class="lh-sm text-start text-white d-none d-lg-block">
+                <strong class="d-block small" style="font-size: 0.75rem;">Sridhar</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" aria-labelledby="profileDropdown" style="background-color: #1A0A2E; border-radius: 12px; margin-top: 10px;">
+              <li>
+                <a class="dropdown-item py-2 px-3 text-white d-flex align-items-center gap-2" href="../authentication/register.html?mode=edit" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-person-fill text-warning"></i> View Profile
+                </a>
+              </li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li>
+                <a class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2" href="#" onclick="triggerConfirmLogout(event)" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="w-100" style="min-height: calc(100vh - 72px);">
+    <div class="p-4 main-content-workspace">
+      
+      <!-- BREADCRUMBS -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small text-start">
+          <li class="breadcrumb-item"><a href="dashboard.html" class="text-warning text-decoration-none">Home</a></li>
+          <li class="breadcrumb-item"><a href="#" class="text-warning text-decoration-none">Reports</a></li>
+          <li class="breadcrumb-item active text-muted" aria-current="page">Payment Report</li>
+        </ol>
+      </nav>
+
+      <!-- TITLE HEADER -->
+      <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-start">
+        <div>
+          <h1 class="welcome-heading m-0 font-serif" style="font-size: 1.85rem !important;">Payment Report</h1>
+          <p class="welcome-sub text-muted m-0">Detailed overview of financial transactions, collections, and settlement gateways.</p>
+        </div>
+        
+        <!-- EXPORT DROPDOWN -->
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle d-flex align-items-center gap-2 px-4 py-2" type="button" id="btnExportReport" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #1A0A2E !important; border-color: #D4AF37 !important; color: #D4AF37 !important; border-radius: 8px; font-weight: 600;">
+            <i class="bi bi-download"></i> Export Report
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border" aria-labelledby="btnExportReport">
+            <li><a class="dropdown-item btn-export-opt" href="#" data-format="PDF"><i class="bi bi-file-pdf text-danger me-2"></i> PDF Document</a></li>
+            <li><a class="dropdown-item btn-export-opt" href="#" data-format="Excel"><i class="bi bi-file-excel text-success me-2"></i> Excel (.xlsx)</a></li>
+            <li><a class="dropdown-item btn-export-opt" href="#" data-format="Word"><i class="bi bi-file-word text-primary me-2"></i> Word (.docx)</a></li>
+            <li><a class="dropdown-item btn-export-opt" href="#" data-format="TXT"><i class="bi bi-file-text text-secondary me-2"></i> Plain Text (.txt)</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <!-- FILTER BAR -->
+      <section class="card border p-3 mb-4 text-start bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-dark mb-1">Hotel Branch</label>
+            <select id="filterPaymentBranch" class="form-select">
+              <option value="all">All Branches</option>
+              <option value="Salem">Salem</option>
+              <option value="Coimbatore">Coimbatore</option>
+              <option value="Chennai">Chennai</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-dark mb-1">Payment Method</label>
+            <select id="filterPaymentMethod" class="form-select">
+              <option value="all">All Methods</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="UPI">UPI</option>
+              <option value="Wallet">Wallet</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-dark mb-1">Payment Status</label>
+            <select id="filterPaymentStatus" class="form-select">
+              <option value="all">All Statuses</option>
+              <option value="Success">Success</option>
+              <option value="Pending">Pending</option>
+              <option value="Failed">Failed</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6 d-flex gap-2">
+            <button class="btn btn-secondary w-50 py-2 border-0" id="btnResetPaymentFilters" style="background-color: #E2DCD0; color: #1A0A2E; font-weight: 500;">Reset</button>
+            <button class="btn btn-primary w-50 py-2" id="btnApplyPaymentFilters" style="background-color: #1A0A2E; border-color: #1A0A2E; font-weight: 600;">Apply Filters</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORT WORKSPACE BODY -->
+      <div class="row g-4 text-start">
+        
+        <!-- Left Sidebar: Report Categories Directory -->
+        <div class="col-lg-2">
+          <div class="card border p-3 bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+            <strong class="d-block text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;">Analytics Menu</strong>
+            <div class="d-flex flex-column gap-1">
+              <a href="reports_occupancy.html" class="report-sidebar-link"><span>Occupancy Report</span><i class="bi bi-chevron-right small"></i></a>
+              
+              <a href="reports_bookings.html" class="report-sidebar-link"><span>Booking Report</span><i class="bi bi-chevron-right small"></i></a>
+              
+              
+              <a href="reports_payments.html" class="report-sidebar-link active"><span>Payment Report</span><i class="bi bi-chevron-right small"></i></a>
+              
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Metrics Content -->
+        <div class="col-lg-10">
+          
+          <!-- SUMMARY KPI CARDS ROW -->
+          <section class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+              <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+                <strong class="d-block text-muted small uppercase-title">Total Transactions</strong>
+                <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiTotalTrans">142</span>
+                <span class="small text-muted" style="font-size: 0.7rem;">Completed authorization flows</span>
+              </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+              <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+                <strong class="d-block text-muted small uppercase-title">Net Collection</strong>
+                <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiNetColl">₹4,44,500</span>
+                <span class="small text-success" style="font-size: 0.7rem;"><i class="bi bi-arrow-up-short"></i> +14% vs Last Month</span>
+              </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+              <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+                <strong class="d-block text-muted small uppercase-title">Failed Payments</strong>
+                <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiFailedPay">2 Failed</span>
+                <span class="small text-success" style="font-size: 0.7rem;">Gateways error: 0.5% rate</span>
+              </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+              <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+                <strong class="d-block text-muted small uppercase-title">Coupon Discounts</strong>
+                <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiDiscount">₹14,200</span>
+                <span class="small text-muted" style="font-size: 0.7rem;">Promotional campaigns impact</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- VISUAL ANALYSIS CHARTS ROW -->
+          <div class="row g-4 mb-4">
+            <!-- Line Chart: Daily Collections -->
+            <div class="col-lg-8">
+              <div class="card border p-4 h-100 bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h2 class="font-serif text-dark fs-5 m-0 fw-bold">Daily Collections</h2>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active" id="btnPayDaily">Daily</button>
+                    <button class="btn btn-outline-secondary" id="btnPayWeekly">Weekly</button>
+                    <button class="btn btn-outline-secondary" id="btnPayMonthly">Monthly</button>
+                  </div>
+                </div>
+                <div class="chart-container-card position-relative">
+                  <canvas id="paymentTrendChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pie Chart: Payment Methods -->
+            <div class="col-lg-4">
+              <div class="card border p-4 h-100 bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+                <h2 class="font-serif text-dark fs-5 mb-3 fw-bold">Payment Methods</h2>
+                <div class="chart-container-card position-relative" style="min-height: 220px;">
+                  <canvas id="paymentMethodPieChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLE: PAYMENTS TRANSACTIONS LIST -->
+          <div class="card border p-4 mb-4 bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+            <h2 class="font-serif text-dark fs-5 mb-3 fw-bold">Payments Ledger</h2>
+            <div class="table-responsive">
+              <table class="table align-middle text-start manager-premium-table w-100" id="tblReportPayments">
+                <thead>
+                  <tr class="table-light">
+                    <th>Transaction ID</th>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th class="text-end">Base Amount</th>
+                    <th>Payment Method</th>
+                    <th class="text-center">Coupon</th>
+                    <th class="text-end">Wallet Used</th>
+                    <th class="text-end">Tax</th>
+                    <th class="text-end">Final Amount</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated dynamically by reports_payments.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- FOOTER DETAILS -->
+          <footer class="pt-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Last Updated: 29 June 2026, 10:30 AM</div>
+            <div>Report Generated By: <strong>Sridhar Kumar (Hotel Manager)</strong></div>
+          </footer>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap and JS bundle -->
+  <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="reports_payments.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+</body>
+</html>

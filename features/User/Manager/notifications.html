@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Center - Elegant Enclave</title>
+  <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts (Playfair Display & Poppins) -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="dashboard.css?v=1.0.4">
+  <style>
+    /* Tooltip styling */
+    .tooltip-inner {
+      background-color: #1A0A2E !important;
+      border: 1px solid #D4AF37 !important;
+      color: #FFFFFF !important;
+      border-radius: 6px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+    }
+    .tooltip-arrow::before {
+      border-top-color: #1A0A2E !important;
+    }
+
+    /* Notification Center Specific styles */
+    .filter-panel-card {
+      border-radius: 12px;
+      border: 1px solid rgba(26, 10, 46, 0.08);
+      background-color: #FFFFFF;
+      box-shadow: 0 4px 20px rgba(26, 10, 46, 0.03);
+    }
+    .filter-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      color: #1A0A2E;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .filter-list-item:hover {
+      background-color: rgba(212, 175, 55, 0.08);
+      color: #B58D1D;
+    }
+    .filter-list-item.active {
+      background-color: #1A0A2E;
+      color: #D4AF37 !important;
+    }
+    .notification-card {
+      border-radius: 12px;
+      background-color: #FFFFFF;
+      border: 1px solid rgba(26, 10, 46, 0.08);
+      box-shadow: 0 4px 20px rgba(26, 10, 46, 0.03);
+      padding: 1.25rem;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .notification-card:hover {
+      box-shadow: 0 6px 24px rgba(26, 10, 46, 0.06);
+      transform: translateY(-2px);
+    }
+    .notification-card.unread {
+      background-color: rgba(212, 175, 55, 0.02);
+      border-color: rgba(212, 175, 55, 0.2);
+    }
+    .notification-card.high-priority {
+      border-left: 4px solid #DC3545 !important;
+    }
+    .unread-indicator-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #D4AF37;
+      border-radius: 50%;
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+    }
+    .notification-icon-wrapper {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .icon-booking { background-color: rgba(13, 110, 253, 0.08); color: #0D6EFD; }
+    .icon-checkin { background-color: rgba(25, 135, 84, 0.08); color: #198754; }
+    .icon-checkout { background-color: rgba(108, 117, 125, 0.08); color: #6C757D; }
+    .icon-request { background-color: rgba(255, 193, 7, 0.08); color: #FFC107; }
+    .icon-maintenance { background-color: rgba(253, 126, 20, 0.08); color: #FD7E14; }
+    .icon-payment { background-color: rgba(32, 201, 151, 0.08); color: #20C997; }
+    .icon-system { background-color: rgba(111, 66, 193, 0.08); color: #6F42C1; }
+    .icon-security { background-color: rgba(220, 53, 69, 0.08); color: #DC3545; }
+
+    /* Custom badges */
+    .badge-high {
+      background-color: rgba(220, 53, 69, 0.1) !important;
+      color: #DC3545 !important;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+    .badge-medium {
+      background-color: rgba(253, 126, 20, 0.1) !important;
+      color: #FD7E14 !important;
+      border: 1px solid rgba(253, 126, 20, 0.2);
+    }
+    .badge-low {
+      background-color: rgba(13, 110, 253, 0.1) !important;
+      color: #0D6EFD !important;
+      border: 1px solid rgba(13, 110, 253, 0.2);
+    }
+
+    .badge-unread {
+      background-color: #D4AF37 !important;
+      color: #1A0A2E !important;
+      font-weight: 700;
+    }
+    .badge-read {
+      background-color: #E9ECEF !important;
+      color: #6C757D !important;
+    }
+    .badge-archived {
+      background-color: #212529 !important;
+      color: #F8F9FA !important;
+    }
+
+    /* Pulse animation */
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+    .pulse-high {
+      animation: pulse-red 2s infinite;
+      border-radius: 50%;
+    }
+    .kpi-card {
+      border-radius: 12px;
+      background: #FFFFFF;
+      border: 1px solid rgba(26, 10, 46, 0.08);
+      box-shadow: 0 4px 20px rgba(26, 10, 46, 0.03);
+    }
+    
+    /* Toast overlay */
+    .toast-container {
+      z-index: 2000 !important;
+    }
+  </style>
+</head>
+<body class="manager-body">
+
+  <!-- TOP HORIZONTAL NAVIGATION -->
+  <nav class="navbar navbar-expand-md manager-top-nav py-2 sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
+      
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold fs-4">Elegant<span>Enclave</span></span>
+      </a>
+
+      <!-- Horizontal Menu Tabs -->
+      <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2" id="topNavbarCollapse">
+        <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
+          </li>
+          <!-- Bookings Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navBookings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-calendar-check-fill me-1"></i> Bookings
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navBookings" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="bookings.html">All Bookings</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="check_in.html">Check-in</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="check_out.html">Check-out</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_calendar.html">Booking Calendar</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_history.html">Booking History</a></li>
+            </ul>
+          </li>
+          <!-- Rooms Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-building-fill me-1"></i> Rooms
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navRooms" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html">Room Management</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=types">Room Types</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=availability">Room Availability</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=housekeeping">Housekeeping</a></li>
+              
+            </ul>
+          </li>
+          <!-- Guests Dropdown -->
+          <!-- Guests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="guests.html" id="navGuests">
+              <i class="bi bi-people-fill me-1"></i> Guests
+            </a>
+          </li>
+          <!-- Requests Dropdown -->
+          <!-- Requests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="requests.html" id="navRequests">
+              <i class="bi bi-hourglass-split me-1"></i> Requests <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.65rem;">6</span>
+            </a>
+          </li>
+          <!-- Reports Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" id="navReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bar-chart-line-fill me-1"></i> Reports
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navReports" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="reports_occupancy.html">Occupancy Report</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_bookings.html">Booking Report</a></li>
+              
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_payments.html">Payment Report</a></li>
+              
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Right Aligned Widgets Cluster -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <!-- Notification Bell with required Hover Tooltip -->
+          <button class="btn notification-bell-btn position-relative text-white p-2" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+            <i class="bi bi-bell-fill text-warning"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;" id="navBellBadge">12</span>
+          </button>
+
+          <!-- Profile Dropdown Menu -->
+          <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent !important; box-shadow: none !important;">
+              <div class="profile-avatar-circle">SK</div>
+              <div class="lh-sm text-start text-white d-none d-lg-block">
+                <strong class="d-block small" style="font-size: 0.75rem;">Sridhar</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" aria-labelledby="profileDropdown" style="background-color: #1A0A2E; border-radius: 12px; margin-top: 10px;">
+              <li>
+                <a class="dropdown-item py-2 px-3 text-white d-flex align-items-center gap-2" href="reports_profile.html" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-person-fill text-warning"></i> View Profile
+                </a>
+              </li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li>
+                <a class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2" href="#" onclick="triggerConfirmLogout(event)" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4 py-4" style="min-height: calc(100vh - 72px);">
+    
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page" style="color: #1A0A2E; font-weight: 500;">Notifications</li>
+      </ol>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
+      <div>
+        <h1 class="font-serif fw-bold text-purple h2 mb-1">Notification Center</h1>
+        <p class="text-secondary small mb-0">View operational alerts, booking activities, customer requests, and system updates.</p>
+      </div>
+      <!-- HEADER ACTIONS -->
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-outline-purple btn-sm d-flex align-items-center gap-2 px-3" id="btnMarkAllRead" style="font-weight: 500; font-size: 0.8rem;">
+          <i class="bi bi-check-all text-warning"></i> Mark All as Read
+        </button>
+        <button class="btn btn-outline-purple btn-sm d-flex align-items-center gap-2 px-3" id="btnRefresh" style="font-weight: 500; font-size: 0.8rem;">
+          <i class="bi bi-arrow-clockwise text-warning"></i> Refresh
+        </button>
+        <button class="btn btn-purple btn-sm d-flex align-items-center gap-2 px-3" id="btnSettings" data-bs-toggle="modal" data-bs-target="#settingsModal" style="font-weight: 500; font-size: 0.8rem;">
+          <i class="bi bi-gear-fill"></i> Notification Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.5rem;"><i class="bi bi-bell-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block">Unread Notifications</span>
+            <strong class="fs-4 text-dark" id="summaryUnread">12</strong>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-danger bg-opacity-10 text-danger" style="font-size: 1.5rem;"><i class="bi bi-exclamation-octagon-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block">High Priority</span>
+            <strong class="fs-4 text-dark" id="summaryHigh">2</strong>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.5rem;"><i class="bi bi-hourglass-split"></i></div>
+          <div>
+            <span class="text-secondary small d-block">Pending Requests</span>
+            <strong class="fs-4 text-dark" id="summaryPending">4</strong>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.5rem;"><i class="bi bi-lightning-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block">Today's Alerts</span>
+            <strong class="fs-4 text-dark" id="summaryToday">9</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TWO COLUMN LAYOUT -->
+    <div class="row g-4">
+      
+      <!-- LEFT FILTER PANEL -->
+      <div class="col-12 col-md-3">
+        <div class="filter-panel-card p-3 mb-3">
+          <h6 class="font-serif text-purple fw-bold mb-3" style="font-size: 0.9rem;">Categories</h6>
+          <div class="d-flex flex-column gap-1" id="categoryFilterContainer">
+            <a class="filter-list-item active" data-filter="all">
+              <span>All Notifications</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-all">18</span>
+            </a>
+            <a class="filter-list-item" data-filter="bookings">
+              <span>Bookings</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-bookings">3</span>
+            </a>
+            <a class="filter-list-item" data-filter="modifications">
+              <span>Booking Modifications</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-modifications">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="cancellations">
+              <span>Cancellation Requests</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-cancellations">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="refunds">
+              <span>Refund Requests</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-refunds">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="checkins">
+              <span>Check-ins Today</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-checkins">2</span>
+            </a>
+            <a class="filter-list-item" data-filter="checkouts">
+              <span>Check-outs Today</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-checkouts">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="maintenance">
+              <span>Room Maintenance</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-maintenance">2</span>
+            </a>
+            <a class="filter-list-item" data-filter="messages">
+              <span>Guest Messages</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-messages">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="payments">
+              <span>Payments</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-payments">3</span>
+            </a>
+            <a class="filter-list-item" data-filter="reports">
+              <span>Reports</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-reports">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="system">
+              <span>System Alerts</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-system">1</span>
+            </a>
+            <a class="filter-list-item" data-filter="security">
+              <span>Security</span>
+              <span class="badge bg-secondary rounded-pill" id="badge-security">1</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- ADDITIONAL FILTERS -->
+        <div class="filter-panel-card p-3">
+          <h6 class="font-serif text-purple fw-bold mb-3" style="font-size: 0.9rem;">Filters</h6>
+          
+          <div class="mb-3">
+            <label class="form-label small text-secondary fw-semibold">Priority</label>
+            <select class="form-select form-select-sm" id="filterPriority">
+              <option value="all">All Priorities</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small text-secondary fw-semibold">Status</label>
+            <select class="form-select form-select-sm" id="filterStatus">
+              <option value="all">All Statuses</option>
+              <option value="unread">Unread Only</option>
+              <option value="read">Read Only</option>
+              <option value="archived">Archived Only</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label small text-secondary fw-semibold">Date Range</label>
+            <select class="form-select form-select-sm" id="filterDate">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="7days">Last 7 Days</option>
+              <option value="30days">Last 30 Days</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL - NOTIFICATION LIST -->
+      <div class="col-12 col-md-6">
+        
+        <!-- Search bar input panel -->
+        <div class="card p-3 mb-3 border-0 shadow-sm rounded-3">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-secondary"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control border-start-0 ps-1" placeholder="Search by Booking ID, Guest, Room, Type..." id="searchQuery">
+            <button class="btn btn-outline-purple px-3" type="button" id="btnResetSearch">Clear</button>
+          </div>
+        </div>
+
+        <!-- Notification list stream wrapper -->
+        <div class="d-flex flex-column gap-3" id="notificationsContainer">
+          <!-- Dynamic cards populated here -->
+        </div>
+
+        <!-- Pagination & count display footer -->
+        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-secondary">Show:</span>
+            <select class="form-select form-select-sm" style="width: 80px;" id="pageSizeSelector">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <nav aria-label="Notifications navigation">
+            <ul class="pagination pagination-sm mb-0" id="notificationPagination">
+              <!-- Dynamically populated -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL - QUICK ACTION & STATS -->
+      <div class="col-12 col-md-3">
+        
+        <!-- QUICK ACTION PANEL -->
+        <div class="filter-panel-card p-3 mb-3">
+          <h6 class="font-serif text-purple fw-bold mb-3" style="font-size: 0.9rem;"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Quick Actions</h6>
+          <div class="d-flex flex-column gap-2">
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('checkins')">
+              <span>Today's Check-ins</span>
+              <span class="badge bg-secondary rounded-pill bg-opacity-25 text-purple small">2</span>
+            </button>
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('checkouts')">
+              <span>Today's Check-outs</span>
+              <span class="badge bg-secondary rounded-pill bg-opacity-25 text-purple small">1</span>
+            </button>
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('modifications')">
+              <span>Pending Modifications</span>
+              <span class="badge bg-danger rounded-pill small text-white">1</span>
+            </button>
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('cancellations')">
+              <span>Pending Cancellations</span>
+              <span class="badge bg-danger rounded-pill small text-white">1</span>
+            </button>
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('refunds')">
+              <span>Pending Refunds</span>
+              <span class="badge bg-danger rounded-pill small text-white">1</span>
+            </button>
+            <button class="btn btn-outline-purple btn-sm w-100 text-start d-flex justify-content-between align-items-center py-2" onclick="triggerCategoryFilter('messages')">
+              <span>Unread Reviews / Complaints</span>
+              <span class="badge bg-warning rounded-pill text-dark small">1</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT INSIGHT PANEL -->
+        <div class="filter-panel-card p-3">
+          <h6 class="font-serif text-purple fw-bold mb-3" style="font-size: 0.9rem;"><i class="bi bi-graph-up-arrow text-warning me-1"></i>Today's Statistics</h6>
+          <div class="d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-secondary small">Notifications Today</span>
+              <strong class="text-dark small">9</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-secondary small">Unread</span>
+              <strong class="text-warning small">6</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-secondary small">Completed Actions</span>
+              <strong class="text-success small">3</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-secondary small">Pending Actions</span>
+              <strong class="text-danger small">4</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-secondary small">System Alerts Resolved</span>
+              <strong class="text-primary small">1</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow border border-warning" style="border-radius: 12px; background-color: #FAF8F4;">
+        <div class="modal-header text-white" style="background-color: #1A0A2E;">
+          <h5 class="modal-title font-serif fw-bold" id="settingsModalLabel">Notification Settings</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-secondary mb-3">Configure alert thresholds and real-time operational dashboard push options.</p>
+          
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="settingNewBookings" checked>
+            <label class="form-check-label small fw-semibold text-purple" for="settingNewBookings">Instantly notify of new Bookings</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="settingRequests" checked>
+            <label class="form-check-label small fw-semibold text-purple" for="settingRequests">Instantly notify of Requests (Modifications, Cancellations)</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="settingVipArrivals" checked>
+            <label class="form-check-label small fw-semibold text-purple" for="settingVipArrivals">Highlight VIP Guest Arrivals</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="settingMaintenance" checked>
+            <label class="form-check-label small fw-semibold text-purple" for="settingMaintenance">Notify on Room Maintenance alerts</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="settingSound">
+            <label class="form-check-label small fw-semibold text-purple" for="settingSound">Play audio alert on new notification</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-purple btn-sm px-4" data-bs-dismiss="modal">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER FOR REAL-TIME SIMULATION -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-white border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #1A0A2E;">
+      <div class="d-flex">
+        <div class="toast-body small d-flex align-items-center gap-2">
+          <i class="bi bi-info-circle text-warning fs-5"></i>
+          <span>New notification received.</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="py-4 text-center mt-5" style="background-color: #1A0A2E; border-top: 2px solid #D4AF37;">
+    <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+  </footer>
+
+  <!-- Bootstrap Bundle with Popper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Notification Center Logic Script -->
+  <script src="notifications.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+</body>
+</html>

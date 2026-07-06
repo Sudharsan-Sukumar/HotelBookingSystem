@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Analytics - Elegant Enclave Admin</title>
+  <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="../manager/dashboard.css?v=1.9">
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+
+  <!-- TOP NAVIGATION -->
+  <nav class="navbar navbar-expand-md manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid d-flex flex-column align-items-stretch p-0">
+      
+      <!-- ROW 1 -->
+      <div class="admin-nav-row1">
+        <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
+          <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+          <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+        </a>
+
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          
+          <li class="nav-item"><a class="nav-link" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+        </ul>
+
+        <div class="dropdown">
+          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+            <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
+            <div class="lh-sm text-start text-white">
+              <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
+              <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
+            </div>
+            <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+            <li><a class="dropdown-item py-2 px-3 text-white small" href="../../../Features/User/Candidate/profile.html">View Profile</a></li>
+            
+            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+            <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="admin-nav-row2">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup & Recovery</a></li>
+          <li class="nav-item"><a class="nav-link" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Booking Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link" href="audit_logs.html"><i class="bi bi-shield-fill-check me-1"></i> Audit Logs</a></li>
+          <li class="nav-item"><a class="nav-link active reports-active" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+            <i class="bi bi-bell-fill text-warning" style="font-size: 1.2rem;"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(50%, -50%) !important;">3</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4 py-4" style="min-height: calc(100vh - 128px);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+          <li class="breadcrumb-item"><a href="reports.html" class="text-decoration-none" style="color: #6c757d;">Reports</a></li>
+          <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Booking Analytics</li>
+        </ol>
+      </nav>
+      
+      <!-- Sub Report Selector Tabs -->
+      <div class="btn-group btn-group-sm position-relative" id="reportsTabGroup">
+        <button class="btn btn-outline-purple" onclick="location.href='reports.html'">Revenue Analytics</button>
+        <button class="btn btn-outline-purple" onclick="location.href='hotel_performance.html'">Hotel Performance</button>
+        <button class="btn btn-purple active" onclick="location.href='booking_analytics.html'">Bookings</button>
+        <button class="btn btn-outline-purple" onclick="location.href='user_analytics.html'">Users</button>
+      </div>
+    </div>
+
+    <div class="mb-4 text-start">
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Booking Analytics</h1>
+      <p class="text-secondary small mb-0">Track and analyze booking performance and key metrics.</p>
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
+      <div class="row g-2 align-items-end text-start">
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Date</label>
+          <select class="form-select form-select-sm" id="filterDate">
+            <option value="This Quarter">Date: This Quarter</option>
+            <option value="Today">Today</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold text-purple">Branch</label>
+          <select class="form-select form-select-sm" id="filterBranch">
+            <option value="all">Branch: All</option>
+            <option value="Salem">Salem Main</option>
+            <option value="Coimbatore">Coimbatore</option>
+            <option value="Chennai">Chennai</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold text-purple">Status</label>
+          <select class="form-select form-select-sm" id="filterStatus">
+            <option value="all">Status: All</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <div class="dropdown d-inline-block w-100">
+            <button class="btn btn-purple btn-sm w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-download me-1"></i> Export Logs</button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li><button class="dropdown-item small" id="btnExportPDF">Export as PDF</button></li>
+              <li><button class="dropdown-item small" id="btnExportExcel">Export as Excel</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-outline-purple btn-sm w-50" id="btnResetFilters">Reset</button>
+          <button class="btn btn-purple btn-sm w-50" id="btnApplyFilters">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4 text-start">
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-calendar-check-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Bookings</span>
+            <strong class="fs-5 text-dark" id="kpiTotal">294</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Q2 Jun 2026</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-check-circle-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Confirm Rate</span>
+            <strong class="fs-5 text-dark">79%</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">232 confirmed</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-danger bg-opacity-10 text-danger" style="font-size: 1.25rem;"><i class="bi bi-x-circle-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Cancel Rate</span>
+            <strong class="fs-5 text-dark">13%</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">38 cancelled</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Avg. Stay</span>
+            <strong class="fs-5 text-dark">3.2</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">nights per booking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CHART -->
+    <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="font-serif fw-bold text-purple mb-0">Booking Status Distribution (Monthly)</h5>
+        <div class="d-flex gap-2">
+          <select class="form-select form-select-sm w-auto" id="chartType">
+            <option value="bar">Type: Bar Chart</option>
+            <option value="line">Type: Line Chart</option>
+            <option value="pie">Type: Pie Chart</option>
+          </select>
+          <select class="form-select form-select-sm w-auto" id="chartView">
+            <option value="Monthly">View: Monthly</option>
+          </select>
+        </div>
+      </div>
+      <div style="height: 250px; position: relative;">
+        <canvas id="bookingChart"></canvas>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE TABLE -->
+    <div class="card border shadow-sm bg-white p-3" style="border-radius: 12px;">
+      <h5 class="font-serif fw-bold text-purple text-start mb-3">Booking Performance by Room Type</h5>
+      <div class="table-responsive text-start">
+        <table class="table align-middle manager-premium-table small mb-0">
+          <thead>
+            <tr>
+              <th>Room Type</th>
+              <th>Total Bookings</th>
+              <th>Confirmed</th>
+              <th>Cancelled</th>
+              <th>Revenue</th>
+              <th>Avg. Nights</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Standard Room</strong></td>
+              <td>112</td>
+              <td>88</td>
+              <td>16</td>
+              <td>Rs. 39.2L</td>
+              <td>2.8</td>
+            </tr>
+            <tr>
+              <td><strong>Executive Studio</strong></td>
+              <td>84</td>
+              <td>68</td>
+              <td>10</td>
+              <td>Rs. 46.2L</td>
+              <td>3.2</td>
+            </tr>
+            <tr>
+              <td><strong>Deluxe Suite</strong></td>
+              <td>72</td>
+              <td>58</td>
+              <td>8</td>
+              <td>Rs. 57.6L</td>
+              <td>3.6</td>
+            </tr>
+            <tr>
+              <td><strong>Penthouse Suite</strong></td>
+              <td>36</td>
+              <td>30</td>
+              <td>4</td>
+              <td>Rs. 64.8L</td>
+              <td>4.0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATUS TOAST -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="statusToast" class="toast align-items-center text-white border-0 shadow" role="alert">
+      <div class="d-flex">
+        <div class="toast-body small" id="toastMessage">Updates saved.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-toast="dismiss"></button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-4 text-center mt-5" style="background-color: #1A0A2E; border-top: 2px solid #D4AF37;">
+    <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Setup Grouped Bar Chart
+      const ctx = document.getElementById('bookingChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Apr 2026', 'May 2026', 'Jun 2026'],
+          datasets: [
+            { label: 'Confirmed', data: [88, 102, 142], backgroundColor: '#2E8B57' },
+            { label: 'Cancelled', data: [16, 12, 10], backgroundColor: '#FF6347' },
+            { label: 'Pending/Other', data: [8, 10, 6], backgroundColor: '#A9A9A9' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      const btnExport = document.getElementById('btnExportPDF');
+      btnExport.addEventListener('click', () => {
+        const toastEl = document.getElementById('statusToast');
+        document.getElementById('toastMessage').textContent = 'Booking Analytics report generated and downloaded successfully.';
+        toastEl.className = 'toast align-items-center text-white border-0 shadow bg-success';
+        new bootstrap.Toast(toastEl).show();
+      });
+
+      // One-time session hover tooltip setup
+      const tabGroup = document.getElementById('reportsTabGroup');
+      if (tabGroup && !sessionStorage.getItem('reportsTooltipShown')) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'reports-tooltip-popup';
+        tooltip.textContent = 'Click here to explore more reports';
+        tabGroup.appendChild(tooltip);
+
+        tabGroup.addEventListener('mouseenter', function showOnce() {
+          tooltip.classList.add('show-tooltip');
+          sessionStorage.setItem('reportsTooltipShown', 'true');
+          
+          // Remove listener
+          tabGroup.removeEventListener('mouseenter', showOnce);
+
+          // Hide after 2 seconds
+          setTimeout(() => {
+            tooltip.classList.remove('show-tooltip');
+            setTimeout(() => tooltip.remove(), 300);
+          }, 2000);
+        });
+      }
+    });
+  </script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+</body>
+</html>

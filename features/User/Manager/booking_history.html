@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking History Placeholder - Elegant Enclave</title>
+  <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="dashboard.css?v=1.9">
+</head>
+<body class="manager-body">
+
+  <nav class="navbar navbar-expand-md manager-top-nav py-2 sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
+      
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold fs-4">Elegant<span>Enclave</span></span>
+      </a>
+
+      <!-- Horizontal Menu Tabs -->
+      <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2" id="topNavbarCollapse">
+        <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" id="navBookings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-calendar-check-fill me-1"></i> Bookings
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navBookings" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="bookings.html">All Bookings</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="check_in.html">Check-in</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="check_out.html">Check-out</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_calendar.html">Booking Calendar</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_history.html">Booking History</a></li>
+            </ul>
+          </li>
+          <!-- Rooms Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-building-fill me-1"></i> Rooms
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navRooms" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html">Room Management</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=types">Room Types</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=availability">Room Availability</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=housekeeping">Housekeeping</a></li>
+              
+            </ul>
+          </li>
+          <!-- Guests Dropdown -->
+          <!-- Guests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="guests.html" id="navGuests">
+              <i class="bi bi-people-fill me-1"></i> Guests
+            </a>
+          </li>
+          <!-- Requests Dropdown -->
+          <!-- Requests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="requests.html" id="navRequests">
+              <i class="bi bi-hourglass-split me-1"></i> Requests <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.65rem;">6</span>
+            </a>
+          </li>
+          <!-- Reports Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bar-chart-line-fill me-1"></i> Reports
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navReports" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="reports_occupancy.html">Occupancy Report</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_bookings.html">Booking Report</a></li>
+              
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_payments.html">Payment Report</a></li>
+              
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Right Widgets -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-2" id="navNotificationBell">
+            <i class="bi bi-bell-fill text-warning"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">12</span>
+          </a>
+          <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+              <div class="profile-avatar-circle">SK</div>
+              <div class="lh-sm text-start text-white d-none d-lg-block">
+                <strong class="d-block small" style="font-size: 0.75rem;">Sridhar</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item py-2 px-3 text-white small" href="reports_profile.html">View Profile</a></li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5 text-center" style="min-height: calc(100vh - 120px); display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="card p-5 border shadow-lg bg-white text-center" style="border-radius: 18px; max-width: 550px;">
+      <i class="bi bi-clock-history text-warning mb-4" style="font-size: 5rem;"></i>
+      <h2 class="font-serif fw-bold text-purple mb-2">Booking History</h2>
+      <h5 class="text-secondary fw-semibold mb-3">Coming Soon</h5>
+      <p class="text-secondary small mb-4">
+        This feature is currently under development and will be available in a future release.
+      </p>
+      <a href="dashboard.html" class="btn btn-purple px-4 py-2" style="border-radius: 8px;">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <footer class="py-4 text-center mt-auto" style="background-color: #1A0A2E; border-top: 2px solid #D4AF37;">
+    <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+</body>
+</html>

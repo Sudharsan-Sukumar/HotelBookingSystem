@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Management | Elegant Enclave Hotel Management</title>
+  <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="dashboard.css?v=1.9">
+  <style>
+    /* Soft Glow Badges */
+    .badge-staying {
+      background-color: rgba(46, 125, 50, 0.12) !important;
+      color: #2E7D32 !important;
+      border: 1px solid rgba(46, 125, 50, 0.25) !important;
+      box-shadow: 0 0 6px rgba(46, 125, 50, 0.15) !important;
+    }
+    .badge-upcoming {
+      background-color: rgba(212, 175, 55, 0.12) !important;
+      color: #B58D1D !important;
+      border: 1px solid rgba(212, 175, 55, 0.25) !important;
+      box-shadow: 0 0 6px rgba(212, 175, 55, 0.15) !important;
+    }
+    .badge-checkout {
+      background-color: rgba(13, 110, 253, 0.12) !important;
+      color: #0D6EFD !important;
+      border: 1px solid rgba(13, 110, 253, 0.25) !important;
+      box-shadow: 0 0 6px rgba(13, 110, 253, 0.15) !important;
+    }
+    .badge-cancelled {
+      background-color: rgba(142, 142, 147, 0.12) !important;
+      color: #6C757D !important;
+      border: 1px solid rgba(142, 142, 147, 0.25) !important;
+      box-shadow: 0 0 6px rgba(142, 142, 147, 0.1) !important;
+    }
+    .badge-blacklisted {
+      background-color: rgba(220, 53, 69, 0.12) !important;
+      color: #DC3545 !important;
+      border: 1px solid rgba(220, 53, 69, 0.25) !important;
+      box-shadow: 0 0 6px rgba(220, 53, 69, 0.25) !important;
+    }
+    .action-icon-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      border: 1px solid #ECE6D8;
+      background-color: #FFFFFF;
+      color: #1A0A2E;
+    }
+    .action-icon-btn:hover {
+      background-color: rgba(212, 175, 55, 0.1);
+      border-color: #D4AF37;
+      color: #D4AF37;
+    }
+    /* Side Drawer styles */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      right: -550px;
+      width: 520px;
+      height: 100vh;
+      background-color: #FAF8F4;
+      box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+      z-index: 1060;
+      transition: right 0.3s ease-in-out;
+      overflow-y: auto;
+      border-left: 3px solid #D4AF37;
+    }
+    .drawer-overlay.open {
+      right: 0;
+    }
+    .drawer-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 1055;
+      display: none;
+    }
+    .drawer-backdrop.show {
+      display: block;
+    }
+    .badge-member-gold {
+      background-color: rgba(212, 175, 55, 0.15) !important;
+      color: #B58D1D !important;
+      border: 1px solid #D4AF37 !important;
+    }
+    .badge-member-silver {
+      background-color: rgba(108, 117, 125, 0.1) !important;
+      color: #495057 !important;
+      border: 1px solid #6C757D !important;
+    }
+    .badge-member-regular {
+      background-color: #F8F9FA !important;
+      color: #212529 !important;
+      border: 1px solid #DEE2E6 !important;
+    }
+    .guest-photo-thumbnail {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #D4AF37;
+    }
+    .guest-photo-initials {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background-color: #1A0A2E;
+      color: #D4AF37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1.5px solid #D4AF37;
+    }
+  </style>
+</head>
+<body class="manager-body">
+
+  <!-- TOP HORIZONTAL NAVIGATION -->
+  <nav class="navbar navbar-expand-md manager-top-nav py-2 sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
+      
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold fs-4">Elegant<span>Enclave</span></span>
+      </a>
+
+      <!-- Horizontal Menu Tabs -->
+      <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2" id="topNavbarCollapse">
+        <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
+          </li>
+          <!-- Bookings Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navBookings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-calendar-check-fill me-1"></i> Bookings
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navBookings" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="bookings.html">All Bookings</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="check_in.html">Check-in</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="check_out.html">Check-out</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_calendar.html">Booking Calendar</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="booking_history.html">Booking History</a></li>
+            </ul>
+          </li>
+          <!-- Rooms Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-building-fill me-1"></i> Rooms
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navRooms" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html">Room Management</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=types">Room Types</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=availability">Room Availability</a></li>
+              <li><a class="dropdown-item text-white small py-2" href="rooms.html?tab=housekeeping">Housekeeping</a></li>
+              
+            </ul>
+          </li>
+          <!-- Guests Menu -->
+          <li class="nav-item">
+            <a class="nav-link active" href="guests.html" id="navGuests">
+              <i class="bi bi-people-fill me-1"></i> Guests
+            </a>
+          </li>
+          <!-- Requests Dropdown -->
+          <!-- Requests Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="requests.html" id="navRequests">
+              <i class="bi bi-hourglass-split me-1"></i> Requests <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.65rem;">6</span>
+            </a>
+          </li>
+          <!-- Reports Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bar-chart-line-fill me-1"></i> Reports
+            </a>
+            <ul class="dropdown-menu shadow border" aria-labelledby="navReports" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item text-white small py-2" href="reports_occupancy.html">Occupancy Report</a></li>
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_bookings.html">Booking Report</a></li>
+              
+              
+              <li><a class="dropdown-item text-white small py-2" href="reports_payments.html">Payment Report</a></li>
+              
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Right Aligned Widgets Cluster -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+
+          <!-- Notification Bell -->
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-2" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+            <i class="bi bi-bell-fill text-warning"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">12</span>
+          </a>
+
+          <!-- Profile Dropdown Menu -->
+          <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent !important; box-shadow: none !important;">
+              <div class="profile-avatar-circle">SK</div>
+              <div class="lh-sm text-start text-white d-none d-lg-block">
+                <strong class="d-block small" style="font-size: 0.75rem;">Sridhar</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" aria-labelledby="profileDropdown" style="background-color: #1A0A2E; border-radius: 12px; margin-top: 10px;">
+              <li>
+                <a class="dropdown-item py-2 px-3 text-white d-flex align-items-center gap-2" href="reports_profile.html" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-person-fill text-warning"></i> View Profile
+                </a>
+              </li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li>
+                <a class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2" href="#" onclick="triggerConfirmLogout(event)" style="font-size: 0.85rem; border-radius: 8px;">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="w-100" style="min-height: calc(100vh - 72px);">
+    <div class="p-4 main-content-workspace">
+      
+      <!-- BREADCRUMBS & BINDINGS -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small text-start">
+          <li class="breadcrumb-item"><a href="dashboard.html" class="text-warning text-decoration-none">Dashboard</a></li>
+          <li class="breadcrumb-item active text-muted" aria-current="page">Guests</li>
+        </ol>
+      </nav>
+
+      <!-- TITLE HEADER -->
+      <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-start">
+        <div>
+          <h1 class="welcome-heading m-0 font-serif" style="font-size: 1.85rem !important;">Guest Management</h1>
+          <p class="welcome-sub text-muted m-0">Manage guest profiles, current stays, booking history and guest services.</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2" id="btnRegisterWalkin" style="background-color: #1A0A2E !important; border-color: #D4AF37 !important; color: #D4AF37 !important; border-radius: 8px; font-weight: 600;">
+          <i class="bi bi-plus-lg"></i> Add New Guest
+        </button>
+      </header>
+
+       <!-- SUMMARY CARDS ROW (4 Columns) -->
+      <section class="row g-3 mb-4 text-start">
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="kpi-icon purple" style="background-color: rgba(46, 21, 96, 0.08);"><i class="bi bi-people-fill text-primary"></i></span>
+            </div>
+            <strong class="d-block text-muted small mt-2 uppercase-title">Total Guests</strong>
+            <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiTotalGuests">248</span>
+            <span class="small text-muted" style="font-size: 0.65rem;">All time</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="kpi-icon green" style="background-color: rgba(46, 125, 50, 0.08);"><i class="bi bi-door-open-fill text-success"></i></span>
+            </div>
+            <strong class="d-block text-muted small mt-2 uppercase-title">Staying Today</strong>
+            <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiStayingToday">38</span>
+            <span class="small text-muted" style="font-size: 0.65rem;">Currently in-house</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="kpi-icon orange" style="background-color: rgba(253, 126, 20, 0.08);"><i class="bi bi-box-arrow-right text-warning"></i></span>
+            </div>
+            <strong class="d-block text-muted small mt-2 uppercase-title">Check-outs Today</strong>
+            <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiCheckoutsToday">12</span>
+            <span class="small text-muted" style="font-size: 0.65rem;">Scheduled departures</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card bg-white p-3 rounded border shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="kpi-icon blue" style="background-color: rgba(13, 110, 253, 0.08);"><i class="bi bi-arrow-repeat text-info"></i></span>
+            </div>
+            <strong class="d-block text-muted small mt-2 uppercase-title">Repeat Guests</strong>
+            <span class="fs-4 fw-bold text-dark d-block mt-1" id="kpiRepeatGuests">54</span>
+            <span class="small text-muted" style="font-size: 0.65rem;">Visited 2+ times</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEARCH & FILTERS -->
+      <section class="card border p-3 mb-4 text-start bg-white shadow-sm" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-dark mb-1">Search Guest, Booking ID or Contact</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+              <input type="text" id="filterGuestSearch" class="form-control border-start-0" placeholder="Search by name, email, phone or ID...">
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small fw-bold text-dark mb-1">Guest Category</label>
+            <select id="filterGuestStatus" class="form-select">
+              <option value="all">All Guests</option>
+              <option value="Staying">Staying Guests</option>
+              <option value="Upcoming">Upcoming Guests</option>
+              <option value="Checked Out">Checked-out Guests</option>
+              <option value="Walk-in">Walk-in Guests</option>
+              <option value="Blacklisted">Blacklisted Guests</option>
+              <option value="Frequent">Frequent Guests</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small fw-bold text-dark mb-1">Visit Count</label>
+            <select id="filterGuestVisits" class="form-select">
+              <option value="all">All Visit Counts</option>
+              <option value="1">1 Stay</option>
+              <option value="2">2+ Stays</option>
+              <option value="5">5+ Stays</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-4 d-flex gap-2">
+            <button class="btn btn-secondary w-50 py-2 border-0" id="btnResetGuestFilters" style="background-color: #E2DCD0; color: #1A0A2E; font-weight: 500;">Reset</button>
+            <button class="btn btn-primary w-50 py-2" id="btnApplyGuestFilters" style="background-color: #1A0A2E; border-color: #1A0A2E; font-weight: 600;">Apply Filters</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN WORKSPACE ROWS -->
+      <div class="row g-4 text-start">
+        
+        <!-- Left Side: Main Guests Grid/Table -->
+        <div class="col-lg-9">
+          <section class="bg-white rounded border p-4 shadow-sm" style="border-color: #ECE6D8 !important; min-height: 400px; display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
+            <div class="w-100 flex-grow-1">
+              <div class="table-responsive" style="width: 100%;">
+                <table class="table align-middle text-start manager-premium-table w-100" id="tblGuestsManager">
+                  <thead>
+                    <tr class="table-light">
+                      <th>Guest</th>
+                      <th>Contact</th>
+                      <th>Current Stay</th>
+                      <th>Total Visits</th>
+                      <th>Lifetime Spend</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Populated dynamically by guests.js -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Empty State -->
+              <div id="guestEmptyState" class="text-center py-5 d-none">
+                <i class="bi bi-people text-muted fs-1 mb-2 d-block"></i>
+                <h5 class="text-dark fw-bold">No guests found</h5>
+                <p class="text-muted small">No matches found for your current search criteria.</p>
+              </div>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3 w-100 flex-wrap gap-2">
+              <span class="small text-muted" id="lblGuestPaginationCount">Showing 1 to 8 of 248 entries</span>
+              
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-1">
+                  <label class="small text-muted mb-0" style="white-space: nowrap;">Rows per page:</label>
+                  <select id="guestPageLimit" class="form-select form-select-sm" style="width: 80px;">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+                
+                <nav aria-label="Guest page navigation">
+                  <ul class="pagination pagination-sm mb-0" id="ulGuestPagination">
+                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Side: Guest Insights & Quick Actions -->
+        <div class="col-lg-3">
+          
+          <!-- Guest Insights Panel -->
+          <div class="card border p-4 mb-4 bg-white shadow-sm text-start" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+            <h2 class="font-serif text-dark fs-5 mb-3 fw-bold">Guest Insights</h2>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                <span class="small text-muted"><i class="bi bi-arrow-repeat text-primary me-2"></i>Returning Guest Rate</span>
+                <strong class="text-success">68%</strong>
+              </div>
+              <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                <span class="small text-muted"><i class="bi bi-gift-fill text-danger me-2"></i>Today's Birthdays</span>
+                <strong class="text-warning">2</strong>
+              </div>
+              <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                <span class="small text-muted"><i class="bi bi-door-open-fill text-success me-2"></i>Pending Check-ins</span>
+                <strong class="text-primary">15</strong>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="small text-muted"><i class="bi bi-box-arrow-right text-secondary me-2"></i>Pending Check-outs</span>
+                <strong class="text-danger">8</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card border p-4 bg-white shadow-sm text-start" style="border-color: #ECE6D8 !important; border-radius: 12px;">
+            <h2 class="font-serif text-dark fs-5 mb-3 fw-bold">Quick Actions</h2>
+            <div class="row g-2">
+              <div class="col-6">
+                <button class="btn btn-light w-100 py-3 rounded border text-center font-serif shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" id="quickRegister" style="font-size: 0.75rem; min-height: 80px; background-color: #FAF8F4;">
+                  <i class="bi bi-person-plus text-primary fs-5"></i>
+                  <span>Register Walk-in</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-light w-100 py-3 rounded border text-center font-serif shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" id="quickSearchBooking" style="font-size: 0.75rem; min-height: 80px; background-color: #FAF8F4;">
+                  <i class="bi bi-search text-warning fs-5"></i>
+                  <span>Search Booking</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-light w-100 py-3 rounded border text-center font-serif shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" id="quickCheckin" style="font-size: 0.75rem; min-height: 80px; background-color: #FAF8F4;">
+                  <i class="bi bi-box-arrow-in-right text-success fs-5"></i>
+                  <span>Check-in Guest</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-light w-100 py-3 rounded border text-center font-serif shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" id="quickCheckout" style="font-size: 0.75rem; min-height: 80px; background-color: #FAF8F4;">
+                  <i class="bi bi-box-arrow-right text-danger fs-5"></i>
+                  <span>Check-out Guest</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-light w-100 py-3 rounded border text-center font-serif shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" id="quickExportReport" style="font-size: 0.75rem; min-height: 80px; background-color: #FAF8F4;">
+                  <i class="bi bi-file-earmark-pdf text-info fs-5"></i>
+                  <span>Export Report</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE PROFILE DRAWER -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="drawer-overlay" id="profileDrawer">
+    <div class="p-4 text-start">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="font-serif text-dark fw-bold mb-0">Guest Profile Card</h4>
+        <button type="button" class="btn-close" id="btnCloseDrawer"></button>
+      </div>
+
+      <div id="drawerProfileContent">
+        <!-- Filled dynamically by guests.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BLACKLIST MODAL popup -->
+  <div class="modal fade" id="blacklistModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-modal-content border-0 p-4 text-start" style="border-radius: 18px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); background-color: #FAF8F4;">
+        <div class="modal-header border-0 pb-0">
+          <h4 class="modal-title font-serif text-dark fw-bold">Restrict Guest (Blacklist)</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-3">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Reason for Blacklist</label>
+            <select class="form-select" id="blacklistReasonSelect">
+              <option value="property_damage">Property Damage</option>
+              <option value="unpaid_dues">Unpaid Dues / Bills</option>
+              <option value="disruptive_behavior">Disruptive/Aggressive Behavior</option>
+              <option value="other">Other Reason</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Additional Notes</label>
+            <textarea class="form-control" id="blacklistNotes" rows="3" placeholder="Enter detailed justification here..."></textarea>
+          </div>
+          <div class="d-flex gap-2 justify-content-end mt-4">
+            <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal" style="background-color: #E2DCD0; color: #1A0A2E; border: none;">Cancel</button>
+            <button type="button" class="btn btn-danger px-4" id="btnConfirmBlacklist">Restrict Guest</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALK-IN REGISTRATION MODAL FLOW -->
+  <div class="modal fade" id="walkinRegistrationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content custom-modal-content border-0 p-4 text-start" style="border-radius: 18px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); background-color: #FAF8F4;">
+        <div class="modal-header border-0 pb-0">
+          <h4 class="modal-title font-serif text-dark fw-bold">Register Walk-in Guest</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-3">
+          <form id="frmWalkinGuest" class="needs-validation" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">First Name</label>
+                <input type="text" class="form-control" id="walkinFirst" placeholder="First name" required>
+                <div class="invalid-feedback">First name is required.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Last Name</label>
+                <input type="text" class="form-control" id="walkinLast" placeholder="Last name" required>
+                <div class="invalid-feedback">Last name is required.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input type="email" class="form-control" id="walkinEmail" placeholder="name@domain.com" required>
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Phone Number</label>
+                <input type="text" class="form-control" id="walkinPhone" placeholder="+91 XXXXX XXXXX" required pattern="^(\+91[\-\s]?)?[0-9]{10}$">
+                <div class="invalid-feedback">Enter a valid 10-digit mobile number.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Government ID Type</label>
+                <select class="form-select" id="walkinIdType" required>
+                  <option value="Aadhaar Card">Aadhaar Card</option>
+                  <option value="Passport">Passport</option>
+                  <option value="Driving License">Driving License</option>
+                </select>
+                <div class="invalid-feedback">Select ID verification type.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Government ID Number</label>
+                <input type="text" class="form-control" id="walkinIdNum" placeholder="Verification ID number" required>
+                <div class="invalid-feedback">ID verification details are required.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Room Category</label>
+                <select class="form-select" id="walkinRoomType">
+                  <option value="Standard Room">Standard Room</option>
+                  <option value="Deluxe Suite">Deluxe Suite</option>
+                  <option value="Executive Studio">Executive Studio</option>
+                  <option value="Penthouse Suite">Penthouse Suite</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Stay Length (Nights)</label>
+                <input type="number" class="form-control" id="walkinStayLength" value="1" min="1" required>
+                <div class="invalid-feedback">Nights must be 1 or more.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Amount to Pay</label>
+                <input type="text" class="form-control" id="walkinPaymentAmount" value="₹12,000" readonly>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal" style="background-color: #E2DCD0; color: #1A0A2E; border: none;">Cancel</button>
+              <button type="submit" class="btn btn-primary px-4" style="background-color: #1A0A2E; border-color: #1A0A2E;">Submit Registration</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap and JS bundle -->
+  <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="guests.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+</body>
+</html>

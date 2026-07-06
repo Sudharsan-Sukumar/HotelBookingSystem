@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Registration | Elegant Enclave</title>
+  <link rel='icon' type='image/png' href='../../assets/images/logo.png'>
+  <meta name="description" content="Create a customer account at Elegant Enclave to search and book luxury hotels.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="register.css">
+</head>
+<body class="register-page">
+
+  <div class="container-fluid p-0 login-container">
+    <div class="row g-0 min-vh-100">
+      
+      <!-- Left Panel (Resort exterior image column) -->
+      <div class="col-lg-5 d-none d-lg-block position-relative image-panel-column">
+        <div class="image-panel" style="background-image: url('../../assets/images/forgot_hero.jpg');">
+          <div class="curved-border-overlay"></div>
+        </div>
+      </div>
+      
+      <!-- Right Panel (Registration form column) -->
+      <div class="col-lg-7 col-12 d-flex align-items-center justify-content-center form-panel-column bg-light-ivory">
+        <div class="w-100 py-4 form-inner-wrapper">
+
+          <!-- Hero Heading -->
+          <div class="text-center mb-4 px-3">
+            <h1 class="login-hero-heading text-uppercase">Customer Registration</h1>
+            <p class="login-hero-sub">Create an account to search and book hotels</p>
+          </div>
+
+          <!-- Registration Container Card -->
+          <div class="login-card mx-auto">
+            
+            <!-- Mandatory Field helper instruction text -->
+            <p class="mandatory-note text-start mb-3"><span class="mandatory-star">*</span> Indicates a mandatory field</p>
+
+            <form id="registrationForm" novalidate>
+              
+              <!-- First Name & Last Name (Side by Side) -->
+              <div class="row g-3 mb-3">
+                <div class="col-6 text-start">
+                  <label for="firstName" class="form-label">First Name <span class="mandatory-star">*</span></label>
+                  <input type="text" id="firstName" class="form-control" placeholder="First Name" required aria-required="true">
+                  <span class="invalid-feedback-msg" id="firstNameError"></span>
+                </div>
+                <div class="col-6 text-start">
+                  <label for="lastName" class="form-label">Last Name <span class="mandatory-star">*</span></label>
+                  <input type="text" id="lastName" class="form-control" placeholder="Last Name" required aria-required="true">
+                  <span class="invalid-feedback-msg" id="lastNameError"></span>
+                </div>
+              </div>
+
+              <!-- Email Address -->
+              <div class="mb-3 text-start">
+                <label for="registerEmail" class="form-label">Email Address <span class="mandatory-star">*</span></label>
+                <input type="email" id="registerEmail" class="form-control" placeholder="example@domain.com" required aria-required="true">
+                <span class="invalid-feedback-msg" id="registerEmailError"></span>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="mb-3 text-start">
+                <label for="registerPhone" class="form-label">Phone Number <span class="mandatory-star">*</span></label>
+                <input type="tel" id="registerPhone" class="form-control" placeholder="+91 XXXXX XXXXX" required aria-required="true">
+                <span class="invalid-feedback-msg" id="registerPhoneError"></span>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3 text-start">
+                <label for="registerPassword" class="form-label">Password <span class="mandatory-star">*</span></label>
+                <input type="password" id="registerPassword" class="form-control" placeholder="Create password" required aria-required="true">
+                <span class="invalid-feedback-msg" id="registerPasswordError"></span>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="mb-3 text-start">
+                <label for="confirmRegisterPassword" class="form-label">Confirm Password <span class="mandatory-star">*</span></label>
+                <input type="password" id="confirmRegisterPassword" class="form-control" placeholder="Confirm password" required aria-required="true">
+                <span class="invalid-feedback-msg" id="confirmRegisterPasswordError"></span>
+              </div>
+
+              <!-- Show Password Checkbox -->
+              <div class="mb-3 form-check text-start d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="showPassword">
+                <label class="form-check-label checkbox-label" for="showPassword">Show Password</label>
+              </div>
+
+  <!-- Policies Agreement Checkbox -->
+  <div class="mb-4 form-check text-start d-flex align-items-start gap-2">
+    <input type="checkbox" class="form-check-input mt-1" id="agreePolicies" required>
+    <label class="form-check-label checkbox-label" for="agreePolicies">
+      I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#policiesModal">Registration Policies</a>, privacy guidelines, and terms of service.
+    </label>
+    <span class="invalid-feedback-msg d-block" id="agreePoliciesError" style="font-size: 0.75rem; color: #dc3545;"></span>
+  </div>
+
+  <!-- Registration Policies Modal -->
+  <div class="modal fade" id="policiesModal" tabindex="-1" aria-labelledby="policiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px; box-shadow: 0 8px 30px rgba(26,10,46,0.15);">
+        <div class="modal-header border-0 pb-0 text-start">
+          <h5 class="modal-title font-serif fw-bold text-purple" id="policiesModalLabel" style="color: #1A0A2E; font-size: 1.25rem;">Registration Policies</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">
+          <p class="mb-3">Welcome to Elegant Enclave. Before registering, please read and agree to our booking policies:</p>
+          <ol class="ps-3 mb-0 d-flex flex-column gap-2 text-dark">
+            <li><strong>Account Security:</strong> Your customer account credentials are personal, confidential, and non-transferable.</li>
+            <li><strong>Data Capture Accuracy:</strong> All personal registration details, email coordinates, and contact numbers must be valid and kept up to date.</li>
+            <li><strong>Booking Timelines:</strong> Reservation modifications or cancellations must comply with hotel-specific cancellation time window limits.</li>
+            <li><strong>Privacy Guidelines:</strong> Guest check-in records, personal identifiers, and transaction history are stored securely and encrypted.</li>
+          </ol>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">I Understand</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+              <!-- Register button -->
+              <div class="mb-3">
+                <button type="submit" id="btnSubmitRegister" class="btn btn-login-submit w-100" disabled>Register</button>
+              </div>
+
+              <!-- Back to Login button -->
+              <div>
+                <a href="login.html" class="btn btn-login-register w-100 d-flex align-items-center justify-content-center">Back to Login</a>
+              </div>
+
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JS bundle dependencies -->
+  <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="register.js"></script>
+</body>
+</html>
