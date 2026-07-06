@@ -135,22 +135,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteUserReasonModal'));
+  const deleteForm = document.getElementById('deleteUserReasonForm');
+
   window.deleteUser = function(id) {
-    const reason = prompt('Are you sure you want to delete this user? Please provide a reason for deletion:');
-    if (reason !== null) {
-      if (reason.trim() === '') {
-        alert('Deletion cancelled: A reason is required to delete a user profile.');
-        return;
-      }
-      const idx = users.findIndex(x => x.id === id);
-      if (idx !== -1) {
-        const u = users[idx];
-        users.splice(idx, 1);
-        showToast(`Profile ${u.id} deleted. Reason: "${reason.trim()}"`, true);
-        renderTable();
-      }
-    }
+    document.getElementById('deleteUserId').value = id;
+    document.getElementById('deleteReasonInput').value = '';
+    deleteModal.show();
   };
+
+  deleteForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('deleteUserId').value;
+    const reason = document.getElementById('deleteReasonInput').value;
+
+    if (!reason.trim()) {
+      return;
+    }
+
+    const idx = users.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      const u = users[idx];
+      users.splice(idx, 1);
+      showToast(`Profile ${u.id} deleted. Reason: "${reason.trim()}"`, true);
+      renderTable();
+      deleteModal.hide();
+    }
+  });
 
   // Tab switcher
   tabs.forEach(tab => {

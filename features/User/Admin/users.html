@@ -235,6 +235,32 @@
     </div>
   </div>
 
+  <!-- Delete User Reason Modal -->
+  <div class="modal fade" id="deleteUserReasonModal" tabindex="-1" aria-labelledby="deleteUserReasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content border border-danger" style="border-radius: 12px; background-color: #FAF8F4;">
+        <div class="modal-header" style="background-color: #DC3545; color: white;">
+          <h5 class="modal-title font-serif fw-bold" id="deleteUserReasonModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="deleteUserReasonForm">
+          <div class="modal-body text-start">
+            <input type="hidden" id="deleteUserId">
+            <p class="small text-secondary mb-3">Are you sure you want to permanently delete this user credentials profile? This action cannot be undone.</p>
+            <div class="mb-3">
+              <label for="deleteReasonInput" class="form-label fw-bold">Reason for Deletion <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="deleteReasonInput" rows="3" placeholder="Please enter the reason (e.g. Inactive account, employee resignation)" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <button type="submit" class="btn btn-danger btn-sm" style="border-radius: 8px; font-weight: 600;">Confirm Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- STATUS TOAST -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="statusToast" class="toast align-items-center text-white border-0 shadow" role="alert">
