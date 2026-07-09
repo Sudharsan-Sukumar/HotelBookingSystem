@@ -1,0 +1,94 @@
+/* Admin Sidebar CSS */
+:root {
+  --admin-sidebar-width: 260px;
+  --admin-sidebar-bg: #1A0A2E;
+  --admin-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --admin-sidebar-active: rgba(212, 175, 55, 0.1);
+  --admin-sidebar-text: #ffffff;
+  --admin-sidebar-accent: #D4AF37;
+}
+
+#admin-sidebar-container {
+  width: var(--admin-sidebar-width);
+  min-width: var(--admin-sidebar-width);
+  background-color: var(--admin-sidebar-bg);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  transition: all 0.3s ease-in-out;
+}
+
+.admin-sidebar {
+  height: 100%;
+}
+
+.sidebar-link {
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.sidebar-link:hover {
+  background-color: var(--admin-sidebar-hover);
+  opacity: 1;
+}
+
+.sidebar-link.active {
+  background-color: var(--admin-sidebar-active);
+  color: var(--admin-sidebar-accent) !important;
+  opacity: 1;
+  border-left: 4px solid var(--admin-sidebar-accent);
+}
+
+.sidebar-link.active .sidebar-icon {
+  color: var(--admin-sidebar-accent);
+}
+
+.sidebar-profile-btn:hover {
+  background-color: var(--admin-sidebar-hover) !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* Tablet & Laptop Offcanvas/Collapsed Mode */
+@media (max-width: 991.98px) {
+  #admin-sidebar-container {
+    position: fixed;
+    left: -100%;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.5);
+  }
+  
+  #admin-sidebar-container.show {
+    left: 0;
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    z-index: 1025;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+  }
+}
