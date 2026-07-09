@@ -18,46 +18,49 @@
 
     <!-- TOP NAVIGATION -->
   <nav class="navbar navbar-expand-xl manager-top-nav sticky-top" style="background-color: #1A0A2E !important; padding: 12px 0;">
-    <div class="container-fluid px-3 px-md-4">
+    <div class="container-fluid px-3 px-xl-5 d-flex align-items-center">
       
-      <!-- Brand Logo & Name -->
+      <!-- Brand Logo & Name (Flex Shrink 0) -->
       <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
         <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
         <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.4rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
       </a>
 
       <!-- Mobile Toggle -->
-      <button class="navbar-toggler border-warning text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler border-warning text-warning ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
         <i class="bi bi-list"></i>
       </button>
 
       <!-- Collapsible Menu -->
-      <div class="collapse navbar-collapse" id="adminNavbarContent">
-        <ul class="navbar-nav mx-auto mb-2 mb-xl-0 gap-2 gap-xl-4">
-          <li class="nav-item"><a class="nav-link text-white nav-dashboard" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-users" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-hotels" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-content" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-backup" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-monitoring active" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Monitoring</a></li>
-          <li class="nav-item"><a class="nav-link text-white nav-reports" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
+      <div class="collapse navbar-collapse flex-grow-1" id="adminNavbarContent">
+        
+        <!-- Center Section: Navigation (Flex 1) -->
+        <ul class="navbar-nav d-flex justify-content-xl-evenly align-items-xl-center w-100 gap-2 gap-xl-4 my-3 my-xl-0" style="flex: 1;">
+          <li class="nav-item"><a class="nav-link text-white nav-dashboard text-nowrap" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-users text-nowrap" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-hotels text-nowrap" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-content text-nowrap" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-backup text-nowrap" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-monitoring text-nowrap" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-reports text-nowrap" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
         </ul>
 
-        <!-- Right Side: Notifications & Profile -->
-        <div class="d-flex align-items-center mt-3 mt-xl-0 ms-xl-auto">
+        <!-- Right Section: Profile & Notifications (Flex Shrink 0) -->
+        <div class="d-flex align-items-center justify-content-xl-end gap-3 gap-xl-4" style="flex-shrink: 0;">
+          
           <!-- Notification Bell -->
-          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0 nav-notifications d-flex align-items-center justify-content-center" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications" style="margin-right: 28px;">
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0 nav-notifications d-flex align-items-center justify-content-center" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications" style="width: 44px; height: 44px;">
             <i class="bi bi-bell-fill text-warning" style="font-size: 1.5rem;"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; transform: translate(-30%, -10%) !important; border: 2px solid #1A0A2E;">3</span>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; transform: translate(-30%, 10%) !important; border: 2px solid #1A0A2E;">3</span>
           </a>
 
           <!-- User Profile Dropdown -->
-          <div class="dropdown">
-            <button class="btn dropdown-toggle d-flex align-items-center gap-3 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
-              <div class="profile-avatar-circle" style="width: 44px; height: 44px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1); font-size: 1.1rem;">SK</div>
-              <div class="lh-sm text-start text-white d-flex flex-column justify-content-center" style="margin-right: 4px;">
-                <strong class="d-block mb-1" style="font-size: 0.85rem !important; line-height: 1;">Sridhar Kumar</strong>
-                <span class="text-white-50 d-block" style="font-size: 0.7rem !important; line-height: 1;">System Administrator</span>
+          <div class="dropdown d-flex align-items-center">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-3 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="profile-avatar-circle" style="width: 44px; height: 44px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1); font-size: 1.1rem; flex-shrink: 0;">SK</div>
+              <div class="lh-sm text-start text-white d-none d-sm-flex flex-column justify-content-center">
+                <strong class="d-block mb-1 text-nowrap" style="font-size: 0.85rem !important; line-height: 1;">Sridhar Kumar</strong>
+                <span class="text-white-50 d-block text-nowrap" style="font-size: 0.7rem !important; line-height: 1;">System Administrator</span>
               </div>
               <i class="bi bi-chevron-down text-white-50 ms-1" style="font-size: 0.8rem !important;"></i>
             </button>
@@ -67,10 +70,12 @@
               <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
             </ul>
           </div>
+          
         </div>
       </div>
     </div>
   </nav>
+
 
 
   <div class="container-fluid px-4 py-4" style="min-height: calc(100vh - 128px);">
