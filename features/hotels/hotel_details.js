@@ -4,8 +4,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPrev = document.getElementById('btnPrevImage');
   const btnNext = document.getElementById('btnNextImage');
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const hotelId = urlParams.get('hotelId') || 'HTL002'; // default Coimbatore if none
+
+  const hotel = window.HotelState ? HotelState.getHotelById(hotelId) : null;
+  if (hotel) {
+    const titleEl = document.getElementById('lblDetailsTitle');
+    if (titleEl) titleEl.textContent = hotel.name;
+
+    const branchName = hotel.location ? hotel.location.split(',')[0].trim() : 'Coimbatore';
+    document.title = `${hotel.name} | Elegant Enclave`;
+
+    const addressSpan = document.querySelector('.overview-list li:nth-child(1) span');
+    if (addressSpan) addressSpan.textContent = hotel.address || hotel.location;
+
+    const ratingSpan = document.querySelector('.overview-list li:nth-child(2) span');
+    if (ratingSpan) ratingSpan.textContent = `${hotel.rating || 5} - Star Class`;
+
+    const emailSpan = document.querySelector('.overview-list li:nth-child(3) span');
+    if (emailSpan) emailSpan.textContent = hotel.contactEmail || 'contact@elegantenclave.com';
+
+    const phoneSpan = document.querySelector('.overview-list li:nth-child(4) span');
+    if (phoneSpan) phoneSpan.textContent = hotel.contactPhone || '+91 422 990 000';
+
+    const mainGalleryImg = document.getElementById('mainGalleryDisplay');
+    if (mainGalleryImg) {
+      const rawImg = hotel.imageUrl || hotel.image || '';
+      if (rawImg) {
+        const imgSrc = rawImg.replace(/^(\.\.\/)+assets\//, '../../assets/');
+        mainGalleryImg.src = imgSrc;
+        
+        // Update first thumbnail preview
+        const firstThumbnailCard = document.querySelector('.thumbnail-card');
+        const firstThumbnailImg = document.querySelector('.thumbnail-card img');
+        if (firstThumbnailCard && firstThumbnailImg) {
+          firstThumbnailCard.setAttribute('data-src', imgSrc);
+          firstThumbnailImg.src = imgSrc;
+        }
+      }
+    }
+  }
+
   let currentGalleryIndex = 0;
-  const galleryImages = Array.from(thumbnailCards).map(card => card.dataset.src);
+  // Recalculate gallery images array in case thumbnails were modified
+  const galleryImages = Array.from(thumbnailCards).map(card => card.getAttribute('data-src') || card.dataset.src);
 
   // 1. Gallery Thumbnail Swapper click
   thumbnailCards.forEach((card, index) => {
@@ -29,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateActiveGalleryItem() {
-    // Fade display transition
     mainGalleryDisplay.style.opacity = '0.3';
     
     setTimeout(() => {
@@ -61,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
             btnBookNow.removeAttribute('disabled');
             btnBookNow.innerHTML = originalText;
-            window.location.href = '../bookings/room_selection.html';
+            window.location.href = `../bookings/room_selection.html?hotelId=${hotelId}`;
           }, 1000);
         },
         onBack: () => {

@@ -10,18 +10,27 @@ class PageBackButton {
                        path === '/' ||
                        path.includes('/authentication/') || 
                        path.includes('login.html') || 
-                       path.includes('register.html');
+                       path.includes('register.html') ||
+                       path.includes('invoice_summary.html') ||
+                       path.includes('room_selection.html') ||
+                       path.includes('modify_booking') ||
+                       path.includes('hotel_details.html');
                        
-    if (isExcluded) return;
+    if (isExcluded) {
+      // If container exists from previous page transitions, remove it
+      const container = document.getElementById('globalBackNavContainer');
+      if (container) container.remove();
+      return;
+    }
 
     // Check if back navigation container already exists
     let container = document.getElementById('globalBackNavContainer');
     if (!container) {
       container = document.createElement('div');
       container.id = 'globalBackNavContainer';
-      container.className = 'container px-xl-5';
-      container.style.marginTop = '20px';
-      container.style.marginBottom = '16px';
+      container.className = 'container-fluid px-xl-5';
+      container.style.marginTop = '10px';
+      container.style.marginBottom = '10px';
       container.style.textAlign = 'left';
 
       // Insert immediately below custom-navbar navigation header
@@ -95,9 +104,16 @@ class PageBackButton {
     } else if (url.includes('hotel_details.html')) {
       destination = 'search_results.html';
     } else if (url.includes('room_selection.html')) {
-      destination = '../hotels/hotel_details.html';
+      const urlParams = new URLSearchParams(window.location.search);
+      const hotelId = urlParams.get('hotelId');
+      destination = '../hotels/hotel_details.html' + (hotelId ? `?hotelId=${hotelId}` : '');
     } else if (url.includes('guest_details.html')) {
-      destination = 'room_selection.html';
+      let hotelId = '';
+      try {
+        const sel = JSON.parse(sessionStorage.getItem('hbs_booking_selection'));
+        if (sel && sel.hotelId) hotelId = sel.hotelId;
+      } catch(e) {}
+      destination = 'room_selection.html' + (hotelId ? `?hotelId=${hotelId}` : '');
       hasUnsavedChanges = true; // Guest input fields unsaved
     } else if (url.includes('invoice_summary.html')) {
       destination = 'guest_details.html';

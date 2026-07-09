@@ -77,11 +77,23 @@
   </nav>
 
   <!-- TOP HEADER SECTION -->
-  <header class="container px-xl-5 py-4 mt-2">
+  <style>
+    #globalBackNavContainer {
+      margin-top: 10px !important;
+      margin-bottom: 0 !important;
+    }
+    #btnGlobalBack {
+      padding: 6px 14px !important;
+      font-size: 0.85rem !important;
+      border-radius: 8px !important;
+    }
+  </style>
+  <header class="container px-xl-5 pt-3 pb-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
       <div>
         <h1 class="guest-details-title m-0">Confirm Registration Stay Details</h1>
-        <p class="guest-details-sub text-muted m-0">Provide check-in/check-out logs and request forms. Fields marked with <span class="text-danger">*</span> are mandatory.</p>
+        <p class="guest-details-sub text-muted m-0">Provide check-in/check-out logs and request forms. <br>
+          Fields marked with <span class="text-danger">*</span> are mandatory.</p>
       </div>
     </div>
   </header>
@@ -111,6 +123,15 @@
             </div>
             <div class="text-danger small mt-1 d-none" id="guestErrorMsg">Guest count exceeds room capacity.</div>
           </div>
+          
+          <div class="mb-3 text-start">
+            <label for="guestPhone" class="form-label">Contact Phone Number <span class="text-danger">*</span></label>
+            <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-telephone text-muted"></i></span>
+              <input type="tel" id="guestPhone" class="form-control border-start-0" placeholder="10-digit mobile number" required aria-required="true" maxlength="15">
+            </div>
+            <div class="text-danger small mt-1 d-none" id="guestPhoneErrorMsg">Please enter a valid 10-digit phone number.</div>
+          </div>
         </div>
 
         <!-- SECTION 2: Stay Dates -->
@@ -128,7 +149,7 @@
               <label for="checkinDate" class="form-label">Stay Check-In Date <span class="text-danger">*</span></label>
               <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-check text-muted"></i></span>
-                <input type="text" id="checkinDate" class="form-control border-start-0" placeholder="DD-MM-YYYY" required aria-required="true" maxlength="10">
+                <input type="date" id="checkinDate" class="form-control border-start-0" required aria-required="true">
               </div>
               <div class="text-danger small mt-1 d-none" id="checkinErrorMsg" style="font-size: 0.75rem;"></div>
             </div>
@@ -139,7 +160,7 @@
               <label for="checkoutDate" class="form-label">Stay Check-Out Date <span class="text-danger">*</span></label>
               <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-x text-muted"></i></span>
-                <input type="text" id="checkoutDate" class="form-control border-start-0" placeholder="DD-MM-YYYY" required aria-required="true" maxlength="10">
+                <input type="date" id="checkoutDate" class="form-control border-start-0" required aria-required="true">
               </div>
               <div class="text-danger small mt-1 d-none" id="checkoutErrorMsg" style="font-size: 0.75rem;"></div>
             </div>
@@ -198,11 +219,11 @@
     </div>
   </main>
 
-  <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../Shared/UtilityClass/session.js"></script>
-  <script src="../../Shared/UtilityClass/back_nav.js"></script>
-  <script src="guest_details.js"></script>
+  <script src="../../Shared/UtilityClass/state.js?v=4"></script>
+  <script src="../../Shared/UtilityClass/session.js?v=4"></script>
+  <script src="../../Shared/UtilityClass/back_nav.js?v=4"></script>
+  <script src="guest_details.js?v=4"></script>
 </body>
 </html>
 

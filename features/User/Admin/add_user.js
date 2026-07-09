@@ -1,3 +1,12 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('addUserForm');
   const roleSelect = document.getElementById('role');
@@ -6,8 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnTogglePassword = document.getElementById('btnTogglePassword');
   const btnCancel = document.getElementById('btnCancel');
 
-  const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+  const successModalEl = document.getElementById('successModal');
+  const successModal = new bootstrap.Modal(successModalEl);
   const successModalBody = document.getElementById('successModalBody');
+
+  // Populate hotels dropdown
+  if (window.HotelState) {
+    const hotels = HotelState.hotels || [];
+    hotels.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h.id;
+      opt.textContent = h.name;
+      branchSelect.appendChild(opt);
+    });
+  }
 
   // Toggle Branch selection based on Role
   roleSelect.addEventListener('change', () => {
@@ -70,22 +91,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isValid) {
-      // Mock generated ID
       const prefix = roleSelect.value === 'Customer' ? 'CUST' : roleSelect.value === 'Manager' ? 'MGR' : 'ADM';
       const mockId = `${prefix}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      
+      const newUser = {
+        id: mockId,
+        firstName: firstName,
+        lastName: lastName,
+        name: `${firstName} ${lastName}`,
+        email: email,
+        password: pw,
+        role: roleSelect.value,
+        phone: phone,
+        status: 'Active',
+        assignedHotelId: roleSelect.value === 'Manager' ? branchSelect.value : null,
+        branch: roleSelect.value === 'Manager' ? branchSelect.options[branchSelect.selectedIndex].text : 'N/A',
+        createdAt: new Date().toISOString(),
+        login: '-'
+      };
+
+      const usersList = HotelState.users;
+      usersList.push(newUser);
+      HotelState.users = usersList;
 
       successModalBody.innerHTML = `
         <p>The system credentials profile has been successfully configured.</p>
         <hr class="my-2">
         <p class="mb-1"><strong>User ID:</strong> ${mockId}</p>
-        <p class="mb-1"><strong>User Name:</strong> ${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</p>
+        <p class="mb-1"><strong>User Name:</strong> ${firstName} ${lastName}</p>
         <p class="mb-1"><strong>Role Access:</strong> ${roleSelect.value}</p>
-        <p class="mb-1"><strong>Branch Assignment:</strong> ${branchSelect.value || 'N/A'}</p>
-        <p class="mb-1"><strong>Temporary Password:</strong> ${passwordInput.value}</p>
-        <p class="mb-0"><strong>Dispatch Alert Email:</strong> ${document.getElementById('sendEmail').checked ? 'Sent' : 'None'}</p>
+        <p class="mb-1"><strong>Branch Assignment:</strong> ${roleSelect.value === 'Manager' ? branchSelect.options[branchSelect.selectedIndex].text : 'N/A'}</p>
+        <p class="mb-1"><strong>Temporary Password:</strong> ${pw}</p>
       `;
 
       successModal.show();
     }
+  });
+
+  successModalEl.addEventListener('hidden.bs.modal', () => {
+    location.href = 'users.html';
   });
 });

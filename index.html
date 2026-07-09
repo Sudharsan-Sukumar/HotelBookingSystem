@@ -23,7 +23,7 @@
   <nav class="navbar navbar-expand-xl custom-navbar sticky-top">
     <div class="container-fluid px-xl-5">
       <!-- Logo Section -->
-      <a class="navbar-brand d-flex align-items-center" href="#">
+      <a class="navbar-brand d-flex align-items-center" href="#" aria-label="Elegant Enclave Home">
         <img src="assets/images/logo.png" alt="Elegant Enclave logo" class="brand-logo-img me-2">
         Elegant<span>Enclave</span>
       </a>
@@ -134,9 +134,9 @@
                   <span>Age 13 or above</span>
                 </div>
                 <div class="counter-controls">
-                  <button type="button" class="btn-counter" data-type="guests" data-action="minus" aria-label="Decrease guests count" disabled>-</button>
-                  <span class="counter-value" id="guestsValue">2</span>
-                  <button type="button" class="btn-counter" data-type="guests" data-action="plus" aria-label="Increase guests count">+</button>
+                  <button type="button" class="btn-counter" data-type="guests" data-action="minus" aria-label="Decrease guests count" aria-expanded="false" disabled>-</button>
+                  <span class="counter-value" id="guestsValue" aria-live="polite">2</span>
+                  <button type="button" class="btn-counter" data-type="guests" data-action="plus" aria-label="Increase guests count" aria-expanded="false">+</button>
                 </div>
               </div>
               <hr class="my-2">
@@ -146,9 +146,9 @@
                   Rooms
                 </div>
                 <div class="counter-controls">
-                  <button type="button" class="btn-counter" data-type="rooms" data-action="minus" aria-label="Decrease rooms count" disabled>-</button>
-                  <span class="counter-value" id="roomsValue">1</span>
-                  <button type="button" class="btn-counter" data-type="rooms" data-action="plus" aria-label="Increase rooms count">+</button>
+                  <button type="button" class="btn-counter" data-type="rooms" data-action="minus" aria-label="Decrease rooms count" aria-expanded="false" disabled>-</button>
+                  <span class="counter-value" id="roomsValue" aria-live="polite">1</span>
+                  <button type="button" class="btn-counter" data-type="rooms" data-action="plus" aria-label="Increase rooms count" aria-expanded="false">+</button>
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@
       <h6>Across Our Destinations</h6>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4" id="dynamicHotelsContainer">
       <!-- Room 1 -->
       <div class="col-md-6 col-lg-4">
         <article class="room-card">
@@ -277,7 +277,7 @@
 
             <div class="room-footer">
               <div class="room-price">
-                <span>₹4999</span> / night
+                <span>₹18500</span> / night
               </div>
               <button class="btn btn-book" onclick="triggerRoomBook('Suite')" type="button">Book Now</button>
             </div>
@@ -378,10 +378,10 @@
         <div class="mt-4">
           <p class="text-white fw-bold mb-2 small text-uppercase">Social Links</p>
           <div class="social-links d-flex align-items-center">
-            <a href="#" class="social-icon" aria-label="LinkedIn profile link"><i class="bi bi-linkedin"></i></a>
-            <a href="#" class="social-icon" aria-label="Instagram profile link"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="social-icon" aria-label="Facebook profile link"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="social-icon" aria-label="X twitter profile link"><i class="bi bi-twitter-x"></i></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="YouTube profile link"><i class="bi bi-youtube"></i></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram profile link"><i class="bi bi-instagram"></i></a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook profile link"><i class="bi bi-facebook"></i></a>
+            <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="X twitter profile link"><i class="bi bi-twitter-x"></i></a>
           </div>
         </div>
       </div>
@@ -425,9 +425,9 @@
         <div class="small mt-2" style="max-width: 300px; margin: 0 auto;">
           <span class="text-white-50 d-block mb-2 small fw-semibold text-uppercase">📍 Our Branches</span>
           <div class="d-flex flex-column gap-2 text-start">
-            <a href="https://maps.google.com/?q=Elegant+Enclave+Salem" target="_blank" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Salem</a>
-            <a href="https://maps.google.com/?q=Elegant+Enclave+Coimbatore" target="_blank" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Coimbatore</a>
-            <a href="https://maps.google.com/?q=Elegant+Enclave+Chennai+Central" target="_blank" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Chennai</a>
+            <a href="javascript:void(0)" onclick="openLargeMapModal('Salem')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Salem</a>
+            <a href="javascript:void(0)" onclick="openLargeMapModal('Coimbatore')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Coimbatore</a>
+            <a href="javascript:void(0)" onclick="openLargeMapModal('Chennai')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Chennai</a>
           </div>
         </div>
       </div>
@@ -457,7 +457,7 @@
         <div class="col-md-6 text-center text-md-end">
           <div class="bottom-links">
             <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal">Privacy Policy</a>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#termsConditionsModal">Terms & Conditions</a>
+             <a href="#" data-bs-toggle="modal" data-bs-target="#termsConditionsModal">Terms & Conditions</a>
             <a href="#" data-bs-toggle="modal" data-bs-target="#cancellationPolicyModal">Modification Policy</a>
             <a href="#" data-bs-toggle="modal" data-bs-target="#refundPolicyModal">Cancellation & Refund Policy</a>
           </div>
@@ -507,7 +507,7 @@
         <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">
           <h6 class="text-purple fw-bold mb-2">PRICING</h6>
           <ul class="ps-3 mb-3 text-dark d-flex flex-column gap-1">
-            <li>A 12% tax is applied on the base subtotal</li>
+            <li>An 18% GST is applied on the base subtotal</li>
             <li>Final amount is shown before confirmation</li>
           </ul>
           <h6 class="text-purple fw-bold mb-2">PAYMENT & CONFIRMATION</h6>
@@ -759,59 +759,10 @@
       10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); }
       20%, 40%, 60%, 80% { transform: rotate(10deg); }
     }
-  </style>
-
-  <!-- Bootstrap and JS bundle -->
-  <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="Shared/UtilityClass/session.js"></script>
-  <script src="features/landing/landing.js"></script>
-  <script>
-    let pendingRoomSelection = null;
-    function triggerRoomBook(roomName) {
-      if (roomName === 'Suite') {
-        const unavailableModal = new bootstrap.Modal(document.getElementById('roomUnavailableModal'));
-        unavailableModal.show();
-      } else {
-        pendingRoomSelection = roomName;
-        const locationModal = new bootstrap.Modal(document.getElementById('locationPromptModal'));
-        locationModal.show();
+    @media (max-width: 768px) {
+      .guests-dropdown-menu {
+        padding: 1rem !important;
       }
-    }
-
-  </div>
-
-  <style>
-    .pulsing-circle-bg {
-      position: absolute;
-      width: 70px;
-      height: 70px;
-      background-color: rgba(212, 175, 55, 0.2);
-      border-radius: 50%;
-      z-index: 1;
-    }
-    .ripple-1 {
-      animation: pulse-ripple 2s infinite ease-out;
-    }
-    .ripple-2 {
-      animation: pulse-ripple 2s infinite ease-out 1s;
-    }
-    @keyframes pulse-ripple {
-      0% {
-        transform: scale(1);
-        opacity: 0.8;
-      }
-      100% {
-        transform: scale(2.2);
-        opacity: 0;
-      }
-    }
-    .call-icon-anim {
-      animation: call-shake 1.5s infinite ease-in-out;
-    }
-    @keyframes call-shake {
-      0%, 100% { transform: rotate(0deg); }
-      10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); }
-      20%, 40%, 60%, 80% { transform: rotate(10deg); }
     }
   </style>
 
@@ -819,6 +770,7 @@
   <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Leaflet Map JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="Shared/UtilityClass/state.js"></script>
   <script src="Shared/UtilityClass/session.js"></script>
   <script src="features/landing/landing.js"></script>
   <script>
@@ -863,14 +815,24 @@
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       if (!isLoggedIn) {
         showApkToast('Please login to continue.', () => {
-          window.location.href = 'Features/Auth/login.html';
+          window.location.href = 'features/Auth/login.html';
         });
         return;
       }
+      
+      let hotelId = 'HTL002'; // Fallback to Coimbatore
+      if (branchName.toLowerCase().includes('salem')) {
+        hotelId = 'HTL001';
+      } else if (branchName.toLowerCase().includes('chennai')) {
+        hotelId = 'HTL003';
+      } else if (branchName.toLowerCase().includes('coimbatore')) {
+        hotelId = 'HTL002';
+      }
+      
       sessionStorage.setItem('selected_branch_location', branchName);
       sessionStorage.setItem('selected_room_name', pendingRoomSelection);
       // Map to corresponding search/room selection view
-      window.location.href = 'features/bookings/room_selection.html';
+      window.location.href = `features/bookings/room_selection.html?hotelId=${hotelId}`;
     }
 
     // Contact Reception Call and Email simulation handler hooks
@@ -926,20 +888,15 @@
       // Handle map wrapper redirect clicks (when not clicking on map controls/popups)
       if (mapWrapper) {
         mapWrapper.addEventListener('click', (e) => {
-          // If map is not initialized yet (placeholder is still visible), do nothing and let placeholder click trigger it
           if (!mapInitialized) return;
-          
-          // If clicked the zoom buttons or a marker, let leaflet handle it
-          if (e.target.closest('.leaflet-control-zoom') || e.target.closest('.leaflet-marker-icon') || e.target.closest('.leaflet-popup')) {
+          if (e.target.closest('.leaflet-control-zoom') || e.target.closest('.leaflet-popup')) {
             return;
           }
-          // Redirect to a general map search containing all branches on secondary clicks
-          window.open('https://www.google.com/maps/search/Elegant+Enclave+Hotel/', '_blank');
+          openLargeMapModal();
         });
       }
 
       function initializeFooterMap() {
-        // Enclaves map centering: Salem/Coimbatore/Chennai midpoint focus
         const map = L.map('footerMap', {
           center: [11.9, 78.5], 
           zoom: 6,
@@ -953,7 +910,6 @@
           maxZoom: 20
         }).addTo(map);
 
-        // Elegant custom gold marker icon
         const customGoldIcon = L.divIcon({
           className: 'custom-map-marker-div',
           html: `<div style="background-color: #1A0A2E; border: 2px solid #D4AF37; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-award-fill" style="color: #D4AF37; font-size: 12px; line-height: 1;"></i></div>`,
@@ -964,18 +920,164 @@
         branchLocations.forEach(loc => {
           const marker = L.marker([loc.lat, loc.lng], { icon: customGoldIcon }).addTo(map);
           const popupContent = `
-            <div style="padding: 2px;">
-              <h6 style="margin: 0; font-size: 0.85rem;">${loc.name}</h6>
-              <p style="margin: 4px 0 6px 0; font-size: 0.75rem;">${loc.city}</p>
-              <span onclick="window.open('${loc.url}', '_blank')">Click to View Directions</span>
+            <div style="padding: 2px; color: #1A0A2E;">
+              <h6 style="margin: 0; font-size: 0.85rem; font-weight: bold;">${loc.name}</h6>
+              <p style="margin: 4px 0 0 0; font-size: 0.75rem;">Click to explore property</p>
             </div>
           `;
           marker.bindPopup(popupContent);
           
-          marker.on('click', () => {
-            marker.openPopup();
+          marker.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            openLargeMapModal(loc.city);
           });
         });
+      }
+
+      // Large Map Modal Logic
+      let largeMap = null;
+      let largeMarkers = {};
+
+      const branchDetails = {
+        'Salem': {
+          name: 'Elegant Enclave Salem',
+          rating: '4.6',
+          address: '14, Saradha College Road, Fairlands, Salem - 636016',
+          phone: '+91-427-2234567',
+          rooms: 'Executive Studio Room, Deluxe Suite, Presidential Suite',
+          img: 'assets/images/hotel_salem.png',
+          lat: 11.6643,
+          lng: 78.1460
+        },
+        'Coimbatore': {
+          name: 'Elegant Enclave Coimbatore',
+          rating: '4.7',
+          address: '12, Avinashi Road, Coimbatore - 641018',
+          phone: '+91-422-2234567',
+          rooms: 'Executive Studio Room, Premium Suite, Presidential Suite',
+          img: 'assets/images/hotel_cbe.png',
+          lat: 11.0168,
+          lng: 76.9558
+        },
+        'Chennai': {
+          name: 'Elegant Enclave Chennai',
+          rating: '4.8',
+          address: '45, Mount Road, Chennai - 600002',
+          phone: '+91-44-2234567',
+          rooms: 'Executive Studio Room, Grand Suite, Presidential Suite',
+          img: 'assets/images/hotel_chennai.png',
+          lat: 13.0827,
+          lng: 80.2707
+        }
+      };
+
+      window.openLargeMapModal = function(selectedCity) {
+        const modalEl = document.getElementById('largeMapModal');
+        if (!modalEl) return;
+        
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+        
+        document.body.style.overflow = 'hidden';
+        
+        modalEl.addEventListener('hidden.bs.modal', () => {
+          document.body.style.overflow = '';
+        });
+
+        setTimeout(() => {
+          if (!largeMap) {
+            largeMap = L.map('largeMapContainer', {
+              center: [11.9, 78.5],
+              zoom: 7,
+              zoomControl: true
+            });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            }).addTo(largeMap);
+
+            const customGoldIcon = L.divIcon({
+              className: 'custom-map-marker-div',
+              html: `<div style="background-color: #1A0A2E; border: 2px solid #D4AF37; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-award-fill" style="color: #D4AF37; font-size: 16px; line-height: 1;"></i></div>`,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16]
+            });
+
+            Object.keys(branchDetails).forEach(city => {
+              const detail = branchDetails[city];
+              const marker = L.marker([detail.lat, detail.lng], { icon: customGoldIcon }).addTo(largeMap);
+              
+              largeMarkers[city] = marker;
+
+              marker.on('click', () => {
+                selectBranchInModal(city);
+              });
+            });
+          } else {
+            largeMap.invalidateSize();
+          }
+
+          if (selectedCity && branchDetails[selectedCity]) {
+            selectBranchInModal(selectedCity);
+          } else {
+            largeMap.setView([11.9, 78.5], 7);
+            document.getElementById('largeMapDetailsPanel').innerHTML = `
+              <h4 class="text-warning mb-3">Select a branch to view details</h4>
+              <p class="text-secondary">Click on any marker on the map or choose a branch to explore property details.</p>
+            `;
+            document.getElementById('mobileDetailsPanel').classList.add('d-none');
+          }
+        }, 300);
+      };
+
+      function selectBranchInModal(city) {
+        const detail = branchDetails[city];
+        if (!detail || !largeMap) return;
+
+        largeMap.setView([detail.lat, detail.lng], 12);
+        
+        const marker = largeMarkers[city];
+        if (marker) {
+          const popupHtml = `
+            <div style="color: #1A0A2E; text-align: left; font-family: sans-serif; width: 200px;">
+              <h6 style="margin: 0 0 4px 0; font-weight: bold; color: #1A0A2E;">${detail.name}</h6>
+              <p style="margin: 0 0 6px 0; font-size: 0.75rem; color: #555;">Rating: ${detail.rating}</p>
+              <p style="margin: 0; font-size: 0.75rem; color: #555;">${detail.address}</p>
+            </div>
+          `;
+          marker.bindPopup(popupHtml).openPopup();
+        }
+
+        const detailsHtml = `
+          <div class="card border-0 bg-transparent text-white text-start">
+            <img src="${detail.img}" class="img-fluid rounded mb-3" style="max-height: 220px; width: 100%; object-fit: cover; border: 1px solid #D4AF37;" alt="${detail.name}">
+            <h3 class="text-warning mb-1 fw-bold">${detail.name}</h3>
+            <p class="text-white-50 mb-3"><i class="bi bi-star-fill text-warning me-1"></i> ${detail.rating} Rating</p>
+            
+            <div class="d-flex flex-column gap-3">
+              <div>
+                <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Address</strong>
+                <span class="small text-secondary">${detail.address}</span>
+              </div>
+              <div>
+                <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Contact Phone</strong>
+                <span class="small text-secondary">${detail.phone}</span>
+              </div>
+              <div>
+                <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Available Room Types</strong>
+                <span class="small text-secondary">${detail.rooms}</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('largeMapDetailsPanel').innerHTML = detailsHtml;
+
+        const mobPanel = document.getElementById('mobileDetailsPanel');
+        if (mobPanel) {
+          mobPanel.innerHTML = detailsHtml + `<button type="button" class="btn btn-sm btn-outline-warning w-100 mt-3" onclick="document.getElementById('mobileDetailsPanel').classList.add('d-none')">Close Details</button>`;
+          mobPanel.classList.remove('d-none');
+        }
       }
 
       const phoneBtn = document.getElementById('receptionPhoneBtn');
@@ -1166,5 +1268,30 @@
       });
     });
   </script>
+  <!-- Large Interactive Map Modal Overlay -->
+  <div class="modal fade" id="largeMapModal" tabindex="-1" aria-labelledby="largeMapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content" style="background-color: #1A0A2E;">
+        <div class="modal-header border-0 p-3" style="background-color: #110620; border-bottom: 1px solid rgba(212,175,55,0.2) !important;">
+          <h5 class="modal-title text-warning fw-bold" id="largeMapModalLabel"><i class="bi bi-map me-2"></i>Elegant Enclave Branch Locations</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0 position-relative" style="height: calc(100vh - 60px);">
+          <div class="row g-0 h-100">
+            <div class="col-lg-8 h-100 position-relative">
+              <div id="largeMapContainer" style="width: 100%; height: 100%;"></div>
+            </div>
+            <div class="col-lg-4 bg-dark-purple p-4 d-none d-lg-block overflow-auto text-white text-start" id="largeMapDetailsPanel" style="background-color: #1A0A2E; border-left: 1px solid rgba(212,175,55,0.2);">
+              <h4 class="text-warning mb-3">Select a branch to view details</h4>
+              <p class="text-secondary">Click on any marker on the map or choose a branch to explore property details.</p>
+            </div>
+          </div>
+          <!-- Mobile details overlay panel -->
+          <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white text-start d-lg-none d-none" id="mobileDetailsPanel" style="z-index: 1000; background-color: #1A0A2E; border-top: 1px solid #D4AF37; border-top-left-radius: 16px; border-top-right-radius: 16px; max-height: 45vh; overflow-y: auto;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

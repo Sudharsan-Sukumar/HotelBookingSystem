@@ -12,64 +12,62 @@
   <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
   <link rel="stylesheet" href="../Manager/dashboard.css?v=1.9">
   <link rel="stylesheet" href="admin.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
 
-  <!-- TOP NAVIGATION -->
-  <nav class="navbar navbar-expand-md manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
-    <div class="container-fluid d-flex flex-column align-items-stretch p-0">
+    <!-- TOP NAVIGATION -->
+  <nav class="navbar navbar-expand-xl manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-3 px-md-4">
       
-      <!-- ROW 1 -->
-      <div class="admin-nav-row1">
-        <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
-          <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
-          <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
-        </a>
+      <!-- Brand Logo & Name -->
+      <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+      </a>
 
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
-          
-          <li class="nav-item"><a class="nav-link" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-warning text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Collapsible Menu -->
+      <div class="collapse navbar-collapse" id="adminNavbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 gap-1 gap-xl-2">
+          <li class="nav-item"><a class="nav-link text-white nav-dashboard" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-users" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-hotels" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-content" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-backup" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-monitoring" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-reports" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
         </ul>
 
-        <div class="dropdown">
-          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
-            <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
-            <div class="lh-sm text-start text-white">
-              <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
-              <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
-            </div>
-            <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
-            <li><a class="dropdown-item py-2 px-3 text-white small" href="../../../Features/User/Candidate/profile.html">View Profile</a></li>
-            
-            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
-            <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- ROW 2 -->
-      <div class="admin-nav-row2">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup & Recovery</a></li>
-          <li class="nav-item"><a class="nav-link" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Booking Monitoring</a></li>
-          <li class="nav-item"><a class="nav-link" href="audit_logs.html"><i class="bi bi-shield-fill-check me-1"></i> Audit Logs</a></li>
-          <li class="nav-item"><a class="nav-link active reports-active" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
-        </ul>
-
-        <div class="d-flex align-items-center">
-          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+        <!-- Right Side: Notifications & Profile -->
+        <div class="d-flex align-items-center gap-4 mt-3 mt-xl-0">
+          <!-- Notification Bell -->
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0 nav-notifications" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
             <i class="bi bi-bell-fill text-warning" style="font-size: 1.2rem;"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(50%, -50%) !important;">3</span>
           </a>
+
+          <!-- User Profile Dropdown -->
+          <div class="dropdown">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+              <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
+              <div class="lh-sm text-start text-white">
+                <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
+                <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
+              </div>
+              <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item py-2 px-3 text-white small nav-profile" href="../../../features/User/Candidate/profile.html">View Profile</a></li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-
     </div>
   </nav>
 
@@ -188,19 +186,14 @@
     <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="font-serif fw-bold text-purple mb-0">Booking Status Distribution (Monthly)</h5>
-        <div class="d-flex gap-2">
-          <select class="form-select form-select-sm w-auto" id="chartType">
-            <option value="bar">Type: Bar Chart</option>
-            <option value="line">Type: Line Chart</option>
-            <option value="pie">Type: Pie Chart</option>
-          </select>
-          <select class="form-select form-select-sm w-auto" id="chartView">
-            <option value="Monthly">View: Monthly</option>
-          </select>
-        </div>
       </div>
-      <div style="height: 250px; position: relative;">
-        <canvas id="bookingChart"></canvas>
+      <div class="chart-container w-100" id="bookingChartContainer" style="display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; height: 250px; padding: 10px; border-bottom: 2px solid #eee;">
+        <!-- CSS Chart filled dynamically -->
+      </div>
+      <div class="d-flex justify-content-center gap-4 mt-2 small">
+        <div><span style="display:inline-block;width:12px;height:12px;background:#2E8B57;margin-right:4px;border-radius:2px;"></span>Confirmed</div>
+        <div><span style="display:inline-block;width:12px;height:12px;background:#FF6347;margin-right:4px;border-radius:2px;"></span>Cancelled</div>
+        <div><span style="display:inline-block;width:12px;height:12px;background:#A9A9A9;margin-right:4px;border-radius:2px;"></span>Other</div>
       </div>
     </div>
 
@@ -219,39 +212,8 @@
               <th>Avg. Nights</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><strong>Standard Room</strong></td>
-              <td>112</td>
-              <td>88</td>
-              <td>16</td>
-              <td>Rs. 39.2L</td>
-              <td>2.8</td>
-            </tr>
-            <tr>
-              <td><strong>Executive Studio</strong></td>
-              <td>84</td>
-              <td>68</td>
-              <td>10</td>
-              <td>Rs. 46.2L</td>
-              <td>3.2</td>
-            </tr>
-            <tr>
-              <td><strong>Deluxe Suite</strong></td>
-              <td>72</td>
-              <td>58</td>
-              <td>8</td>
-              <td>Rs. 57.6L</td>
-              <td>3.6</td>
-            </tr>
-            <tr>
-              <td><strong>Penthouse Suite</strong></td>
-              <td>36</td>
-              <td>30</td>
-              <td>4</td>
-              <td>Rs. 64.8L</td>
-              <td>4.0</td>
-            </tr>
+          <tbody id="tblBookingPerformance">
+            <!-- Dynamically populated -->
           </tbody>
         </table>
       </div>
@@ -273,57 +235,162 @@
     <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
   </footer>
 
+  <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/state.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Setup Grouped Bar Chart
-      const ctx = document.getElementById('bookingChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Apr 2026', 'May 2026', 'Jun 2026'],
-          datasets: [
-            { label: 'Confirmed', data: [88, 102, 142], backgroundColor: '#2E8B57' },
-            { label: 'Cancelled', data: [16, 12, 10], backgroundColor: '#FF6347' },
-            { label: 'Pending/Other', data: [8, 10, 6], backgroundColor: '#A9A9A9' }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true }
-          }
+      const bookings = HotelState.bookings || [];
+      const roomTypes = HotelState.roomTypes || [];
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      // Compute Overall KPIs
+      let totalBookings = 0;
+      let confirmedCount = 0;
+      let cancelledCount = 0;
+      let totalNights = 0;
+      let staysWithNights = 0;
+
+      bookings.forEach(b => {
+        totalBookings++;
+        if (['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) {
+          confirmedCount++;
+        }
+        if (b.bookingStatus === 'Cancelled') {
+          cancelledCount++;
+        }
+        if (b.checkIn && b.checkOut) {
+          const d1 = new Date(b.checkIn);
+          const d2 = new Date(b.checkOut);
+          const nights = Math.max(1, Math.round((d2 - d1)/(1000*60*60*24)));
+          totalNights += nights;
+          staysWithNights++;
         }
       });
 
-      const btnExport = document.getElementById('btnExportPDF');
-      btnExport.addEventListener('click', () => {
-        const toastEl = document.getElementById('statusToast');
-        document.getElementById('toastMessage').textContent = 'Booking Analytics report generated and downloaded successfully.';
-        toastEl.className = 'toast align-items-center text-white border-0 shadow bg-success';
-        new bootstrap.Toast(toastEl).show();
+      const confirmRate = totalBookings > 0 ? Math.round((confirmedCount / totalBookings) * 100) : 0;
+      const cancelRate = totalBookings > 0 ? Math.round((cancelledCount / totalBookings) * 100) : 0;
+      const avgStay = staysWithNights > 0 ? (totalNights / staysWithNights).toFixed(1) : 0;
+
+      const kpis = document.querySelectorAll('.kpi-card strong');
+      if (kpis.length >= 4) {
+        kpis[0].textContent = totalBookings;
+        kpis[0].nextElementSibling.textContent = 'All time bookings';
+        
+        kpis[1].textContent = `${confirmRate}%`;
+        kpis[1].nextElementSibling.textContent = `${confirmedCount} confirmed`;
+        
+        kpis[2].textContent = `${cancelRate}%`;
+        kpis[2].nextElementSibling.textContent = `${cancelledCount} cancelled`;
+        
+        kpis[3].textContent = avgStay;
+        kpis[3].nextElementSibling.textContent = 'nights per booking';
+      }
+
+      // CSS Chart: Monthly Distribution (Last 6 Months)
+      const chartContainer = document.getElementById('bookingChartContainer');
+      const monthsData = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        monthsData.push({
+          label: d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear(),
+          month: d.getMonth(),
+          year: d.getFullYear(),
+          conf: 0,
+          canc: 0,
+          oth: 0
+        });
+      }
+
+      bookings.forEach(b => {
+        const bDate = new Date(b.createdAt || b.checkIn);
+        const mItem = monthsData.find(m => m.month === bDate.getMonth() && m.year === bDate.getFullYear());
+        if (mItem) {
+          if (['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) mItem.conf++;
+          else if (b.bookingStatus === 'Cancelled') mItem.canc++;
+          else mItem.oth++;
+        }
       });
 
-      // One-time session hover tooltip setup
-      const tabGroup = document.getElementById('reportsTabGroup');
-      if (tabGroup && !sessionStorage.getItem('reportsTooltipShown')) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'reports-tooltip-popup';
-        tooltip.textContent = 'Click here to explore more reports';
-        tabGroup.appendChild(tooltip);
+      const maxVal = Math.max(...monthsData.map(m => Math.max(m.conf, m.canc, m.oth)), 10);
 
-        tabGroup.addEventListener('mouseenter', function showOnce() {
-          tooltip.classList.add('show-tooltip');
-          sessionStorage.setItem('reportsTooltipShown', 'true');
-          
-          // Remove listener
-          tabGroup.removeEventListener('mouseenter', showOnce);
+      chartContainer.innerHTML = '';
+      monthsData.forEach(m => {
+        const hConf = Math.max((m.conf / maxVal) * 100, 2);
+        const hCanc = Math.max((m.canc / maxVal) * 100, 2);
+        const hOth = Math.max((m.oth / maxVal) * 100, 2);
 
-          // Hide after 2 seconds
-          setTimeout(() => {
-            tooltip.classList.remove('show-tooltip');
-            setTimeout(() => tooltip.remove(), 300);
-          }, 2000);
+        const group = document.createElement('div');
+        group.className = 'd-flex flex-column align-items-center';
+        group.style.width = '14%';
+        
+        group.innerHTML = `
+          <div class="d-flex align-items-end justify-content-center gap-1 w-100" style="height: 100%; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+            <div style="width: 25%; height: ${hConf}%; background: #2E8B57; border-radius: 3px 3px 0 0;" title="Confirmed: ${m.conf}"></div>
+            <div style="width: 25%; height: ${hCanc}%; background: #FF6347; border-radius: 3px 3px 0 0;" title="Cancelled: ${m.canc}"></div>
+            <div style="width: 25%; height: ${hOth}%; background: #A9A9A9; border-radius: 3px 3px 0 0;" title="Other: ${m.oth}"></div>
+          </div>
+          <div style="font-size: 0.75rem; font-weight: 600; margin-top: 8px;">${m.label.split(' ')[0]}</div>
+        `;
+        chartContainer.appendChild(group);
+      });
+
+      // Populate Performance by Room Type
+      const tblBody = document.getElementById('tblBookingPerformance');
+      if (tblBody) {
+        tblBody.innerHTML = '';
+        
+        // Group bookings by roomType
+        const typeStats = {};
+        
+        bookings.forEach(b => {
+          const typeName = b.roomType || 'Unknown';
+          if (!typeStats[typeName]) {
+            typeStats[typeName] = { total: 0, conf: 0, canc: 0, rev: 0, nightsTotal: 0, stays: 0 };
+          }
+          const st = typeStats[typeName];
+          st.total++;
+          if (['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) st.conf++;
+          if (b.bookingStatus === 'Cancelled') st.canc++;
+          if (b.paymentStatus === 'Paid' || ['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) {
+            st.rev += (b.grandTotal || 0);
+          }
+          if (b.checkIn && b.checkOut) {
+            const d1 = new Date(b.checkIn);
+            const d2 = new Date(b.checkOut);
+            st.nightsTotal += Math.max(1, Math.round((d2 - d1)/(1000*60*60*24)));
+            st.stays++;
+          }
+        });
+
+        for (const [typeName, st] of Object.entries(typeStats)) {
+          const avgN = st.stays > 0 ? (st.nightsTotal / st.stays).toFixed(1) : 0;
+          tblBody.innerHTML += `
+            <tr>
+              <td><strong>${typeName}</strong></td>
+              <td>${st.total}</td>
+              <td>${st.conf}</td>
+              <td>${st.canc}</td>
+              <td>₹${st.rev.toLocaleString('en-IN')}</td>
+              <td>${avgN}</td>
+            </tr>
+          `;
+        }
+        
+        if (Object.keys(typeStats).length === 0) {
+          tblBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No booking data available.</td></tr>`;
+        }
+      }
+
+      // Export buttons mock
+      const btnExport = document.getElementById('btnExportPDF');
+      if(btnExport) {
+        btnExport.addEventListener('click', () => {
+          const toastEl = document.getElementById('statusToast');
+          document.getElementById('toastMessage').textContent = 'Booking Analytics report generated successfully.';
+          toastEl.className = 'toast align-items-center text-white border-0 shadow bg-success';
+          new bootstrap.Toast(toastEl).show();
         });
       }
     });

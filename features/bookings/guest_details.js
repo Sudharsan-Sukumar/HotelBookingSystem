@@ -1,239 +1,363 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('stayDetailsForm');
-  const guestCountInput = document.getElementById('guestCount');
-  const checkinInput = document.getElementById('checkinDate');
-  const checkoutInput = document.getElementById('checkoutDate');
-  const specialRequestsTextarea = document.getElementById('specialRequests');
+  if (!form) return;
+
+  const rawSelection = localStorage.getItem('hbs_booking_selection') || sessionStorage.getItem('hbs_booking_selection');
+  if (!rawSelection) {
+    window.location.href = '../hotels/search_results.html';
+    return;
+  }
+  const selection = JSON.parse(rawSelection);
+
+  // Pre-fill user data
+  const userId = localStorage.getItem('userId');
+  const user = HotelState.getUserById(userId);
+  if (!user) {
+    window.location.href = '../../features/Auth/login.html';
+    return;
+  }
+
+
+
+  // 2. Inject Missing Guest Fields (Name, Email, ID Type, ID Number)
+  const guestDetailsSection = document.querySelector('.form-section-block');
+  if (guestDetailsSection) {
+    const missingFieldsHtml = `
+      <div class="mb-3 text-start">
+        <label for="guestName" class="form-label">Primary Guest Name <span class="text-danger">*</span></label>
+        <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-muted"></i></span>
+          <input type="text" id="guestName" class="form-control border-start-0" value="${user.firstName} ${user.lastName}" required>
+        </div>
+      </div>
+      <div class="mb-3 text-start">
+        <label for="guestEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+        <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+          <input type="email" id="guestEmail" class="form-control border-start-0" value="${user.email}" required>
+        </div>
+      </div>
+      <div class="row g-4 text-start mb-3">
+        <div class="col-md-6">
+          <label for="guestIdType" class="form-label">ID Type <span class="text-danger">*</span></label>
+          <select id="guestIdType" class="form-select custom-input-group p-2" required>
+            <option value="">Select ID Type</option>
+            <option value="Aadhaar">Aadhaar</option>
+            <option value="Passport">Passport</option>
+            <option value="PAN">PAN</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="guestIdNumber" class="form-label">ID Number <span class="text-danger">*</span></label>
+          <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-card-text text-muted"></i></span>
+            <input type="text" id="guestIdNumber" class="form-control border-start-0" placeholder="Enter ID Number" required>
+          </div>
+          <div class="text-danger small mt-1 d-none" id="guestIdNumberErrorMsg"></div>
+        </div>
+      </div>
+    `;
+    guestDetailsSection.insertAdjacentHTML('beforeend', missingFieldsHtml);
+  }
+
+  // Bind existing elements
+  const guestCount = document.getElementById('guestCount');
+  const guestPhone = document.getElementById('guestPhone');
+  const checkinDate = document.getElementById('checkinDate');
+  const checkoutDate = document.getElementById('checkoutDate');
+  const specialRequests = document.getElementById('specialRequests');
   const charCounter = document.getElementById('charCounter');
   const btnConfirmBooking = document.getElementById('btnConfirmBooking');
 
-  // Input fields error flags
-  const guestErrorMsg = document.getElementById('guestErrorMsg');
-  const dateErrorMsg = document.getElementById('dateErrorMsg');
+  // Pre-fill phone and dates
+  // Retrieve selected room and calculate dynamic capacity limit
+  const roomObj = HotelState.getRoomById(selection.roomId) || JSON.parse(localStorage.getItem('hbs_selected_room'));
+  const maxOccupancy = roomObj && roomObj.capacity ? (roomObj.capacity.adults || 2) + (roomObj.capacity.children || 0) : 4;
 
-  // Event Listeners for enabling/disabling Submit button
-  const formInputs = [guestCountInput, checkinInput, checkoutInput];
-  formInputs.forEach(input => {
-    input.addEventListener('input', validateFormState);
-  });
-
-  // Helper for applying error styles
-  function setFieldError(input, errorEl, message) {
-    if (message) {
-      errorEl.textContent = message;
-      errorEl.classList.remove('d-none');
-      input.style.borderColor = '#dc3545';
-    } else {
-      errorEl.textContent = '';
-      errorEl.classList.add('d-none');
-      input.style.borderColor = '';
-    }
+  // Display maximum occupancy dynamically
+  const capacityBadge = document.getElementById('capacityBadge');
+  if (capacityBadge) {
+    capacityBadge.textContent = `Max ${maxOccupancy} Guest${maxOccupancy > 1 ? 's' : ''}`;
+  }
+  if (guestCount) {
+    guestCount.setAttribute('max', maxOccupancy);
   }
 
-  // 1. Textarea Character Live Counter
-  if (specialRequestsTextarea && charCounter) {
-    specialRequestsTextarea.addEventListener('input', () => {
-      const count = specialRequestsTextarea.value.length;
-      charCounter.textContent = `${count} / 300`;
-      
-      if (count > 300) {
-        specialRequestsTextarea.value = specialRequestsTextarea.value.substring(0, 300);
-        charCounter.textContent = `300 / 300`;
+  // Setup minimum selectable checkin date to today
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (checkinDate) {
+    checkinDate.setAttribute('min', todayStr);
+    checkinDate.value = selection.checkIn || '';
+  }
+  if (checkoutDate) {
+    checkoutDate.value = selection.checkOut || '';
+  }
+  if (guestCount) guestCount.value = (selection.adults || 1) + (selection.children || 0);
+
+  if (guestPhone) guestPhone.value = user.phone || '';
+
+  // Clean-up and validate checkin changes
+  if (checkinDate) {
+    checkinDate.addEventListener('change', () => {
+      if (checkoutDate && checkoutDate.value) {
+        const checkinObj = new Date(checkinDate.value);
+        const checkoutObj = new Date(checkoutDate.value);
+        if (checkoutObj <= checkinObj) {
+          checkoutDate.value = '';
+        }
       }
+      validateForm();
     });
   }
 
-  // Input auto-formatter: automatically inject dashes for DD-MM-YYYY
-  const handleInputFormat = (e) => {
-    const input = e.target;
-    let val = input.value.replace(/[^0-9]/g, ''); // strip non-digits
+  function validateStayDates() {
+    if (!checkinDate || !checkoutDate) return false;
     
-    if (val.length > 2 && val.length <= 4) {
-      input.value = val.slice(0, 2) + '-' + val.slice(2);
-    } else if (val.length > 4) {
-      input.value = val.slice(0, 2) + '-' + val.slice(2, 4) + '-' + val.slice(4, 8);
+    const checkinErr = document.getElementById('checkinErrorMsg');
+    const checkoutErr = document.getElementById('checkoutErrorMsg');
+    const dateErr = document.getElementById('dateErrorMsg');
+    
+    if (checkinErr) { checkinErr.classList.add('d-none'); checkinErr.textContent = ''; }
+    if (checkoutErr) { checkoutErr.classList.add('d-none'); checkoutErr.textContent = ''; }
+    if (dateErr) { dateErr.classList.add('d-none'); dateErr.textContent = ''; }
+    
+    if (!checkinDate.value) {
+      if (checkinErr) { checkinErr.textContent = 'Check-in date is mandatory.'; checkinErr.classList.remove('d-none'); }
+      return false;
     }
-    validateFormState();
-  };
-
-  const checkinErrorEl = document.getElementById('checkinErrorMsg');
-  const checkoutErrorEl = document.getElementById('checkoutErrorMsg');
-
-  // Input sanitization: Block keys that are not numbers or dashes
-  const handleKeydownSanitization = (e) => {
-    // Allow navigation keys, backspace, delete, tab
-    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
-    if (allowedKeys.includes(e.key)) return;
-
-    // Reject non-digit or non-dash characters
-    if (!/^[0-9\-]$/.test(e.key)) {
-      e.preventDefault();
+    if (!checkoutDate.value) {
+      if (checkoutErr) { checkoutErr.textContent = 'Check-out date is mandatory.'; checkoutErr.classList.remove('d-none'); }
+      return false;
     }
-  };
-
-  checkinInput.addEventListener('keydown', handleKeydownSanitization);
-  checkoutInput.addEventListener('keydown', handleKeydownSanitization);
-  checkinInput.addEventListener('input', handleInputFormat);
-  checkoutInput.addEventListener('input', handleInputFormat);
-  checkinInput.addEventListener('change', validateFormState);
-  checkoutInput.addEventListener('change', validateFormState);
-
-  // Helper Form State Validator
-  function validateFormState() {
-    let isValid = true;
-
-    // Guest check - minimum count should not be 0 or negative
-    const countVal = parseInt(guestCountInput.value);
-    if (!guestCountInput.value || isNaN(countVal) || countVal < 1) {
-      isValid = false;
-      guestErrorMsg.textContent = 'Guest count must be at least 1.';
-      guestErrorMsg.classList.remove('d-none');
-      guestCountInput.style.borderColor = '#dc3545';
-    } else if (countVal > 4) {
-      isValid = false;
-      guestErrorMsg.textContent = 'Guest count exceeds maximum room capacity (Max 4 Guests).';
-      guestErrorMsg.classList.remove('d-none');
-      guestCountInput.style.borderColor = '#dc3545';
-    } else {
-      guestErrorMsg.classList.add('d-none');
-      guestCountInput.style.borderColor = '';
-    }
-
+    
+    const checkinObj = new Date(checkinDate.value);
+    const checkoutObj = new Date(checkoutDate.value);
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0,0,0,0);
+    
+    const checkinTime = new Date(checkinObj.getFullYear(), checkinObj.getMonth(), checkinObj.getDate());
+    const checkoutTime = new Date(checkoutObj.getFullYear(), checkoutObj.getMonth(), checkoutObj.getDate());
+    const todayTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    if (checkinTime < todayTime) {
+      if (checkinErr) { checkinErr.textContent = 'Check-in date cannot be in the past.'; checkinErr.classList.remove('d-none'); }
+      return false;
+    }
+    
+    if (checkoutTime <= checkinTime) {
+      if (checkoutErr) { checkoutErr.textContent = 'Check-out date must be after check-in date.'; checkoutErr.classList.remove('d-none'); }
+      return false;
+    }
+    
+    const diffTime = Math.abs(checkoutTime - checkinTime);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 30) {
+      if (checkoutErr) { checkoutErr.textContent = 'Maximum stay per booking is 30 nights.'; checkoutErr.classList.remove('d-none'); }
+      return false;
+    }
+    
+    // Dates valid, recalculate values
+    selection.checkIn = checkinDate.value;
+    selection.checkOut = checkoutDate.value;
+    selection.nights = diffDays;
+    selection.totalAmount = selection.pricePerNight * diffDays;
+    selection.taxAmount = selection.totalAmount * 0.18;
+    selection.grandTotal = selection.totalAmount + selection.taxAmount;
+    
+    localStorage.setItem('hbs_booking_selection', JSON.stringify(selection));
+    sessionStorage.setItem('hbs_booking_selection', JSON.stringify(selection));
+    
+    return true;
+  }
 
-    const parseDateDDMMYYYY = (str) => {
-      if (!str) return null;
-      const parts = str.split('-');
-      if (parts.length !== 3) return null;
-      
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
-      
-      if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
-      if (month < 1 || month > 12) return null;
-      if (day < 1 || day > 31) return null;
-      
-      // month - 1 for JavaScript 0-indexed month array
-      const dt = new Date(year, month - 1, day);
-      if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) return null;
-      return dt;
-    };
-
-    // Reset validation styles
-    setFieldError(checkinInput, checkinErrorEl, '');
-    setFieldError(checkoutInput, checkoutErrorEl, '');
-
-    const datePattern = /^\d{2}-\d{2}-\d{4}$/;
-
-    // 1. Check-In Date format & business logic validation
-    let checkinDateObj = null;
-    if (!checkinInput.value) {
+  // Validate form to enable/disable button
+  function validateForm() {
+    let isValid = true;
+    
+    // Validate stay dates
+    const datesValid = validateStayDates();
+    if (!datesValid) isValid = false;
+    
+    // Real-time capacity error message
+    const guestErrorMsg = document.getElementById('guestErrorMsg');
+    const countVal = guestCount ? parseInt(guestCount.value) : 0;
+    
+    if (guestCount && (isNaN(countVal) || countVal < 1 || countVal > maxOccupancy)) {
       isValid = false;
-    } else if (!datePattern.test(checkinInput.value)) {
-      isValid = false;
-      setFieldError(checkinInput, checkinErrorEl, 'Please enter the date in DD-MM-YYYY format.');
+      if (guestErrorMsg) {
+        if (countVal < 1) {
+          guestErrorMsg.textContent = 'Minimum capacity is 1.';
+        } else {
+          guestErrorMsg.textContent = `Guest count exceeds room capacity of ${maxOccupancy} guest${maxOccupancy > 1 ? 's' : ''}.`;
+        }
+        guestErrorMsg.classList.remove('d-none');
+      }
     } else {
-      checkinDateObj = parseDateDDMMYYYY(checkinInput.value);
-      const parts = checkinInput.value.split('-');
-      const year = parseInt(parts[2], 10);
-      const currentYear = today.getFullYear();
-      const nextYear = currentYear + 1;
+      if (guestErrorMsg) {
+        guestErrorMsg.classList.add('d-none');
+      }
+    }
 
-      if (!checkinDateObj) {
-        isValid = false;
-        setFieldError(checkinInput, checkinErrorEl, 'Please enter a valid date.');
-      } else if (parts[2].length !== 4 || year < currentYear || year > nextYear) {
-        isValid = false;
-        setFieldError(checkinInput, checkinErrorEl, 'Reservations can only be made up to 365 days in advance.');
+    if (!guestCount || !guestCount.value || isNaN(countVal) || countVal < 1 || countVal > maxOccupancy) isValid = false;
+    if (!guestPhone || guestPhone.value.length < 10) isValid = false;
+
+    // Injected fields
+    const gName = document.getElementById('guestName');
+    const gEmail = document.getElementById('guestEmail');
+    const gIdType = document.getElementById('guestIdType');
+    const gIdNum = document.getElementById('guestIdNumber');
+    const gIdError = document.getElementById('guestIdNumberErrorMsg');
+    
+    if (!gName || !gName.value.trim()) isValid = false;
+    if (!gEmail || !gEmail.value.trim() || !gEmail.value.includes('@')) isValid = false;
+    
+    let isIdValid = true;
+    if (gIdType && gIdNum) {
+      const type = gIdType.value;
+      let rawVal = gIdNum.value.trim();
+      
+      if (!type) {
+        isIdValid = false;
       } else {
-        const oneYearFromToday = new Date(today);
-        oneYearFromToday.setDate(oneYearFromToday.getDate() + 365);
-        
-        // Use getTime() for comparisons to prevent strict object mismatches
-        if (checkinDateObj.getTime() < today.getTime()) {
-          isValid = false;
-          setFieldError(checkinInput, checkinErrorEl, 'Check-In must be today or a future date.');
-        } else if (checkinDateObj.getTime() > oneYearFromToday.getTime()) {
-          isValid = false;
-          setFieldError(checkinInput, checkinErrorEl, 'Reservations can only be made up to 365 days in advance.');
+        if (type === 'Aadhaar') {
+          // Automatic removal of spaces and hyphens for Aadhaar before validation
+          const cleanAadhaar = rawVal.replace(/[\s-]/g, '');
+          if (cleanAadhaar.length === 0) {
+            isIdValid = false;
+          } else if (!/^\d+$/.test(cleanAadhaar)) {
+            isIdValid = false;
+            if (gIdError) {
+              gIdError.textContent = 'Only numeric characters are allowed.';
+              gIdError.classList.remove('d-none');
+            }
+          } else if (cleanAadhaar.length !== 12) {
+            isIdValid = false;
+            if (gIdError) {
+              gIdError.textContent = 'Aadhaar number must contain exactly 12 digits.';
+              gIdError.classList.remove('d-none');
+            }
+          } else {
+            if (gIdError) gIdError.classList.add('d-none');
+          }
+        } else if (type === 'PAN') {
+          if (rawVal.length === 0) {
+            isIdValid = false;
+          } else if (!/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(rawVal)) {
+            isIdValid = false;
+            if (gIdError) {
+              gIdError.textContent = 'Enter a valid PAN number (Example: ABCDE1234F).';
+              gIdError.classList.remove('d-none');
+            }
+          } else {
+            if (gIdError) gIdError.classList.add('d-none');
+          }
+        } else if (type === 'Passport') {
+          if (rawVal.length === 0) {
+            isIdValid = false;
+          } else if (!/^[A-Z]{1}\d{7}$/.test(rawVal)) {
+            isIdValid = false;
+            if (gIdError) {
+              gIdError.textContent = 'Enter a valid Passport number (Example: A1234567).';
+              gIdError.classList.remove('d-none');
+            }
+          } else {
+            if (gIdError) gIdError.classList.add('d-none');
+          }
         }
       }
-    }
-
-    // 2. Check-Out Date format & business logic validation
-    let checkoutDateObj = null;
-    if (!checkoutInput.value) {
-      isValid = false;
-    } else if (!datePattern.test(checkoutInput.value)) {
-      isValid = false;
-      setFieldError(checkoutInput, checkoutErrorEl, 'Please enter the date in DD-MM-YYYY format.');
     } else {
-      checkoutDateObj = parseDateDDMMYYYY(checkoutInput.value);
-      const parts = checkoutInput.value.split('-');
-      const year = parseInt(parts[2], 10);
-      const currentYear = today.getFullYear();
-      const nextYear = currentYear + 1;
-
-      if (!checkoutDateObj) {
-        isValid = false;
-        setFieldError(checkoutInput, checkoutErrorEl, 'Please enter a valid date.');
-      } else if (parts[2].length !== 4) {
-        isValid = false;
-        setFieldError(checkoutInput, checkoutErrorEl, 'Please enter a valid 4-digit year.');
-      } else if (year < currentYear || year > nextYear + 1) {
-        isValid = false;
-        setFieldError(checkoutInput, checkoutErrorEl, 'Reservations can only be made up to 365 days in advance.');
-      } else if (checkinDateObj) {
-        const timeDiff = checkoutDateObj.getTime() - checkinDateObj.getTime();
-        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        
-        if (diffDays < 1) {
-          isValid = false;
-          setFieldError(checkoutInput, checkoutErrorEl, 'Check-Out must be at least one day after Check-In.');
-        } else if (diffDays > 30) {
-          isValid = false;
-          setFieldError(checkoutInput, checkoutErrorEl, 'Maximum stay allowed is 30 consecutive nights.');
-        }
-      }
+      isIdValid = false;
     }
 
-    // Toggle button state
+    if (!isIdValid) isValid = false;
+
     if (isValid) {
       btnConfirmBooking.removeAttribute('disabled');
     } else {
       btnConfirmBooking.setAttribute('disabled', 'true');
     }
-
-    return isValid;
   }
 
-  // 2. Submit Handler
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+  // Attach input listeners
+  form.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', validateForm);
+    el.addEventListener('change', validateForm);
+  });
 
-      if (validateFormState()) {
-        const originalText = btnConfirmBooking.innerHTML;
-        btnConfirmBooking.setAttribute('disabled', 'true');
-        btnConfirmBooking.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving Summary Details...';
+  const gIdType = document.getElementById('guestIdType');
+  const gIdNum = document.getElementById('guestIdNumber');
+  const gIdError = document.getElementById('guestIdNumberErrorMsg');
 
-        // Translate DD-MM-YYYY strings to YYYY-MM-DD for session storage storage consistency
-        const checkinParts = checkinInput.value.split('-');
-        const checkoutParts = checkoutInput.value.split('-');
-        const checkinISO = `${checkinParts[2]}-${checkinParts[1]}-${checkinParts[0]}`;
-        const checkoutISO = `${checkoutParts[2]}-${checkoutParts[1]}-${checkoutParts[0]}`;
-        
-        sessionStorage.setItem('search_checkin', checkinISO);
-        sessionStorage.setItem('search_checkout', checkoutISO);
-
-        setTimeout(() => {
-          btnConfirmBooking.removeAttribute('disabled');
-          btnConfirmBooking.innerHTML = originalText;
-          window.location.href = 'invoice_summary.html';
-        }, 1200);
+  if (gIdType && gIdNum) {
+    gIdType.addEventListener('change', () => {
+      gIdNum.value = '';
+      if (gIdError) {
+        gIdError.classList.add('d-none');
+        gIdError.textContent = '';
       }
+      
+      const type = gIdType.value;
+      if (type === 'Aadhaar') {
+        gIdNum.placeholder = 'Enter 12-digit Aadhaar Number';
+      } else if (type === 'PAN') {
+        gIdNum.placeholder = 'Enter PAN Number';
+      } else if (type === 'Passport') {
+        gIdNum.placeholder = 'Enter Passport Number';
+      } else {
+        gIdNum.placeholder = 'Enter ID Number';
+      }
+      validateForm();
+    });
+
+    gIdNum.addEventListener('input', () => {
+      let val = gIdNum.value;
+      const type = gIdType.value;
+
+      if (type === 'PAN' || type === 'Passport') {
+        val = val.toUpperCase();
+      }
+      
+      gIdNum.value = val;
+      validateForm();
     });
   }
+  
+  if (specialRequests && charCounter) {
+    specialRequests.addEventListener('input', () => {
+      charCounter.textContent = `${specialRequests.value.length} / 300`;
+    });
+  }
+
+  // Initial validate
+  validateForm();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const guestObj = {
+      primaryGuest: {
+        name: document.getElementById('guestName').value.trim(),
+        email: document.getElementById('guestEmail').value.trim(),
+        phone: guestPhone.value.trim(),
+        idType: document.getElementById('guestIdType').value,
+        idNumber: document.getElementById('guestIdNumber').value.trim(),
+      },
+      specialRequests: specialRequests ? specialRequests.value.trim() : ''
+    };
+    
+    // Update selection object dates just in case they were modified
+    selection.checkIn = checkinDate.value;
+    selection.checkOut = checkoutDate.value;
+    sessionStorage.setItem('hbs_booking_selection', JSON.stringify(selection));
+    localStorage.setItem('hbs_booking_selection', JSON.stringify(selection));
+
+    // Save guest details
+    sessionStorage.setItem('hbs_booking_guest', JSON.stringify(guestObj));
+    localStorage.setItem('hbs_booking_guest', JSON.stringify(guestObj));
+    
+    // Route to invoice summary
+    window.location.href = 'invoice_summary.html';
+  });
+
 });

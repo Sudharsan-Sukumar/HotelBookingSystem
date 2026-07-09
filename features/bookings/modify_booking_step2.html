@@ -68,7 +68,12 @@
   </nav>
 
   <!-- TOP HEADER SECTION -->
-  <header class="container px-xl-5 py-4 mt-2 text-start">
+  <header class="container px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <div class="mb-2">
+      <a href="modify_booking_step1.html" class="btn btn-sm d-inline-flex align-items-center gap-1 p-0 text-dark fw-semibold" style="font-size: 0.8rem; text-decoration: none; border: none; background: transparent;">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
     <h1 class="modify-title m-0">Modify Booking</h1>
     <p class="modify-sub text-muted m-0">Update your stay details in just a few simple steps.</p>
   </header>
@@ -299,8 +304,8 @@
           <!-- Col 1 -->
           <div class="col-md-3">
             <strong class="small text-muted uppercase d-block mb-2">Current Booking Amount</strong>
-            <span class="fw-bold text-dark font-serif fs-4">Rs. 60,000</span>
-            <span class="small text-muted d-block">For 3 Nights</span>
+            <span class="fw-bold text-dark font-serif fs-4" id="lblCurrentAmount">Rs. 60,000</span>
+            <span class="small text-muted d-block" id="lblCurrentNights">For 3 Nights</span>
           </div>
           <!-- Divider minus -->
           <div class="col-md-1 d-flex justify-content-center align-items-center">
@@ -310,11 +315,10 @@
           <div class="col-md-3">
             <strong class="small text-muted uppercase d-block mb-2">New Booking Amount</strong>
             <span class="fw-bold text-dark font-serif fs-4" id="lblNewAmount">Rs. 67,500</span>
-            <span class="small text-muted d-block">For 5 Nights</span>
+            <span class="small text-muted d-block" id="lblNewNights">For 5 Nights</span>
           </div>
-          <!-- Divider equals -->
           <div class="col-md-1 d-flex justify-content-center align-items-center">
-            <span class="comp-math-symbol"><i class="bi bi-distribute-vertical"></i></span>
+            <span class="comp-math-symbol"><i class="bi bi-distribute-vertical" id="lblEqualsSymbol"></i></span>
           </div>
           <!-- Col 3 -->
           <div class="col-md-4 bg-light-ivory p-3 rounded">

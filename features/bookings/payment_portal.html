@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -95,255 +95,126 @@
   <main class="container px-xl-5 pb-5">
     <div class="row g-4">
       
-      <!-- Left Column: Payment Methods Tabs & Form Panels -->
+      <!-- Left Column: Razorpay Unified Payment Panel -->
       <section class="col-lg-8">
-        
-        <!-- Tab Select Bar Headers -->
-        <div class="row g-2 mb-4 text-start">
-          <div class="col-3">
-            <button class="btn btn-tab-option w-100 active" id="tabCardBtn">
-              <i class="bi bi-credit-card"></i>
-              <div>
-                <strong style="font-size: 0.8rem;">Debit / Credit Card</strong>
-                <span style="font-size: 0.65rem;">Pay securely using card</span>
-              </div>
-            </button>
-          </div>
-          <div class="col-3">
-            <button class="btn btn-tab-option w-100" id="tabUpiBtn">
-              <i class="bi bi-phone"></i>
-              <div>
-                <strong style="font-size: 0.8rem;">UPI Payment Mode</strong>
-                <span style="font-size: 0.65rem;">Pay using any UPI app</span>
-              </div>
-            </button>
-          </div>
-          <div class="col-3">
-            <button class="btn btn-tab-option w-100" id="tabBankBtn">
-              <i class="bi bi-bank"></i>
-              <div>
-                <strong style="font-size: 0.8rem;">Net Banking</strong>
-                <span style="font-size: 0.65rem;">Pay via your bank</span>
-              </div>
-            </button>
-          </div>
-          <div class="col-3">
-            <button class="btn btn-tab-option w-100" id="tabWalletBtn">
-              <i class="bi bi-wallet2"></i>
-              <div>
-                <strong style="font-size: 0.8rem;">Wallet</strong>
-                <span style="font-size: 0.65rem;">Pay instantly via wallet</span>
-              </div>
-            </button>
-          </div>
-        </div>
 
-        <!-- Form 1: Credit / Debit Card Form Panel -->
-        <div class="payment-form-card p-4 p-md-5 text-start" id="panelCardForm">
-          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-2">
-              <span class="panel-badge-icon"><i class="bi bi-credit-card"></i></span>
-              <h2 class="panel-section-title m-0">Card Details</h2>
+        <!-- Amount + Razorpay Panel -->
+        <div class="payment-form-card p-4 p-md-5 text-start">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="panel-badge-icon"><i class="bi bi-shield-lock"></i></span>
+            <div>
+              <h2 class="panel-section-title m-0">Secure Payment</h2>
+              <p class="text-muted small m-0">All payments are processed securely via Razorpay</p>
             </div>
-            <div class="card-logo-row d-flex align-items-center gap-2">
-              <div class="logo-container-card">
-                <img src="../../assets/images/logo_visa.png" alt="Visa" class="brand-card-logo">
+          </div>
+
+          <!-- Dynamic Amount Box -->
+          <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, #1A0A2E 0%, #2D1B5E 100%);">
+            <p class="small mb-1 text-uppercase fw-semibold" id="lblPaymentLabel" style="color: rgba(255,255,255,0.55); letter-spacing:0.08em;">Total Amount Due</p>
+            <h2 class="fw-bold m-0" id="lblRazorpayAmount" style="color: #D4AF37; font-size: 2.4rem; font-family: 'Playfair Display', serif;">&#8377;0</h2>
+            <p class="small mt-2 mb-0" id="lblPaymentNote" style="color: rgba(255,255,255,0.5);">Inclusive of 18% GST</p>
+          </div>
+
+          <!-- Pre-filled Customer Info (read-only) -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted text-uppercase" style="letter-spacing:0.05em;">Name on Account</label>
+              <div class="form-control custom-form-control d-flex align-items-center gap-2" style="background:#f8f9fa; cursor:default; pointer-events:none;">
+                <i class="bi bi-person text-muted"></i>
+                <span id="lblPrefillName" class="text-dark">Guest</span>
               </div>
-              <div class="logo-container-card">
-                <img src="../../assets/images/logo_mastercard.png" alt="Mastercard" class="brand-card-logo">
-              </div>
-              <div class="logo-container-card">
-                <img src="../../assets/images/logo_rupay.png" alt="RuPay" class="brand-card-logo">
-              </div>
-              <div class="logo-container-card">
-                <img src="../../assets/images/logo_amex.png" alt="American Express" class="brand-card-logo">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted text-uppercase" style="letter-spacing:0.05em;">Email Address</label>
+              <div class="form-control custom-form-control d-flex align-items-center gap-2" style="background:#f8f9fa; cursor:default; pointer-events:none;">
+                <i class="bi bi-envelope text-muted"></i>
+                <span id="lblPrefillEmail" class="text-dark">guest@example.com</span>
               </div>
             </div>
           </div>
 
-          <form id="creditCardForm" novalidate>
-            <!-- Cardholder Full Name -->
-            <div class="mb-4">
-              <label for="cardName" class="form-label">Cardholder Full Name <span class="text-danger">*</span></label>
-              <input type="text" id="cardName" class="form-control custom-form-control" placeholder="Enter name as on card" required aria-required="true">
-              <span class="text-danger small mt-1 d-none" id="cardNameError">Please enter a valid cardholder name.</span>
-            </div>
-
-            <!-- Card Number -->
-            <div class="mb-4">
-              <label for="cardNumber" class="form-label">Card Number <span class="text-danger">*</span></label>
-              <div class="input-group input-group-over">
-                <span class="input-group-text bg-white border-end-0"><i class="bi bi-credit-card text-muted"></i></span>
-                <input type="text" id="cardNumber" class="form-control custom-form-control border-start-0" placeholder="XXXX XXXX XXXX XXXX" required aria-required="true">
-              </div>
-              <span class="small mt-1 d-none" id="cardNumberError"></span>
-            </div>
-
-            <!-- Expiry & CVV codes row -->
-            <div class="row g-4 mb-4">
-              <div class="col-6">
-                <label for="cardExpiry" class="form-label">Expiry Date <span class="text-danger">*</span></label>
-                <input type="text" id="cardExpiry" class="form-control custom-form-control text-center" placeholder="MM / YY" required aria-required="true">
-                <span class="small mt-1 d-none" id="cardExpiryError"></span>
-              </div>
-              <div class="col-6">
-                <label for="cardCvv" class="form-label">CVV Code <span class="text-danger">*</span></label>
-                <div class="position-relative">
-                  <input type="password" id="cardCvv" class="form-control custom-form-control text-center" placeholder="XXX" required aria-required="true" style="padding-right: 40px;">
-                  <button type="button" id="btnToggleCvv" class="btn p-0 border-0 position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); z-index: 10; color: #6C757D;" aria-label="Toggle CVV visibility">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                </div>
-                <span class="small mt-1 d-none" id="cardCvvError"></span>
-              </div>
-            </div>
-
-            <!-- Muted storage warning banner -->
-            <div class="info-alert-card p-3 mb-4 d-flex align-items-center gap-3">
-              <span class="alert-icon-circular"><i class="bi bi-shield-check"></i></span>
-              <span class="small text-secondary"><strong>We never store your card details</strong>. All transactions are encrypted and secure.</span>
-            </div>
-
-            <!-- Pay Now submission CTA button -->
-            <button type="submit" class="btn btn-confirm-pay w-100 py-3" id="btnPayCard" disabled>
-              <i class="bi bi-lock-fill me-1"></i> Pay Now 
-            </button>
-          </form>
-        </div>
-
-        <!-- Form 2: UPI Form Panel (Hidden by default) -->
-        <div class="payment-form-card p-4 p-md-5 text-start d-none" id="panelUpiForm">
-          <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="panel-badge-icon"><i class="bi bi-phone"></i></span>
-            <h2 class="panel-section-title m-0">UPI Payments</h2>
+          <!-- Accepted payment methods row -->
+          <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+            <span class="small text-muted me-1">Accepted via Razorpay:</span>
+            <div class="logo-container-card"><img src="../../assets/images/logo_visa.png" alt="Visa" class="brand-card-logo"></div>
+            <div class="logo-container-card"><img src="../../assets/images/logo_mastercard.png" alt="Mastercard" class="brand-card-logo"></div>
+            <div class="logo-container-card"><img src="../../assets/images/logo_rupay.png" alt="RuPay" class="brand-card-logo"></div>
+            <div class="logo-container-card"><img src="../../assets/images/logo_amex.png" alt="Amex" class="brand-card-logo"></div>
+            <span class="badge px-2 py-1 fw-semibold" style="background:#4CAF50;color:#fff;font-size:0.7rem;">UPI</span>
+            <span class="badge px-2 py-1 fw-semibold" style="background:#1565C0;color:#fff;font-size:0.7rem;">Net Banking</span>
+            <span class="badge px-2 py-1 fw-semibold" style="background:#D4AF37;color:#1A0A2E;font-size:0.7rem;">Wallet</span>
           </div>
 
-          <form id="upiPaymentForm" novalidate>
-            <div class="mb-4">
-              <label for="upiId" class="form-label">UPI ID / VPA <span class="text-danger">*</span></label>
-              <input type="text" id="upiId" class="form-control custom-form-control" placeholder="username@bank" required aria-required="true">
-              <span class="text-danger small mt-1 d-none" id="upiError">Please enter a valid UPI ID (e.g. user@oksbi).</span>
-            </div>
-            <button type="submit" class="btn btn-confirm-pay w-100 py-3" id="btnPayUpi" disabled>
-              Verify & Pay Now
-            </button>
-          </form>
-        </div>
-
-        <!-- Form 3: Net Banking Form Panel (Hidden by default) -->
-        <div class="payment-form-card p-4 p-md-5 text-start d-none" id="panelBankForm">
-          <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="panel-badge-icon"><i class="bi bi-bank"></i></span>
-            <h2 class="panel-section-title m-0">Net Banking Options</h2>
+          <!-- Security note -->
+          <div class="info-alert-card p-3 mb-5 d-flex align-items-center gap-3">
+            <span class="alert-icon-circular"><i class="bi bi-shield-check"></i></span>
+            <span class="small text-secondary"><strong>We never store your card details.</strong> Razorpay's PCI-DSS Level 1 certified gateway encrypts and processes all transactions.</span>
           </div>
 
-          <form id="bankPaymentForm" novalidate>
-            <div class="mb-4">
-              <label for="selectBank" class="form-label">Choose Your Bank <span class="text-danger">*</span></label>
-              <select id="selectBank" class="form-select custom-form-select" required aria-required="true">
-                <option value="" disabled selected>-- Select Bank --</option>
-                <option value="SBI">State Bank of India (SBI)</option>
-                <option value="HDFC">HDFC Bank</option>
-                <option value="ICICI">ICICI Bank</option>
-                <option value="Axis">Axis Bank</option>
-                <option value="Canara">Canara Bank</option>
-              </select>
-              <span class="text-danger small mt-1 d-none" id="bankError">Please select a bank to proceed.</span>
-            </div>
-            <button type="submit" class="btn btn-confirm-pay w-100 py-3" id="btnPayBank" disabled>
-              Continue to Bank
-            </button>
-          </form>
-        </div>
-
-        <!-- Form 4: Wallet Form Panel (Hidden by default) -->
-        <div class="payment-form-card p-4 p-md-5 text-start d-none" id="panelWalletForm">
-          <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="panel-badge-icon"><i class="bi bi-wallet2"></i></span>
-            <h2 class="panel-section-title m-0">Elegant Wallet</h2>
-          </div>
-          
-          <div class="p-4 bg-light rounded border mb-4">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-secondary small">Wallet Balance</span>
-              <strong class="text-dark fs-5">Rs. 60,000.00</strong>
-            </div>
-            <div class="d-flex justify-content-between border-top pt-2 mb-2">
-              <span class="text-secondary small">Booking Amount</span>
-              <strong class="text-dark" id="lblWalletBookingAmount">Rs. 23,010.00</strong>
-            </div>
-            <div class="d-flex justify-content-between border-top pt-2">
-              <span class="text-secondary small">Remaining Wallet Balance</span>
-              <strong class="text-success fs-5" id="lblWalletRemaining">Rs. 36,990.00</strong>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 mb-4 text-success fw-bold" id="lblWalletStatus">
-            <i class="bi bi-check-circle-fill"></i> Sufficient Balance
-          </div>
-
-          <button type="button" class="btn btn-confirm-pay w-100 py-3" id="btnPayWallet">
-            Pay Using Wallet
+          <!-- Single Razorpay Pay Button -->
+          <button type="button" class="btn btn-confirm-pay w-100 py-3 d-flex align-items-center justify-content-center gap-3" id="btnPayRazorpay" style="font-size:1.05rem;">
+            <img src="https://razorpay.com/favicon.png" alt="Razorpay" style="width:22px;height:22px;border-radius:4px;" onerror="this.style.display='none'">
+            <i class="bi bi-lock-fill"></i>
+            <span id="btnPayRazorpayText">Pay Securely with Razorpay</span>
           </button>
-        </div>
 
-        <!-- HAVE A COUPON SECTION CARD -->
-        <div class="payment-form-card p-4 text-start mt-4 mb-4 border border-light" style="box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
-          <h4 class="font-serif text-dark mb-3" style="font-size: 1.15rem;"><i class="bi bi-gift text-warning me-2"></i>Have a Coupon?</h4>
-          <div class="d-flex gap-2">
-            <input type="text" id="couponCodeInput" class="form-control custom-form-control" placeholder="Enter Coupon Code (e.g. WELCOME10)" style="max-width: 320px;">
-            <button type="button" class="btn btn-confirm-pay py-2 px-4" id="btnApplyCoupon" style="width: auto; height: 52px;">Apply</button>
-          </div>
-          <div class="text-danger small mt-1 d-none" id="couponError">Invalid coupon code.</div>
-          <div class="text-success small mt-1 d-none" id="couponSuccess">Coupon Applied Successfully (10% Discount)</div>
+          <p class="text-muted small text-center mt-3 mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            A Razorpay test payment window will open. Use test card: <strong>4111 1111 1111 1111</strong>, any future expiry, CVV <strong>123</strong>.
+          </p>
         </div>
 
       </section>
+
+
+
+
+
 
       <!-- Right Column: Booking Summary Card Panel -->
       <aside class="col-lg-4 text-start">
         <div class="summary-card p-4">
           <h2 class="summary-card-title mb-4"><i class="bi bi-file-earmark-text text-warning me-2"></i>Booking Summary</h2>
           
-          <img src="../../assets/images/hotel_cbe.png" alt="The Elegant Suites Coimbatore resort facade" class="summary-hotel-img rounded mb-3">
-          <h3 class="summary-hotel-name m-0">The Elegant Suites Coimbatore</h3>
-          <p class="summary-hotel-branch text-muted mb-4">Coimbatore Branch &bull; Executive Studio Room</p>
+          <img src="../../assets/images/hotel_cbe.png" alt="Hotel facade" class="summary-hotel-img rounded mb-3" id="summaryHotelImg">
+          <h3 class="summary-hotel-name m-0" id="summaryHotelName">The Elegant Suites Coimbatore</h3>
+          <p class="summary-hotel-branch text-muted mb-4" id="summaryHotelBranchRoom">Coimbatore Branch &bull; Executive Studio Room</p>
 
           <ul class="summary-meta-list ps-0 mb-4">
             <li class="d-flex justify-content-between py-1">
               <span class="text-secondary"><i class="bi bi-calendar-check me-2"></i>Check-In</span>
-              <span class="fw-semibold text-dark">25 Jun 2026</span>
+              <span class="fw-semibold text-dark" id="summaryCheckIn">20 Nov 2026</span>
             </li>
             <li class="d-flex justify-content-between py-1">
               <span class="text-secondary"><i class="bi bi-calendar-x me-2"></i>Check-Out</span>
-              <span class="fw-semibold text-dark">28 Jun 2026</span>
+              <span class="fw-semibold text-dark" id="summaryCheckOut">23 Nov 2026</span>
             </li>
             <li class="d-flex justify-content-between py-1">
               <span class="text-secondary"><i class="bi bi-moon me-2"></i>Duration</span>
-              <span class="fw-semibold text-dark">3 Nights</span>
+              <span class="fw-semibold text-dark" id="summaryDuration">3 Nights</span>
             </li>
             <li class="d-flex justify-content-between py-1">
               <span class="text-secondary"><i class="bi bi-people me-2"></i>Guests</span>
-              <span class="fw-semibold text-dark">2 Adults</span>
+              <span class="fw-semibold text-dark" id="summaryGuests">2 Adults</span>
             </li>
             <li class="d-flex justify-content-between py-1">
               <span class="text-secondary"><i class="bi bi-tag me-2"></i>Booking ID</span>
-              <span class="fw-bold text-dark">EE-COB-260625-7852</span>
+              <span class="fw-bold text-dark" id="summaryBookingId">EE-COB-260625-7852</span>
             </li>
           </ul>
 
           <div class="price-breakdown-box border-top pt-3">
             <div class="d-flex justify-content-between py-1">
               <span class="text-secondary small">Base Room Charge</span>
-              <span class="fw-semibold text-dark">Rs. 19,500.00</span>
+              <span class="fw-semibold text-dark" id="summaryBaseCharge">Rs. 19,500.00</span>
             </div>
             <div class="d-flex justify-content-between py-1">
               <span class="text-secondary small">Taxes & Fees (18% GST)</span>
-              <span class="fw-semibold text-dark">Rs. 3,510.00</span>
+              <span class="fw-semibold text-dark" id="summaryTaxes">Rs. 3,510.00</span>
             </div>
             <div class="d-flex justify-content-between align-items-center border-top mt-2 pt-2">
               <strong class="text-dark">Total Amount</strong>
-              <strong class="text-warning fs-5">Rs. 23,010.00</strong>
+              <strong class="text-warning fs-5" id="summaryTotalAmount">Rs. 23,010.00</strong>
             </div>
           </div>
 
@@ -478,12 +349,12 @@
     </div>
   </div>
 
-  <!-- Bootstrap and JS bundle -->
+  <!-- Core Scripts -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="../../Shared/UtilityClass/back_nav.js"></script>
   <script src="payment_portal.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
 </body>
-</html>
 

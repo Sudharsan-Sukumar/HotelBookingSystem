@@ -1,12 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  let backups = [
-    { id: 'BCK-042', type: 'Scheduled', datetime: '23 Jun 2026, 05:00 AM', size: '320 MB', status: 'Completed', includes: 'DB + Files' },
-    { id: 'BCK-041', type: 'Scheduled', datetime: '22 Jun 2026, 05:00 AM', size: '318 MB', status: 'Completed', includes: 'DB + Files' },
-    { id: 'BCK-040', type: 'Manual', datetime: '21 Jun 2026, 02:32 PM', size: '315 MB', status: 'Completed', includes: 'DB Only' },
-    { id: 'BCK-039', type: 'Scheduled', datetime: '21 Jun 2026, 05:00 AM', size: '314 MB', status: 'Completed', includes: 'DB + Files' },
-    { id: 'BCK-038', type: 'Scheduled', datetime: '20 Jun 2026, 05:00 AM', size: '312 MB', status: 'Completed', includes: 'DB + Files' }
-  ];
-
+  let backups = HotelState.get('backupHistory') || [];
+  
   const tblBody = document.querySelector('#tblBackups tbody');
   const filterType = document.getElementById('filterType');
   const btnReset = document.getElementById('btnResetFilters');
@@ -21,20 +15,52 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.show();
   }
 
+  function getStorageSizeStr() {
+    let _lsTotal = 0;
+    for(let x in localStorage) {
+      if(localStorage.hasOwnProperty(x)) {
+        _lsTotal += ((localStorage[x].length + x.length) * 2);
+      }
+    }
+    const kb = (_lsTotal / 1024).toFixed(2);
+    return `${kb} KB`;
+  }
+
   function renderTable() {
     tblBody.innerHTML = '';
     const typeVal = filterType.value;
-
+    
+    // Sort descending
+    backups.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
     let filtered = backups.filter(b => {
       if (typeVal !== 'all' && b.type !== typeVal) return false;
       return true;
     });
+    
+    // Keep only last 10 
+    filtered = filtered.slice(0, 10);
 
     // Update KPI metrics values
     document.getElementById('kpiTotalBackups').textContent = backups.length;
     if (backups.length > 0) {
-      document.getElementById('kpiLastBackup').textContent = 'Just now';
+      document.getElementById('kpiLastBackup').textContent = 'Recent';
       document.getElementById('kpiLastBackupDate').textContent = backups[0].datetime;
+    } else {
+      document.getElementById('kpiLastBackup').textContent = 'Never';
+      document.getElementById('kpiLastBackupDate').textContent = '-';
+    }
+
+    // Update storage size element
+    const kpiStorage = document.querySelector('.bi-pie-chart-fill').closest('.kpi-card').querySelector('strong');
+    if (kpiStorage) {
+      kpiStorage.textContent = getStorageSizeStr();
+      kpiStorage.nextElementSibling.textContent = 'Estimated size';
+    }
+
+    if (filtered.length === 0) {
+      tblBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No backup history available.</td></tr>`;
+      return;
     }
 
     filtered.forEach(b => {
@@ -44,8 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let actions = `
-        <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="downloadBackup('${b.id}')"><i class="bi bi-download me-1"></i>Download</button>
-        <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="restoreBackup('${b.id}')"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</button>
         <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteBackup('${b.id}')"><i class="bi bi-trash-fill"></i></button>
       `;
 
@@ -63,13 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Create Backup Action with Premium Progress Animation
+  // Create Backup Action
   const backupModalEl = document.getElementById('backupAnimModal');
   const backupModal = new bootstrap.Modal(backupModalEl);
 
   document.getElementById('btnCreateBackupNow').addEventListener('click', () => {
     if (confirm('Create a new system backup now?')) {
-      // Show full-screen animation modal
       backupModal.show();
 
       const progressCircle = document.getElementById('progressCircle');
@@ -79,31 +102,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const bottomBar = document.getElementById('progressBarBottom');
       const dataPacket = document.querySelector('.data-packet');
 
-      // Reset progress
       let progress = 0;
       progressText.textContent = '0%';
       bottomBar.style.width = '0%';
       progressCircle.style.strokeDashoffset = '251.2';
       if (dataPacket) dataPacket.style.animation = 'none';
 
-      // Define Stage details
       const stages = [
-        { limit: 15, title: 'Initializing Backup...', desc: 'Preparing secure data pipeline...' },
-        { limit: 35, title: 'Checking Database Integrity...', desc: 'Verifying tables and indexes...' },
-        { limit: 55, title: 'Compressing Database...', desc: 'Optimizing schema archives...' },
-        { limit: 75, title: 'Encrypting Backup...', desc: 'AES-256 Encryption Enabled' },
-        { limit: 90, title: 'Uploading Secure Backup...', desc: 'Synchronizing backup files to cloud...' },
-        { limit: 100, title: 'Verifying Backup Integrity...', desc: 'Performing checksum validation...' }
+        { limit: 20, title: 'Gathering System Data...', desc: 'Reading state from LocalStorage...' },
+        { limit: 50, title: 'Creating JSON Payload...', desc: 'Structuring entities...' },
+        { limit: 80, title: 'Finalizing Backup...', desc: 'Logging activity...' },
+        { limit: 100, title: 'Triggering Download...', desc: 'Saving file to disk...' }
       ];
 
-      // Trigger packet flow animation
       if (dataPacket) {
-        dataPacket.style.animation = 'flowData 2s infinite linear';
+        dataPacket.style.animation = 'flowData 1s infinite linear';
       }
 
-      // Animate progress over exactly 6 seconds
-      const duration = 6000; // 6 seconds total
-      const intervalTime = 50; // every 50ms
+      const duration = 3000;
+      const intervalTime = 50;
       const totalSteps = duration / intervalTime;
       const stepValue = 100 / totalSteps;
 
@@ -113,117 +130,140 @@ document.addEventListener('DOMContentLoaded', () => {
           progress = 100;
           clearInterval(timer);
 
-          // Completion success state
+          // Actual Backup Logic
+          const data = {
+            users: HotelState.users,
+            hotels: HotelState.hotels,
+            rooms: HotelState.rooms,
+            bookings: HotelState.bookings,
+            notifications: HotelState.notifications,
+            housekeeping: HotelState.housekeeping,
+            auditLogs: HotelState.auditLogs,
+            content: HotelState.content,
+            backupHistory: HotelState.get('backupHistory') || []
+          };
+
+          const now = new Date();
+          const payload = {
+            backupDate: now.toISOString(),
+            version: '1.0',
+            data: data
+          };
+
+          const jsonStr = JSON.stringify(payload, null, 2);
+          const kbSize = (jsonStr.length / 1024).toFixed(2) + ' KB';
+
+          const pad = (n) => n.toString().padStart(2, '0');
+          const dStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+          const filename = `hbs_backup_${dStr}.json`;
+
+          // Trigger Download
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          // Audit log and history
+          const user = HotelState.currentUser || { id: 'SYS', role: 'Admin', name: 'System Admin' };
+
+          const backupId = `BCK-${Date.now().toString().slice(-6)}`;
+          backups.unshift({
+            id: backupId,
+            type: 'Manual',
+            timestamp: now.toISOString(),
+            datetime: now.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+            size: kbSize,
+            status: 'Completed',
+            includes: 'All State Data'
+          });
+          HotelState.set('backupHistory', backups);
+
           stageTitle.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Backup Completed Successfully</span>';
-          stageDesc.textContent = 'Secure backup RT-043 created and stored.';
+          stageDesc.textContent = 'Backup file downloaded securely.';
           if (dataPacket) dataPacket.style.animation = 'none';
 
-          // Show success state for 1 second, then close modal and save records
           setTimeout(() => {
             backupModal.hide();
-
-            const nextId = `BCK-0${backups.length + 43}`;
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            backups.unshift({
-              id: nextId,
-              type: 'Manual',
-              datetime: dateStr,
-              size: '325 MB',
-              status: 'Completed',
-              includes: 'DB + Files'
-            });
-
             showToast('Backup created successfully.', true);
             renderTable();
           }, 1200);
         }
 
-        // Apply progress text and indicators
         const displayProgress = Math.floor(progress);
         progressText.textContent = `${displayProgress}%`;
         bottomBar.style.width = `${displayProgress}%`;
-        
-        // svg dash offset calculation
         const offset = 251.2 - (251.2 * displayProgress) / 100;
         progressCircle.style.strokeDashoffset = offset;
-
-        // Cycle process stages description
         const currentStage = stages.find(s => displayProgress <= s.limit) || stages[stages.length - 1];
         if (displayProgress < 100) {
           stageTitle.textContent = currentStage.title;
           stageDesc.textContent = currentStage.desc;
         }
-
       }, intervalTime);
     }
   });
 
-  // Download Trigger simulation
-  window.downloadBackup = function(id) {
-    showToast(`Preparing download for backup archive ${id}...`, true);
-    setTimeout(() => {
-      showToast(`Download completed for ${id}.`, true);
-    }, 1500);
-  };
-
-  // Restore backup handler
+  // Restore Functionality
+  const btnUploadRestore = document.getElementById('btnUploadRestore');
+  const fileRestoreBackup = document.getElementById('fileRestoreBackup');
   const restoreConfirmModal = new bootstrap.Modal(document.getElementById('restoreConfirmModal'));
   const restoreAnimModal = new bootstrap.Modal(document.getElementById('restoreAnimModal'));
-  const btnTogglePassword = document.getElementById('btnTogglePassword');
   const txtPassword = document.getElementById('txtAdminPassword');
-  let selectedBackupForRestore = null;
+  let loadedRestoreData = null;
 
-  // Toggle Password Visibility
-  btnTogglePassword.addEventListener('click', () => {
-    const type = txtPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-    txtPassword.setAttribute('type', type);
-    btnTogglePassword.querySelector('i').classList.toggle('bi-eye');
-    btnTogglePassword.querySelector('i').classList.toggle('bi-eye-slash');
-  });
-
-  // Top header button action
-  document.getElementById('btnRestoreLatest').addEventListener('click', () => {
-    if (backups.length > 0) {
-      window.restoreBackup(backups[0].id);
-    } else {
-      showToast('No backup records available to restore.', false);
-    }
-  });
-
-  document.getElementById('btnDownloadLatest').addEventListener('click', () => {
-    if (backups.length > 0) {
-      window.downloadBackup(backups[0].id);
-    }
-  });
-
-  window.restoreBackup = function(id) {
-    const b = backups.find(x => x.id === id);
-    if (!b) return;
-
-    selectedBackupForRestore = b;
-    document.getElementById('lblRestoreBackupId').textContent = b.id;
-    document.getElementById('lblRestoreBackupDate').textContent = b.datetime;
-    document.getElementById('lblRestoreBackupSize').textContent = b.size;
-    document.getElementById('lblRestoreBackupIncludes').textContent = b.includes;
+  if (btnUploadRestore && fileRestoreBackup) {
+    btnUploadRestore.addEventListener('click', () => fileRestoreBackup.click());
     
-    // Clear inputs
-    txtPassword.value = '';
-    document.getElementById('chkRestoreConsent').checked = false;
-    document.getElementById('errAdminPassword').style.display = 'none';
+    fileRestoreBackup.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    restoreConfirmModal.show();
-  };
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const json = JSON.parse(ev.target.result);
+          if (!json.version || !json.data || typeof json.data !== 'object') {
+            throw new Error('Invalid backup file schema: version or data missing.');
+          }
+          // Strict validation of entity arrays
+          const requiredKeys = ['users', 'hotels', 'rooms', 'bookings'];
+          for (const key of requiredKeys) {
+            if (!json.data[key] || !Array.isArray(json.data[key])) {
+              throw new Error(`Invalid backup data collection: '${key}' is missing or not an array.`);
+            }
+          }
+          
+          loadedRestoreData = json;
+          
+          document.getElementById('lblRestoreBackupId').textContent = file.name;
+          document.getElementById('lblRestoreBackupDate').textContent = json.backupDate ? new Date(json.backupDate).toLocaleString() : new Date().toLocaleString();
+          document.getElementById('lblRestoreBackupSize').textContent = (file.size / 1024).toFixed(2) + ' KB';
+          document.getElementById('lblRestoreBackupIncludes').textContent = 'All State Data';
+          
+          txtPassword.value = '';
+          document.getElementById('chkRestoreConsent').checked = false;
+          document.getElementById('errAdminPassword').style.display = 'none';
 
-  // Submit and validate restore trigger
+          restoreConfirmModal.show();
+        } catch (err) {
+          showToast(`Failed to parse backup file: ${err.message}`, false);
+        }
+        fileRestoreBackup.value = '';
+      };
+      reader.readAsText(file);
+    });
+  }
+
   document.getElementById('frmRestoreConfirm').addEventListener('submit', (e) => {
     e.preventDefault();
-
     const pass = txtPassword.value.trim();
     const consent = document.getElementById('chkRestoreConsent').checked;
     const errorMsg = document.getElementById('errAdminPassword');
-
     errorMsg.style.display = 'none';
 
     if (!pass) {
@@ -231,19 +271,17 @@ document.addEventListener('DOMContentLoaded', () => {
       errorMsg.style.display = 'block';
       return;
     }
-
-    if (pass !== 'admin123' && pass !== 'admin' && pass !== 'Admin@123') {
+    // Simple admin validation as per Phase 1 spec mockup
+    if (pass !== 'admin123' && pass !== 'admin' && pass !== 'Admin@123' && pass !== 'Secure@123') {
       errorMsg.textContent = 'Invalid administrator password.';
       errorMsg.style.display = 'block';
       return;
     }
-
     if (!consent) {
       alert('You must check the consent checkbox to continue.');
       return;
     }
 
-    // Pass validates, proceed with restore animation
     restoreConfirmModal.hide();
     restoreAnimModal.show();
 
@@ -254,28 +292,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const bottomBar = document.getElementById('restoreBarBottom');
     const dataPacket = document.querySelector('.restore-data-packet');
 
-    // Reset parameters
     let progress = 0;
     progressText.textContent = '0%';
     bottomBar.style.width = '0%';
     progressCircle.style.strokeDashoffset = '251.2';
     if (dataPacket) dataPacket.style.animation = 'none';
 
-    // Define stage parameters
     const stages = [
-      { limit: 15, title: 'Initializing Restore...', desc: 'Preparing recovery environment...' },
-      { limit: 35, title: 'Verifying Backup Integrity...', desc: 'Checking backup consistency...' },
-      { limit: 55, title: 'Restoring Database...', desc: 'Replacing existing database tables...' },
-      { limit: 75, title: 'Restoring Files...', desc: 'Recovering application files...' },
-      { limit: 90, title: 'Synchronizing Configuration...', desc: 'Updating system configurations...' },
+      { limit: 20, title: 'Wiping current data...', desc: 'Preparing memory...' },
+      { limit: 50, title: 'Restoring Entities...', desc: 'Injecting JSON payload to LocalStorage...' },
+      { limit: 90, title: 'Synchronizing Configuration...', desc: 'Updating state values...' },
       { limit: 100, title: 'Final Verification...', desc: 'Validating restored system...' }
     ];
 
-    if (dataPacket) {
-      dataPacket.style.animation = 'flowData 2s infinite linear reverse';
-    }
+    if (dataPacket) dataPacket.style.animation = 'flowData 1s infinite linear reverse';
 
-    const duration = 5000; // 5 seconds
+    const duration = 3000;
     const intervalTime = 50;
     const totalSteps = duration / intervalTime;
     const stepValue = 100 / totalSteps;
@@ -285,6 +317,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (progress >= 100) {
         progress = 100;
         clearInterval(timer);
+
+        // Perform Restore Logic
+        const d = loadedRestoreData.data;
+        if(d.users) HotelState.set('users', d.users);
+        if(d.hotels) HotelState.set('hotels', d.hotels);
+        if(d.rooms) HotelState.set('rooms', d.rooms);
+        if(d.bookings) HotelState.set('bookings', d.bookings);
+        if(d.notifications) HotelState.set('notifications', d.notifications);
+        if(d.housekeeping) HotelState.set('housekeeping', d.housekeeping);
+        if(d.auditLogs) HotelState.set('auditLogs', d.auditLogs);
+        if(d.content) HotelState.set('content', d.content);
+        if(d.backupHistory) HotelState.set('backupHistory', d.backupHistory);
+
+        const user = HotelState.currentUser || { id: 'SYS', role: 'Admin', name: 'System Admin' };
+
+        // Reload backups ref
+        backups = HotelState.get('backupHistory') || [];
 
         stageTitle.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> System Restored Successfully</span>';
         stageDesc.textContent = 'Backup has been fully restored and updated.';
@@ -300,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const displayProgress = Math.floor(progress);
       progressText.textContent = `${displayProgress}%`;
       bottomBar.style.width = `${displayProgress}%`;
-      
       const offset = 251.2 - (251.2 * displayProgress) / 100;
       progressCircle.style.strokeDashoffset = offset;
 
@@ -312,21 +360,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, intervalTime);
   });
 
-  // Download Trigger simulation
-  window.downloadBackup = function(id) {
-    showToast(`Preparing download for backup archive ${id}...`, true);
-    setTimeout(() => {
-      showToast(`Download completed for ${id}.`, true);
-    }, 1500);
-  };
-
-  // Delete Trigger
   window.deleteBackup = function(id) {
-    if (confirm('Delete backup archive file? This action is permanent.')) {
+    if (confirm('Delete backup history record?')) {
       const idx = backups.findIndex(x => x.id === id);
       if (idx !== -1) {
         backups.splice(idx, 1);
-        showToast('Backup deleted successfully.', true);
+        HotelState.set('backupHistory', backups);
+        showToast('Backup record deleted.', true);
         renderTable();
       }
     }

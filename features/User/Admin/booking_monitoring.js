@@ -1,248 +1,417 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let bookings = [
-    { id: 'HBS-2026-001', branch: 'Salem', customer: 'Rajesh K.', roomType: 'Exec Studio', checkin: '25 Jun 2026', amount: 19470, status: 'Confirmed' },
-    { id: 'HBS-2026-002', branch: 'Salem', customer: 'Priya S.', roomType: 'Deluxe Suite', checkin: '26 Jun 2026', amount: 35200, status: 'Pending' },
-    { id: 'HBS-2026-010', branch: 'Coimbatore', customer: 'Kiran M.', roomType: 'Standard', checkin: '25 Jun 2026', amount: 7350, status: 'Confirmed' },
-    { id: 'HBS-2026-015', branch: 'Chennai', customer: 'Shreya L.', roomType: 'Penthouse', checkin: '27 Jun 2026', amount: 57000, status: 'Confirmed' }
-  ];
+  let allBookings = HotelState.bookings || [];
 
   const tblBody = document.querySelector('#tblBookings tbody');
+  const tblHistoryBody = document.querySelector('#tblHistory tbody');
+  
   const filterBranch = document.getElementById('filterBranch');
   const filterStatus = document.getElementById('filterStatus');
+  const filterDateRange = document.getElementById('filterDateRange');
+  const btnResetFilters = document.getElementById('btnResetFilters');
+  const btnApplyFilters = document.getElementById('btnApplyFilters');
+
+  // Search input - we can add live search
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search by booking ID or guest name...';
+  searchInput.className = 'form-control form-control-sm mb-3';
+  document.querySelector('#all-bookings').insertBefore(searchInput, document.querySelector('#all-bookings .card'));
 
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
-    toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
+    if (toastEl) {
+      toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
+      toastMessage.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
   }
 
-  function renderTable() {
-    tblBody.innerHTML = '';
-    const branchVal = filterBranch.value;
-    const statusVal = filterStatus.value;
+  function getStatusBadge(b) {
+    // Use the stored operational status for the admin view (Confirmed, CheckedIn, etc.)
+    const opStatus = b.bookingStatus || b.status || '';
+    switch (opStatus) {
+      case 'Confirmed':  return '<span class="badge bg-success">Confirmed</span>';
+      case 'CheckedIn':  return '<span class="badge bg-primary">Checked In</span>';
+      case 'CheckedOut': return '<span class="badge bg-secondary">Checked Out</span>';
+      case 'Cancelled':  return '<span class="badge bg-danger">Cancelled</span>';
+      default: {
+        // Fallback: derive display from real dates
+        const lc = HotelState.getBookingLifecycle(b);
+        const colourMap = {
+          'upcoming':        'bg-primary',
+          'upcoming-locked': 'bg-warning text-dark',
+          'active':          'bg-success',
+          'completed':       'bg-secondary',
+          'cancelled':       'bg-danger'
+        };
+        const cls = colourMap[lc.stage] || 'bg-warning text-dark';
+        return `<span class="badge ${cls}">${lc.displayStatus}</span>`;
+      }
+    }
+  }
 
-    let filtered = bookings.filter(b => {
-      if (branchVal !== 'all' && b.branch !== branchVal) return false;
-      if (statusVal !== 'all' && b.status !== statusVal) return false;
+  function getCustomerName(b) {
+    const cust = HotelState.users.find(u => u.id === b.customerId || u.email === b.email);
+    return cust ? (cust.firstName ? `${cust.firstName} ${cust.lastName}` : (cust.name || cust.email)) : b.email;
+  }
+
+  function filterData(data, includeHistory = false) {
+    const q = searchInput.value.toLowerCase().trim();
+    const branchVal = filterBranch ? filterBranch.value : 'all';
+    const statusVal = filterStatus ? filterStatus.value : 'all';
+    const dateVal = filterDateRange ? filterDateRange.value : 'This Month';
+
+    return data.filter(b => {
+      // History tab filter check
+      if (includeHistory) {
+        if (!['CheckedOut', 'Cancelled'].includes(b.bookingStatus)) return false;
+      } else {
+        // Active bookings tab
+        if (statusVal === 'all' && ['CheckedOut', 'Cancelled'].includes(b.bookingStatus)) return false;
+      }
+
+      // Branch search matching
+      if (branchVal !== 'all') {
+        const hotel = HotelState.getHotelById(b.hotelId);
+        if (!hotel || !hotel.name.toLowerCase().includes(branchVal.toLowerCase())) return false;
+      }
+
+      // Status matching
+      if (statusVal !== 'all' && b.bookingStatus !== statusVal) return false;
+
+      // Query matching
+      if (q) {
+        const name = getCustomerName(b).toLowerCase();
+        if (!b.id.toLowerCase().includes(q) && !name.includes(q)) return false;
+      }
+
+      // Date range matching
+      const bDate = new Date(b.checkIn);
+      const today = new Date();
+      if (dateVal === 'Today') {
+        const todayStr = today.toISOString().split('T')[0];
+        if (b.checkIn !== todayStr) return false;
+      } else if (dateVal === 'Last 7 Days') {
+        const diff = (today - bDate) / (1000 * 60 * 60 * 24);
+        if (diff < 0 || diff > 7) return false;
+      }
+
       return true;
     });
+  }
+
+  function renderAllBookings() {
+    tblBody.innerHTML = '';
+    const filtered = filterData(allBookings, false);
 
     if (filtered.length === 0) {
-      tblBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No bookings found. Try changing your filters.</td></tr>`;
+      tblBody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">No active bookings found.</td></tr>`;
       return;
     }
 
     filtered.forEach(b => {
-      let badgeClass = 'bg-success';
-      if (b.status === 'Pending') badgeClass = 'bg-warning text-dark';
-      else if (b.status === 'Cancelled') badgeClass = 'bg-danger';
+      const hotel = HotelState.getHotelById(b.hotelId);
+      const hotelName = hotel ? hotel.name : b.hotelId;
+      const guestName = getCustomerName(b);
+      
+      let actionButtons = `<button class="btn btn-sm btn-outline-purple py-0 px-2 me-1 btn-view-booking" data-id="${b.id}">View</button>`;
+      if (b.bookingStatus === 'Confirmed') {
+        actionButtons += `
+          <button class="btn btn-sm btn-outline-danger py-0 px-2 me-1 btn-cancel-booking" data-id="${b.id}">Cancel</button>
+          <button class="btn btn-sm btn-outline-warning py-0 px-2 btn-noshow-booking" data-id="${b.id}">No-Show</button>
+        `;
+      }
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${b.id}</strong></td>
-        <td>${b.branch}</td>
-        <td>${b.customer}</td>
-        <td>${b.roomType}</td>
-        <td>${b.checkin}</td>
-        <td>Rs. ${b.amount.toLocaleString()}</td>
-        <td><span class="badge ${badgeClass}">${b.status}</span></td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-purple py-0 px-2" onclick="location.href='view_booking.html?id=${b.id}'"><i class="bi bi-eye-fill me-1"></i>View</button>
-        </td>
+        <td>${guestName}</td>
+        <td>${hotelName}</td>
+        <td>${b.roomId}</td>
+        <td>${b.checkIn}</td>
+        <td>${b.checkOut}</td>
+        <td>${getStatusBadge(b)}</td>
+        <td>${b.paymentStatus || 'Pending'}</td>
+        <td>₹${b.grandTotal.toLocaleString('en-IN')}</td>
+        <td class="text-end text-nowrap">${actionButtons}</td>
       `;
       tblBody.appendChild(tr);
     });
+
+    bindActionButtons();
   }
 
-  // Chart setup
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  let trendChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['1 Jun', '5 Jun', '10 Jun', '15 Jun', '20 Jun', '25 Jun', '30 Jun'],
-      datasets: [
-        { label: 'Salem', data: [100, 120, 130, 160, 120, 170, 150], borderColor: '#8A2BE2', tension: 0.4 },
-        { label: 'Coimbatore', data: [50, 60, 80, 95, 70, 105, 90], borderColor: '#2E8B57', tension: 0.4 },
-        { label: 'Chennai', data: [20, 30, 45, 55, 40, 65, 50], borderColor: '#FF8C00', tension: 0.4 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { beginAtZero: true }
-      }
-    }
-  });
+  function renderHistory() {
+    tblHistoryBody.innerHTML = '';
+    const filtered = filterData(allBookings, true);
 
-  // Booking Status Distribution Doughnut Chart
-  const ctxStatus = document.getElementById('statusChart').getContext('2d');
-  let statusChart = new Chart(ctxStatus, {
-    type: 'doughnut',
-    data: {
-      labels: ['Confirmed', 'Pending', 'Checked-In', 'Checked-Out', 'Cancelled'],
-      datasets: [{
-        data: [182, 33, 45, 120, 15],
-        backgroundColor: ['#2E8B57', '#F1C40F', '#0D6EFD', '#6C757D', '#dc3545'],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' }
-      }
-    }
-  });
-
-  // Branch Occupancy Bar Chart
-  const ctxBranch = document.getElementById('branchRatioChart').getContext('2d');
-  let branchRatioChart = new Chart(ctxBranch, {
-    type: 'bar',
-    data: {
-      labels: ['Chennai Enclave', 'Coimbatore Enclave', 'Salem Enclave'],
-      datasets: [{
-        label: 'Occupancy Rate (%)',
-        data: [82, 75, 68],
-        backgroundColor: ['#1A0A2E', '#D4AF37', '#8A2BE2'],
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: 'y',
-      scales: {
-        x: { beginAtZero: true, max: 100 }
-      }
-    }
-  });
-
-  window.setChartMode = function(mode) {
-    document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active', 'btn-purple'));
-    document.querySelectorAll('.btn-group button').forEach(b => b.classList.add('btn-outline-purple'));
-    
-    // Simulate data transitions
-    if (mode === 'daily') {
-      trendChart.data.datasets[0].data = [100, 120, 130, 160, 120, 170, 150];
-      statusChart.data.datasets[0].data = [182, 33, 45, 120, 15];
-      branchRatioChart.data.datasets[0].data = [82, 75, 68];
-    } else if (mode === 'weekly') {
-      trendChart.data.datasets[0].data = [400, 520, 480, 600, 550, 710, 680];
-      statusChart.data.datasets[0].data = [720, 110, 180, 490, 65];
-      branchRatioChart.data.datasets[0].data = [88, 79, 72];
-    } else {
-      trendChart.data.datasets[0].data = [1600, 1800, 2100, 1900, 2300, 2500, 2400];
-      statusChart.data.datasets[0].data = [2900, 450, 780, 1950, 220];
-      branchRatioChart.data.datasets[0].data = [91, 84, 78];
-    }
-    trendChart.update();
-    statusChart.update();
-    branchRatioChart.update();
-  };
-
-  window.exportReport = function(format) {
-    showToast(`Report exported successfully in ${format} format.`, true);
-    
-    // Create mock file contents
-    let content = '';
-    let mimeType = 'text/plain';
-    let filename = `Booking_Report_${new Date().toISOString().slice(0,10)}.${format.toLowerCase()}`;
-
-    if (format === 'CSV') {
-      content = 'Booking ID,Branch,Customer,Room Type,Check-In Date,Amount,Status\n' +
-                bookings.map(b => `${b.id},${b.branch},${b.customer},${b.roomType},${b.checkin},${b.amount},${b.status}`).join('\n');
-      mimeType = 'text/csv';
-    } else if (format === 'Excel') {
-      filename = filename.replace('.excel', '.xlsx');
-      content = 'XML/Binary Data Excel Stub';
-      mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    } else {
-      filename = filename.replace('.pdf', '.txt');
-      content = '=== ELEGANT ENCLAVE SYSTEM BOOKING REPORT ===\n\n' +
-                `Generated on: ${new Date().toLocaleString()}\n` +
-                '--------------------------------------------\n\n' +
-                bookings.map(b => `Booking ID: ${b.id}\nBranch: ${b.branch}\nCustomer: ${b.customer}\nRoom Type: ${b.roomType}\nCheck-In: ${b.checkin}\nAmount: Rs. ${b.amount}\nStatus: ${b.status}\n--------------------------------------------`).join('\n\n');
-      mimeType = 'text/plain';
+    if (filtered.length === 0) {
+      tblHistoryBody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">No booking history records found.</td></tr>`;
+      return;
     }
 
-    // Trigger file download helper
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+    filtered.forEach(b => {
+      const hotel = HotelState.getHotelById(b.hotelId);
+      const hotelName = hotel ? hotel.name : b.hotelId;
+      const guestName = getCustomerName(b);
 
-  const btnApplyFilters = document.getElementById('btnApplyFilters');
-  const btnResetFilters = document.getElementById('btnResetFilters');
-
-  if (btnApplyFilters) {
-    btnApplyFilters.addEventListener('click', () => {
-      renderTable();
-      showToast('Filters applied successfully.', true);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${b.id}</strong></td>
+        <td>${guestName}</td>
+        <td>${hotelName}</td>
+        <td>${b.roomId}</td>
+        <td>${b.checkIn}</td>
+        <td>${b.checkOut}</td>
+        <td>${getStatusBadge(b)}</td>
+        <td>${b.paymentStatus || 'Settled'}</td>
+        <td>₹${b.grandTotal.toLocaleString('en-IN')}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-purple py-0 px-2 btn-view-invoice" data-id="${b.id}"><i class="bi bi-file-earmark-pdf"></i> Invoice</button>
+        </td>
+      `;
+      tblHistoryBody.appendChild(tr);
     });
+
+    document.querySelectorAll('.btn-view-invoice').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        sessionStorage.setItem('hbs_last_booking_id', id); // using session variable
+        location.href = '../../bookings/booking_success.html'; // view invoice page or success invoice stub
+      });
+    });
+  }
+
+  function bindActionButtons() {
+    document.querySelectorAll('.btn-view-booking').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        sessionStorage.setItem('adminViewBookingId', id);
+        location.href = 'view_booking.html';
+      });
+    });
+
+    document.querySelectorAll('.btn-cancel-booking').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        if (confirm(`Are you sure you want to cancel booking ${id}?`)) {
+          cancelBookingAction(id, 'Cancelled');
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-noshow-booking').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        if (confirm(`Mark booking ${id} as No-Show?`)) {
+          cancelBookingAction(id, 'No-Show');
+        }
+      });
+    });
+  }
+
+  function cancelBookingAction(id, newStatus) {
+    const list = HotelState.bookings;
+    const idx = list.findIndex(x => x.id === id);
+    if (idx === -1) return;
+
+    const b = list[idx];
+    b.bookingStatus = newStatus;
+    b.updatedAt = new Date().toISOString();
+    list[idx] = b;
+    HotelState.bookings = list;
+
+    // Free Room
+    HotelState.updateRoomStatus(b.hotelId, b.roomId, 'Available');
+
+    // Audit Log
+
+    // Customer Notification
+    HotelState.addNotification({
+      userId: b.customerId || b.email,
+      role: 'Customer',
+      title: newStatus === 'Cancelled' ? 'Booking Cancelled' : 'Booking Missed (No-Show)',
+      message: `Your booking ${b.id} has been marked as ${newStatus}.`,
+      type: 'system'
+    });
+
+    showToast(`Booking ${b.id} status updated to ${newStatus}.`, true);
+    refreshAll();
+  }
+
+  // ==========================================
+  // CALENDAR LOGIC
+  // ==========================================
+  let currentCalDate = new Date();
+  
+  function renderCalendar() {
+    const daysContainer = document.getElementById('calendarDays');
+    const monthTitle = document.getElementById('calendarMonthTitle');
+    if (!daysContainer || !monthTitle) return;
+
+    daysContainer.innerHTML = '';
+
+    const year = currentCalDate.getFullYear();
+    const month = currentCalDate.getMonth();
+
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    monthTitle.textContent = `${monthNames[month]} ${year}`;
+
+    // Get first day of month
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // Fill blank padding
+    for (let i = 0; i < firstDay; i++) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'border p-2 bg-light text-muted small text-center';
+      emptyDiv.style.minHeight = '60px';
+      daysContainer.appendChild(emptyDiv);
+    }
+
+    // Fill days
+    for (let d = 1; d <= totalDays; d++) {
+      const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      
+      const checkins = allBookings.filter(b => b.checkIn === dStr && b.bookingStatus !== 'Cancelled');
+      const checkouts = allBookings.filter(b => b.checkOut === dStr && b.bookingStatus !== 'Cancelled');
+
+      let badgeColor = '';
+      if (checkins.length > 0 && checkouts.length > 0) badgeColor = 'orange'; // both
+      else if (checkins.length > 0) badgeColor = '#10B981'; // check-in days
+      else if (checkouts.length > 0) badgeColor = '#EF4444'; // check-out days
+
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'border p-2 bg-white text-center cursor-pointer position-relative d-flex flex-column justify-content-between';
+      dayDiv.style.minHeight = '65px';
+      dayDiv.innerHTML = `<span class="fw-bold small">${d}</span>`;
+      
+      if (badgeColor) {
+        dayDiv.style.borderTop = `3px solid ${badgeColor}`;
+        dayDiv.innerHTML += `
+          <div class="d-flex flex-column gap-1">
+            ${checkins.length > 0 ? `<span class="badge bg-success p-1" style="font-size: 0.6rem;">In: ${checkins.length}</span>` : ''}
+            ${checkouts.length > 0 ? `<span class="badge bg-danger p-1" style="font-size: 0.6rem;">Out: ${checkouts.length}</span>` : ''}
+          </div>
+        `;
+      }
+
+      dayDiv.addEventListener('click', () => {
+        showDayDetails(dStr, checkins, checkouts);
+      });
+
+      daysContainer.appendChild(dayDiv);
+    }
+  }
+
+  function showDayDetails(dateStr, checkins, checkouts) {
+    const title = document.getElementById('selectedDayTitle');
+    const container = document.getElementById('dayActivityDetails');
+    if (!title || !container) return;
+
+    title.textContent = `Activity: ${dateStr}`;
+    container.innerHTML = '';
+
+    if (checkins.length === 0 && checkouts.length === 0) {
+      container.innerHTML = `<p class="text-muted small">No check-ins or check-outs scheduled for this day.</p>`;
+      return;
+    }
+
+    if (checkins.length > 0) {
+      container.innerHTML += `<h6 class="fw-bold text-success small mb-2"><i class="bi bi-box-arrow-in-right"></i> Check-Ins (${checkins.length})</h6>`;
+      checkins.forEach(b => {
+        container.innerHTML += `
+          <div class="p-2 border rounded bg-light mb-2 small">
+            <strong>${b.id}</strong> - ${getCustomerName(b)}<br>
+            Room: ${b.roomId} | Total: ₹${b.grandTotal.toLocaleString('en-IN')}
+          </div>
+        `;
+      });
+    }
+
+    if (checkouts.length > 0) {
+      container.innerHTML += `<h6 class="fw-bold text-danger small my-2"><i class="bi bi-box-arrow-right"></i> Check-Outs (${checkouts.length})</h6>`;
+      checkouts.forEach(b => {
+        container.innerHTML += `
+          <div class="p-2 border rounded bg-light mb-2 small">
+            <strong>${b.id}</strong> - ${getCustomerName(b)}<br>
+            Room: ${b.roomId} | Total: ₹${b.grandTotal.toLocaleString('en-IN')}
+          </div>
+        `;
+      });
+    }
+  }
+
+  document.getElementById('btnPrevMonth')?.addEventListener('click', () => {
+    currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+    renderCalendar();
+  });
+
+  document.getElementById('btnNextMonth')?.addEventListener('click', () => {
+    currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+    renderCalendar();
+  });
+
+  // ==========================================
+  // INITIALIZATION AND FILTERS
+  // ==========================================
+  if (btnApplyFilters) {
+    btnApplyFilters.addEventListener('click', refreshAll);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', renderAllBookings);
   }
 
   if (btnResetFilters) {
     btnResetFilters.addEventListener('click', () => {
       if (filterBranch) filterBranch.value = 'all';
       if (filterStatus) filterStatus.value = 'all';
-      if (document.getElementById('filterDateRange')) {
-        document.getElementById('filterDateRange').value = 'This Month';
-      }
-      renderTable();
-      showToast('Filters reset to default.', true);
+      if (filterDateRange) filterDateRange.value = 'This Month';
+      searchInput.value = '';
+      refreshAll();
     });
   }
 
-  // Active chart selector toggle logic
-  const selectActiveChart = document.getElementById('selectActiveChart');
-  const containerTrendChart = document.getElementById('containerTrendChart');
-  const containerStatusChart = document.getElementById('containerStatusChart');
-  const containerOccupancyChart = document.getElementById('containerOccupancyChart');
-  const trendChartTimeRange = document.getElementById('trendChartTimeRange');
-
-  if (selectActiveChart) {
-    selectActiveChart.addEventListener('change', () => {
-      const val = selectActiveChart.value;
-      
-      // Hide all chart containers
-      containerTrendChart.classList.add('d-none');
-      containerStatusChart.classList.add('d-none');
-      containerOccupancyChart.classList.add('d-none');
-      
-      if (val === 'trends') {
-        containerTrendChart.classList.remove('d-none');
-        if (trendChartTimeRange) trendChartTimeRange.classList.remove('d-none');
-      } else if (val === 'status') {
-        containerStatusChart.classList.remove('d-none');
-        if (trendChartTimeRange) trendChartTimeRange.classList.add('d-none'); // Disable date range for static distribution doughnut
-      } else if (val === 'occupancy') {
-        containerOccupancyChart.classList.remove('d-none');
-        if (trendChartTimeRange) trendChartTimeRange.classList.add('d-none'); // Disable date range for static branch ratio
-      }
-    });
+  function refreshAll() {
+    allBookings = HotelState.bookings || [];
+    renderAllBookings();
+    renderHistory();
+    renderCalendar();
   }
 
-  // Simulated live update every 30 seconds
-  setInterval(() => {
-    // Randomize slight KPI values changes
-    const totalEl = document.getElementById('kpiTotal');
-    if (totalEl) {
-      const curVal = parseInt(totalEl.textContent.replace(/,/g, '')) || 9841;
-      totalEl.textContent = (curVal + Math.floor(Math.random() * 3)).toLocaleString();
-      showToast('Live bookings monitor updated.', true);
+  // Export CSV
+  window.exportReport = function(format) {
+    if (format === 'CSV') {
+      const filtered = filterData(allBookings, true);
+      const csvString = 'Booking ID,Customer,Hotel,Room,Check-In,Check-Out,Status,Amount\n' +
+        filtered.map(b => `"${b.id}","${getCustomerName(b)}","${HotelState.getHotelById(b.hotelId)?.name || b.hotelId}","${b.roomId}","${b.checkIn}","${b.checkOut}","${b.bookingStatus}",${b.grandTotal}`).join('\n');
+      
+      const blob = new Blob([csvString], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Booking_History_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('CSV downloaded successfully.', true);
+    } else {
+      showToast(`${format} export is currently simulated. Use CSV option for raw download.`, true);
     }
-  }, 30000);
+  };
 
-  renderTable();
+  refreshAll();
 });

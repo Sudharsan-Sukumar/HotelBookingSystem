@@ -1,107 +1,183 @@
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Manager') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let pendingCheckins = [
-    { id: 'EE-2026-9841', guest: 'Arjun Mehta', room: '304', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 2, time: '12:00 PM', status: 'Confirmed' },
-    { id: 'EE-2026-8911', guest: 'Sarah Jenkins', room: '201', type: 'Executive Studio', branch: 'Elegant Enclave Chennai', guests: 2, time: '02:00 PM', status: 'Confirmed' },
-    { id: 'EE-2026-9730', guest: 'Priya Sharma', room: '501', type: 'Penthouse Suite', branch: 'Elegant Enclave Chennai', guests: 4, time: '03:30 PM', status: 'Confirmed' }
-  ];
+  const managerUser = HotelState.users.find(u => u.id === userId);
+  const hotelId = managerUser?.assignedHotelId;
+  const hotel = HotelState.hotels.find(h => h.id === hotelId);
 
-  let completedCheckins = [];
+  if (!hotel) {
+    console.error("Manager has no assigned hotel!");
+    return;
+  }
 
-  const tblBody = document.querySelector('#tblCheckin tbody');
-  const searchInput = document.getElementById('checkinSearch');
-  const roomInput = document.getElementById('checkinRoom');
-  const branchSelect = document.getElementById('checkinBranch');
-  const btnApply = document.getElementById('btnApplyCheckinFilters');
+  const today = new Date().toISOString().split('T')[0];
+  let checkinBookings = [];
+  let pendingArrivalsCount = 0;
+  let lateArrivalsCount = 0;
+  let checkedInCount = 0;
+  let totalArrivalsCount = 0;
 
-  const checkinModal = new bootstrap.Modal(document.getElementById('checkinWizardModal'));
-  let activeCheckinId = null;
+  function loadCheckins() {
+    const allBookings = HotelState.bookings.filter(b => b.hotelId === hotelId);
+    
+    // Calculate KPIs
+    const todayArrivals = allBookings.filter(b => b.checkIn === today);
+    totalArrivalsCount = todayArrivals.length;
+    checkedInCount = todayArrivals.filter(b => b.bookingStatus === 'CheckedIn' || b.bookingStatus === 'CheckedOut').length;
+    
+    checkinBookings = allBookings.filter(b => {
+      // Need to check-in if confirmed and date is today or past
+      return b.bookingStatus === 'Confirmed' && b.checkIn <= today;
+    });
 
-  function showToast(message, isSuccess = true) {
-    const toastMessage = document.getElementById('toastMessage');
-    const toastEl = document.getElementById('statusToast');
-    toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
+    pendingArrivalsCount = checkinBookings.filter(b => b.checkIn === today).length;
+    lateArrivalsCount = checkinBookings.filter(b => b.checkIn < today).length;
+
+    renderKPIs();
+    renderTable();
+  }
+
+  function renderKPIs() {
+    const kpiArrivals = document.getElementById('kpiArrivals');
+    const kpiCheckedin = document.getElementById('kpiCheckedin');
+    const kpiPending = document.getElementById('kpiPending');
+    const kpiLate = document.getElementById('kpiLate');
+
+    if (kpiArrivals) kpiArrivals.textContent = totalArrivalsCount;
+    if (kpiCheckedin) kpiCheckedin.textContent = checkedInCount;
+    if (kpiPending) kpiPending.textContent = pendingArrivalsCount;
+    if (kpiLate) kpiLate.textContent = lateArrivalsCount;
   }
 
   function renderTable() {
-    tblBody.innerHTML = '';
-    const q = searchInput.value.toLowerCase().trim();
-    const r = roomInput.value.trim();
-    const b = branchSelect.value;
+    const tbody = document.querySelector('#tblCheckin tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-    let displayList = [...pendingCheckins, ...completedCheckins].filter(x => {
-      if (q && !x.guest.toLowerCase().includes(q) && !x.id.toLowerCase().includes(q)) return false;
-      if (r && x.room !== r) return false;
-      if (b !== 'all' && !x.branch.includes(b)) return false;
-      return true;
-    });
-
-    if (displayList.length === 0) {
-      tblBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No arrivals pending search criteria.</td></tr>`;
+    if (checkinBookings.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No pending check-ins at this time.</td></tr>`;
       return;
     }
 
-    displayList.forEach(item => {
-      const isCompleted = item.status === 'Checked In';
-      const actionBtn = isCompleted 
-        ? `<span class="badge bg-success"><i class="bi bi-check2-all"></i> Checked In</span>` 
-        : `<button class="btn btn-purple btn-sm py-1 px-3" onclick="openCheckinDesk('${item.id}')">Verify & Check-in</button>`;
+    checkinBookings.forEach(b => {
+      const isLate = b.checkIn < today;
+      const statusBadge = isLate 
+        ? `<span class="badge bg-danger">Late Arrival</span>` 
+        : `<span class="badge bg-warning text-dark">Pending</span>`;
+      
+      const guestName = (b.guestDetails && b.guestDetails.primaryGuest) ? `${b.guestDetails.primaryGuest.firstName} ${b.guestDetails.primaryGuest.lastName}` : b.email;
+      const guestsCount = (b.adultsCount || 0) + (b.childrenCount || 0);
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${item.id}</strong></td>
-        <td>${item.guest}</td>
-        <td>Room ${item.room} <span class="text-muted d-block small" style="font-size: 0.65rem;">${item.type}</span></td>
-        <td>${item.time}</td>
-        <td>${item.guests} Adults</td>
-        <td><span class="badge ${isCompleted ? 'bg-info' : 'bg-warning'} text-dark">${item.status}</span></td>
-        <td class="text-end">${actionBtn}</td>
+        <td><strong>${b.id}</strong></td>
+        <td>${guestName}</td>
+        <td>${b.roomId}</td>
+        <td>${b.checkIn}</td>
+        <td>${guestsCount}</td>
+        <td>${statusBadge}</td>
+        <td class="text-end">
+          <button class="btn btn-purple btn-sm btn-process-checkin" data-id="${b.id}">Process Check-in</button>
+        </td>
       `;
-      tblBody.appendChild(tr);
+      tbody.appendChild(tr);
+    });
+
+    // Bind process buttons
+    document.querySelectorAll('.btn-process-checkin').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-id');
+        openCheckinModal(id);
+      });
     });
   }
 
-  window.openCheckinDesk = function(id) {
-    const item = pendingCheckins.find(x => x.id === id);
-    if (!item) return;
-    activeCheckinId = id;
-    document.getElementById('checkinAssignedRoom').value = `Room ${item.room} (${item.type})`;
-    document.getElementById('checkinDocId').value = '';
-    document.getElementById('checkinSecurityCollected').checked = false;
-    checkinModal.show();
-  };
+  let currentProcessId = null;
 
-  document.getElementById('btnSubmitCheckin').addEventListener('click', () => {
-    const docId = document.getElementById('checkinDocId').value.trim();
-    const security = document.getElementById('checkinSecurityCollected').checked;
+  function openCheckinModal(id) {
+    currentProcessId = id;
+    const b = checkinBookings.find(x => x.id === id);
+    if (!b) return;
 
-    if (!docId) {
-      showToast("Verification document number is required.", false);
-      return;
+    const assignedRoomInput = document.getElementById('checkinAssignedRoom');
+    if (assignedRoomInput) {
+      assignedRoomInput.value = b.roomId;
     }
-    if (!security) {
-      showToast("Security deposit collection must be verified.", false);
-      return;
-    }
+    
+    // Clear other inputs
+    const checkinDocId = document.getElementById('checkinDocId');
+    if(checkinDocId) checkinDocId.value = '';
+    
+    const checkinSecurityCollected = document.getElementById('checkinSecurityCollected');
+    if(checkinSecurityCollected) checkinSecurityCollected.checked = false;
 
-    const idx = pendingCheckins.findIndex(x => x.id === activeCheckinId);
-    if (idx !== -1) {
-      const item = pendingCheckins.splice(idx, 1)[0];
-      item.status = 'Checked In';
-      completedCheckins.push(item);
+    const modal = new bootstrap.Modal(document.getElementById('checkinWizardModal'));
+    modal.show();
+  }
 
-      // Update KPIs
-      document.getElementById('kpiCheckedin').textContent = completedCheckins.length;
-      document.getElementById('kpiPending').textContent = pendingCheckins.length;
+  const btnSubmitCheckin = document.getElementById('btnSubmitCheckin');
+  if (btnSubmitCheckin) {
+    btnSubmitCheckin.addEventListener('click', () => {
+      if (!currentProcessId) return;
 
-      checkinModal.hide();
-      showToast(`Guest check-in process completed for room ${item.room}. Keycard activated.`, true);
-      renderTable();
-    }
-  });
+      const bIndex = HotelState.bookings.findIndex(x => x.id === currentProcessId);
+      if (bIndex === -1) return;
 
-  btnApply.addEventListener('click', renderTable);
-  renderTable();
+      const b = HotelState.bookings[bIndex];
+
+      // Update booking
+      b.bookingStatus = 'CheckedIn';
+      b.updatedAt = new Date().toISOString();
+      HotelState.bookings[bIndex] = b; // trigger setter if it existed, but we have to save it via HotelState.bookings = HotelState.bookings
+      HotelState.bookings = HotelState.bookings; // Trigger save
+
+      // Update Room status
+      HotelState.updateRoomStatus(b.hotelId, b.roomId, 'Occupied');
+
+      // Add audit log
+      const audit = {
+        id: 'LOG_' + Date.now(),
+        action: 'BOOKING_CHECKIN',
+        entityId: b.id,
+        entityType: 'Booking',
+        userId: userId,
+        hotelId: hotelId,
+        details: 'Guest checked in',
+        timestamp: new Date().toISOString()
+      };
+      HotelState.addAuditLog(audit);
+
+      // Add Notification for customer
+      HotelState.addNotification({
+        userId: b.customerId || b.email,
+        role: 'Customer',
+        title: 'Check-In Successful',
+        message: `Welcome to ${hotel.name}! Your room ${b.roomId} is ready.`,
+        type: 'checkin'
+      });
+
+      // Close modal
+      const modalEl = document.getElementById('checkinWizardModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      // Show toast
+      const toastEl = document.getElementById('statusToast');
+      if (toastEl) {
+        document.getElementById('toastMessage').textContent = `Check-in process finalized for ${b.id}.`;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+
+      loadCheckins();
+    });
+  }
+
+  loadCheckins();
 });

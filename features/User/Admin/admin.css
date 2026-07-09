@@ -63,14 +63,12 @@ body.admin-body .health-row:last-child {
   border-bottom: none;
 }
 
-/* Two-Row Navigation Overrides */
+/* Single-Row Navigation Overrides */
 body.admin-body .manager-top-nav {
-  min-height: auto !important;
-  height: 128px !important; /* 72px + 56px */
+  min-height: 72px !important;
   padding: 0 !important;
   display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
+  align-items: center !important;
   position: sticky !important;
   top: 0 !important;
   z-index: 1050 !important;
@@ -78,49 +76,11 @@ body.admin-body .manager-top-nav {
   border-bottom: 2px solid #D4AF37 !important;
 }
 
-body.admin-body .admin-nav-row1 {
-  height: 72px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0 32px !important;
-  width: 100% !important;
-}
-
-body.admin-body .admin-nav-row2 {
-  height: 56px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important; /* Centered menu */
-  padding: 0 32px !important;
-  width: 100% !important;
-  position: relative !important;
-}
-
-body.admin-body .admin-nav-row2 .navbar-nav {
-  margin: 0 auto !important; /* Center secondary menu */
-}
-
-body.admin-body .admin-nav-row2 .d-flex.align-items-center {
-  position: absolute !important;
-  right: 32px !important; /* Lock bell to the far right */
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-}
-
-body.admin-body .admin-nav-row1,
-body.admin-body .admin-nav-row2 {
-  /* Restores container padding */
-}
-
-/* Primary Link Tabs (Row 1 & Row 2) */
-body.admin-body .admin-nav-row1 .nav-link,
-body.admin-body .admin-nav-row2 .nav-link {
+body.admin-body .manager-top-nav .nav-link {
   color: rgba(255, 255, 255, 0.75) !important;
   font-size: 14px !important;
   font-weight: 500 !important;
-  padding: 6px 12px !important;
+  padding: 8px 12px !important;
   border-radius: 10px !important;
   transition: all 0.2s ease-in-out !important;
   border: 1px solid transparent !important;
@@ -129,47 +89,57 @@ body.admin-body .admin-nav-row2 .nav-link {
   align-items: center !important;
 }
 
-body.admin-body .admin-nav-row1 .nav-link i,
-body.admin-body .admin-nav-row2 .nav-link i {
+body.admin-body .manager-top-nav .nav-link i {
   font-size: 16px !important;
   margin-right: 6px !important;
 }
 
-body.admin-body .admin-nav-row1 .nav-link:hover,
-body.admin-body .admin-nav-row2 .nav-link:hover {
+body.admin-body .manager-top-nav .nav-link:hover {
   color: #D4AF37 !important;
   background-color: rgba(212, 175, 55, 0.10) !important;
 }
 
-body.admin-body .admin-nav-row1 .nav-link.active,
-body.admin-body .admin-nav-row2 .nav-link.active,
-body.admin-body .admin-nav-row1 .nav-link.active:hover,
-body.admin-body .admin-nav-row2 .nav-link.active:hover,
-body.admin-body .admin-nav-row1 .nav-link.active:focus,
-body.admin-body .admin-nav-row2 .nav-link.active:focus {
+body.admin-body .manager-top-nav .nav-link.active,
+body.admin-body .manager-top-nav .nav-link.active:hover,
+body.admin-body .manager-top-nav .nav-link.active:focus {
   color: #1A0A2E !important;
   font-weight: 700 !important;
   background-color: #D4AF37 !important;
   border: 1px solid #D4AF37 !important;
 }
 
-/* spacing gaps */
-body.admin-body .admin-nav-row1 .navbar-nav,
-body.admin-body .admin-nav-row2 .navbar-nav {
-  gap: 16px !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
+body.admin-body .manager-top-nav .navbar-nav {
   align-items: center !important;
 }
 
-body.admin-body .admin-nav-row2 .dropdown-toggle {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  border: none !important;
+@media (max-width: 1199.98px) {
+  body.admin-body .manager-top-nav .navbar-collapse {
+    background-color: #1A0A2E;
+    padding: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    position: absolute;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  body.admin-body .manager-top-nav .navbar-nav {
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+}
+
+/* Dashboard Widget Tables */
+body.admin-body .table-responsive {
+  border-radius: 12px;
+  overflow: hidden;
+}
+body.admin-body .table th {
+  background-color: rgba(0,0,0,0.02);
+  font-weight: 600;
+  color: #1A0A2E;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.5);
 }
 
 /* Backup Flow Animations */

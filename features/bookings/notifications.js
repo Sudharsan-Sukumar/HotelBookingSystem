@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Load custom mock notifications from sessionStorage
-  let mockNotifs = JSON.parse(sessionStorage.getItem('mockNotifications') || '[]');
+  // Load custom mock notifications from Global State
+  let mockNotifs = typeof HotelState !== 'undefined' ? HotelState.notifications : [];
 
   // If there are custom notifications, inject them before the static ones
   if (mockNotifs.length > 0 && container) {
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="col col-md-7 ps-md-3">
             <h4 class="notif-title m-0 text-dark font-serif">${notif.title}</h4>
             <p class="small text-muted mt-1 mb-3">${notif.desc}</p>
-            <a href="my_bookings.html" class="btn btn-action-notif py-2 px-4 btn-${iconColor}">${buttonText}</a>
+            <a href="../../features/User/Candidate/my_bookings.html" class="btn btn-action-notif py-2 px-4 btn-${iconColor}">${buttonText}</a>
           </div>
           <div class="col-12 col-md-3 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-center align-items-md-end gap-3 mt-3 mt-md-0">
             <div class="notif-meta">
@@ -108,9 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dot.style.display = 'none';
       });
 
-      // Clear sessionStorage flags
+      // Clear HotelState flags
       mockNotifs.forEach(n => n.unread = false);
-      sessionStorage.setItem('mockNotifications', JSON.stringify(mockNotifs));
+      if (typeof HotelState !== 'undefined') {
+        HotelState.notifications = mockNotifs;
+      }
 
       if (countAll) countAll.textContent = '0';
       if (countBookings) countBookings.textContent = '0';
@@ -130,11 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dot && dot.style.display !== 'none') {
           dot.style.display = 'none';
           
-          // Clear sessionStorage flag for this specific notification
+          // Clear HotelState flag for this specific notification
           const item = mockNotifs.find(n => n.id === notifId);
           if (item) {
             item.unread = false;
-            sessionStorage.setItem('mockNotifications', JSON.stringify(mockNotifs));
+            if (typeof HotelState !== 'undefined') {
+              HotelState.notifications = mockNotifs;
+            }
           }
 
           // Decrement counters

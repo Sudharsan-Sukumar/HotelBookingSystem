@@ -10,6 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const showPasswordCheckbox = document.getElementById('showPassword');
   const btnSubmit = document.getElementById('btnSubmitRegister');
 
+  const fNameError = document.getElementById('firstNameError');
+  const lNameError = document.getElementById('lastNameError');
+  const emailError = document.getElementById('registerEmailError');
+  const phoneError = document.getElementById('registerPhoneError');
+  const passwordError = document.getElementById('registerPasswordError');
+  const confirmPasswordError = document.getElementById('confirmRegisterPasswordError');
+
+  const agreePoliciesCheckbox = document.getElementById('agreePolicies');
+  const agreePoliciesError = document.getElementById('agreePoliciesError');
+
   // 1. Password Visibility Toggle
   if (showPasswordCheckbox && passwordInput && confirmPasswordInput) {
     showPasswordCheckbox.addEventListener('change', () => {
@@ -19,152 +29,93 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Input fields validation error element pointers
-  const fNameError = document.getElementById('firstNameError');
-  const lNameError = document.getElementById('lastNameError');
-  const emailError = document.getElementById('registerEmailError');
-  const phoneError = document.getElementById('registerPhoneError');
-  const passwordError = document.getElementById('registerPasswordError');
-  const confirmPasswordError = document.getElementById('confirmRegisterPasswordError');
-
-  // Database simulator configurations
-  const existingEmails = ['customer@elegantenclave.com', 'admin@elegantenclave.com'];
-  const existingPhones = ['9876543210', '9999988888'];
-
-  const agreePoliciesCheckbox = document.getElementById('agreePolicies');
-  const agreePoliciesError = document.getElementById('agreePoliciesError');
-
-  // Input Listeners to Enable/Disable Register Button dynamically
   const formInputs = [firstName, lastName, emailInput, phoneInput, passwordInput, confirmPasswordInput];
   formInputs.forEach(input => {
-    input.addEventListener('input', () => {
-      validateFormInputs(false); // Validates silently without applying border errors during typing
-    });
+    if (input) {
+      input.addEventListener('input', () => validateFormInputs(false));
+    }
   });
 
   if (agreePoliciesCheckbox) {
-    agreePoliciesCheckbox.addEventListener('change', () => {
-      validateFormInputs(false);
-    });
-  }
-
-  // Validation functions
-  function validateName(name) {
-    const re = /^[A-Za-z\s-]+$/;
-    return name.trim().length >= 2 && name.trim().length <= 50 && re.test(name);
+    agreePoliciesCheckbox.addEventListener('change', () => validateFormInputs(false));
   }
 
   function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email.toLowerCase().trim());
-  }
-
-  function validatePhone(phone) {
-    // Remove space, +91 prefix
-    let cleanPhone = phone.replace(/\s+/g, '');
-    if (cleanPhone.startsWith('+91')) {
-      cleanPhone = cleanPhone.substring(3);
-    }
-    const re = /^[6-9]\d{9}$/; // Valid 10-digit Indian mobile format
-    return re.test(cleanPhone) && cleanPhone.length === 10;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase().trim());
   }
 
   function validatePasswordStrength(pwd) {
-    if (pwd.length < 8 || pwd.length > 64) return false;
-    const hasUpper = /[A-Z]/.test(pwd);
-    const hasLower = /[a-z]/.test(pwd);
-    const hasDigit = /[0-9]/.test(pwd);
-    const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
-    return hasUpper && hasLower && hasDigit && hasSpecial;
+    // min 8 chars, 1 uppercase, 1 number, 1 special character
+    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return re.test(pwd);
   }
 
-  // Master Validator function
   function validateFormInputs(showErrors = true) {
     let isValid = true;
 
-    // Reset error styling if showErrors is enabled
     if (showErrors) {
-      formInputs.forEach(i => i.classList.remove('is-invalid'));
-      fNameError.textContent = '';
-      lNameError.textContent = '';
-      emailError.textContent = '';
-      phoneError.textContent = '';
-      passwordError.textContent = '';
-      confirmPasswordError.textContent = '';
+      formInputs.forEach(i => i && i.classList.remove('is-invalid'));
+      if(fNameError) fNameError.textContent = '';
+      if(lNameError) lNameError.textContent = '';
+      if(emailError) emailError.textContent = '';
+      if(phoneError) phoneError.textContent = '';
+      if(passwordError) passwordError.textContent = '';
+      if(confirmPasswordError) confirmPasswordError.textContent = '';
+      if(agreePoliciesError) agreePoliciesError.textContent = '';
     }
 
-    // 1. First Name
-    if (!firstName.value.trim() || !validateName(firstName.value)) {
+    if (firstName && !firstName.value.trim()) {
       if (showErrors) {
         firstName.classList.add('is-invalid');
-        fNameError.textContent = 'Please enter a valid first name.';
+        fNameError.textContent = 'First name is required.';
       }
       isValid = false;
     }
 
-    // 2. Last Name
-    if (!lastName.value.trim() || !validateName(lastName.value)) {
+    if (lastName && !lastName.value.trim()) {
       if (showErrors) {
         lastName.classList.add('is-invalid');
-        lNameError.textContent = 'Please enter a valid last name.';
+        lNameError.textContent = 'Last name is required.';
       }
       isValid = false;
     }
 
-    // 3. Email
-    const emailVal = emailInput.value.trim().toLowerCase();
+    const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : '';
     if (!emailVal || !validateEmail(emailVal)) {
       if (showErrors) {
         emailInput.classList.add('is-invalid');
         emailError.textContent = 'Please enter a valid email address.';
       }
       isValid = false;
-    } else if (existingEmails.includes(emailVal)) {
+    } else {
+      const existingUser = HotelState.users.find(u => u.email.toLowerCase() === emailVal);
+      if (existingUser) {
+        if (showErrors) {
+          emailInput.classList.add('is-invalid');
+          emailError.textContent = 'An account with this email already exists.';
+        }
+        isValid = false;
+      }
+    }
+
+    if (phoneInput && !phoneInput.value.trim()) {
       if (showErrors) {
-        emailInput.classList.add('is-invalid');
-        emailError.textContent = 'An account with this email already exists.';
+        phoneInput.classList.add('is-invalid');
+        phoneError.textContent = 'Phone number is required.';
       }
       isValid = false;
     }
 
-    // 4. Phone Number
-    const phoneVal = phoneInput.value.replace(/\s+/g, '');
-    let cleanPhone = phoneVal;
-    if (cleanPhone.startsWith('+91')) {
-      cleanPhone = cleanPhone.substring(3);
-    }
-    if (!phoneVal || !validatePhone(phoneVal)) {
-      if (showErrors) {
-        phoneInput.classList.add('is-invalid');
-        phoneError.textContent = 'Please enter a valid 10-digit phone number.';
-      }
-      isValid = false;
-    } else if (existingPhones.includes(cleanPhone)) {
-      if (showErrors) {
-        phoneInput.classList.add('is-invalid');
-        phoneError.textContent = 'Phone number is already registered.';
-      }
-      isValid = false;
-    }
-
-    // 5. Password Strength rules
-    const pwdVal = passwordInput.value;
+    const pwdVal = passwordInput ? passwordInput.value : '';
     if (!pwdVal || !validatePasswordStrength(pwdVal)) {
       if (showErrors) {
         passwordInput.classList.add('is-invalid');
-        passwordError.textContent = 'Password must be 8-64 characters and contain an uppercase letter, lowercase letter, number, and special character.';
-      }
-      isValid = false;
-    } else if (pwdVal.includes(emailInput.value.trim()) || pwdVal.includes(firstName.value.trim())) {
-      if (showErrors) {
-        passwordInput.classList.add('is-invalid');
-        passwordError.textContent = 'Password cannot contain your email or name.';
+        passwordError.textContent = 'Password must be at least 8 characters long, contain 1 uppercase letter, 1 number, and 1 special character.';
       }
       isValid = false;
     }
 
-    // 6. Confirm Password matching
-    const confirmPwdVal = confirmPasswordInput.value;
+    const confirmPwdVal = confirmPasswordInput ? confirmPasswordInput.value : '';
     if (!confirmPwdVal || pwdVal !== confirmPwdVal) {
       if (showErrors) {
         confirmPasswordInput.classList.add('is-invalid');
@@ -173,38 +124,70 @@ document.addEventListener('DOMContentLoaded', () => {
       isValid = false;
     }
 
-    // 7. Policy Agreement
     if (agreePoliciesCheckbox && !agreePoliciesCheckbox.checked) {
-      if (showErrors) {
+      if (showErrors && agreePoliciesError) {
         agreePoliciesError.textContent = 'You must accept the registration policies to continue.';
       }
       isValid = false;
-    } else {
-      if (agreePoliciesError) agreePoliciesError.textContent = '';
     }
 
-    // Disable/Enable Submit Button based on form validity
-    if (isValid) {
-      btnSubmit.removeAttribute('disabled');
-    } else {
-      btnSubmit.setAttribute('disabled', 'true');
+    if (btnSubmit) {
+      if (isValid) {
+        btnSubmit.removeAttribute('disabled');
+      } else {
+        btnSubmit.setAttribute('disabled', 'true');
+      }
     }
 
     return isValid;
   }
 
-  // Form submit handler
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
       if (validateFormInputs(true)) {
-        // Securely simulate hashing and customer creation event logs
-        alert(`Registration completed successfully.\nPlease login to continue.`);
-        // Store success redirect state item
-        sessionStorage.setItem('resetSuccessMsg', 'Registration completed successfully. Please login to continue.');
-        // Redirect to login page
-        window.location.href = 'login.html';
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        }
+
+        setTimeout(() => {
+          const users = HotelState.users;
+          const newUserId = 'USR' + String(users.length + 1).padStart(3, '0');
+          
+          const newUser = {
+            id: newUserId,
+            firstName: firstName.value.trim(),
+            lastName: lastName.value.trim(),
+            email: emailInput.value.trim().toLowerCase(),
+            password: passwordInput.value,
+            role: 'Customer',
+            phone: phoneInput.value.trim() || '',
+            address: { street: '', city: '', state: '', pincode: '' },
+            createdAt: new Date().toISOString(),
+            status: 'Active',
+            loyaltyPoints: 0,
+            memberTier: 'Bronze',
+            assignedHotelId: null
+          };
+          
+          users.push(newUser);
+          HotelState.users = users;
+
+          // Auto login
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userName', newUser.firstName + ' ' + newUser.lastName);
+          localStorage.setItem('userRole', newUser.role);
+          localStorage.setItem('userEmail', newUser.email);
+          localStorage.setItem('userId', newUser.id);
+          
+          HotelState.set('currentUser', newUser);
+          HotelState.addAuditLog(newUser.id, newUser.firstName + ' ' + newUser.lastName, newUser.role, 'USER_CREATED', 'Auth', 'User registered and logged in.');
+
+          // Redirect
+          window.location.href = '../../features/User/Candidate/my_bookings.html';
+        }, 800);
       }
     });
   }

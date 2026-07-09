@@ -245,3 +245,10 @@
   border-color: #D4AF37;
   color: #D4AF37;
 }
+
+.update-form-card .custom-input-group:has(.is-valid), .update-form-card .custom-select:has(.is-valid) {
+  border-color: #198754 !important;
+}
+.update-form-card .custom-input-group:has(.is-invalid), .update-form-card .custom-select:has(.is-invalid) {
+  border-color: #dc3545 !important;
+}

@@ -1,10 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-  let notifications = [
-    { id: 'NTF-001', module: 'Hotels', title: 'New Hotel Registration', desc: 'Hotel "Elegant Enclave Chennai" is waiting for approval.', date: '24 Jun 2026, 10:30 AM', priority: 'High', status: 'Unread', actionText: 'Review', recommendation: 'Verify branch address details and approve hotel registration requests.' },
-    { id: 'NTF-002', module: 'Backup', title: 'Backup Completed Successfully', desc: 'Automatic backup completed successfully.', date: '24 Jun 2026, 05:00 AM', priority: 'Low', status: 'Read', actionText: 'View Backup', recommendation: 'No further actions required.' },
-    { id: 'NTF-003', module: 'Bookings', title: 'Booking Modification Request', desc: 'Customer requested booking modification for Booking HBS-2026-002.', date: '23 Jun 2026, 04:12 PM', priority: 'Medium', status: 'Unread', actionText: 'Review Booking', recommendation: 'Check room type inventory constraints and modify booking dates.' },
-    { id: 'NTF-004', module: 'Security', title: 'Multiple Failed Login Attempts', desc: '5 failed login attempts detected for Manager account.', date: '23 Jun 2026, 02:45 PM', priority: 'Critical', status: 'Unread', actionText: 'Investigate', recommendation: 'Temporarily lock account access and trigger password update request.' }
-  ];
+  let notifications = HotelState.notifications;
+  if (notifications.length === 0) {
+    notifications = [
+      { id: 'NTF-001', module: 'Hotels', title: 'New Hotel Registration', desc: 'Hotel "Elegant Enclave Chennai" is waiting for approval.', date: '24 Jun 2026, 10:30 AM', priority: 'High', status: 'Unread', actionText: 'Review', recommendation: 'Verify branch address details and approve hotel registration requests.' },
+      { id: 'NTF-002', module: 'Backup', title: 'Backup Completed Successfully', desc: 'Automatic backup completed successfully.', date: '24 Jun 2026, 05:00 AM', priority: 'Low', status: 'Read', actionText: 'View Backup', recommendation: 'No further actions required.' },
+      { id: 'NTF-003', module: 'Bookings', title: 'Booking Modification Request', desc: 'Customer requested booking modification for Booking HBS-2026-002.', date: '23 Jun 2026, 04:12 PM', priority: 'Medium', status: 'Unread', actionText: 'Review Booking', recommendation: 'Check room type inventory constraints and modify booking dates.' },
+      { id: 'NTF-004', module: 'Security', title: 'Multiple Failed Login Attempts', desc: '5 failed login attempts detected for Manager account.', date: '23 Jun 2026, 02:45 PM', priority: 'Critical', status: 'Unread', actionText: 'Investigate', recommendation: 'Temporarily lock account access and trigger password update request.' }
+    ];
+    HotelState.notifications = notifications;
+  }
 
   const listContainer = document.getElementById('notifListContainer');
   const detailsPlaceholder = document.getElementById('detailsPlaceholder');
@@ -37,6 +41,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const unreadCount = notifications.filter(x => x.status === 'Unread').length;
     document.getElementById('kpiUnread').textContent = unreadCount;
     document.getElementById('navNotifCount').textContent = unreadCount;
+
+    // Additional KPIs
+    const criticalCount = notifications.filter(x => x.priority === 'Critical' && x.status === 'Unread').length;
+    document.querySelector('.bi-exclamation-octagon-fill').closest('.kpi-card').querySelector('strong').textContent = criticalCount;
+
+    const todayStr = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    const todayCount = notifications.filter(x => x.date.includes(todayStr) || x.date.includes(new Date().getDate())).length;
+    document.querySelector('.bi-calendar-event').closest('.kpi-card').querySelector('strong').textContent = todayCount;
+
+    const resolvedTodayCount = notifications.filter(x => x.status === 'Read' && (x.date.includes(todayStr) || x.date.includes(new Date().getDate()))).length;
+    document.querySelector('.bi-check-circle-fill').closest('.kpi-card').querySelector('strong').textContent = resolvedTodayCount;
+
+    // Filter categories count
+    const catLinks = document.querySelectorAll('.category-link');
+    catLinks.forEach(link => {
+      const catName = link.querySelector('span').textContent.trim();
+      const countBadge = link.querySelector('.badge');
+      if (catName === 'All') {
+        countBadge.textContent = notifications.length;
+      } else {
+        countBadge.textContent = notifications.filter(x => x.module === catName).length;
+      }
+    });
 
     if (filtered.length === 0) {
       listContainer.innerHTML = `
@@ -132,12 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Actions
   document.getElementById('btnMarkAllRead').addEventListener('click', () => {
     notifications.forEach(x => x.status = 'Read');
+    HotelState.notifications = notifications;
     showToast('All notifications marked as read.', true);
     renderList();
   });
 
   document.getElementById('btnClearRead').addEventListener('click', () => {
     notifications = notifications.filter(x => x.status === 'Unread');
+    HotelState.notifications = notifications;
     selectedNotif = null;
     detailsPlaceholder.classList.remove('d-none');
     detailsContent.classList.add('d-none');
@@ -148,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnDetRead').addEventListener('click', () => {
     if (selectedNotif) {
       selectedNotif.status = 'Read';
+      HotelState.notifications = notifications;
       showToast('Notification marked as read.', true);
       viewDetails(selectedNotif.id);
       renderList();
@@ -157,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnDetDelete').addEventListener('click', () => {
     if (selectedNotif) {
       notifications = notifications.filter(x => x.id !== selectedNotif.id);
+      HotelState.notifications = notifications;
       selectedNotif = null;
       detailsPlaceholder.classList.remove('d-none');
       detailsContent.classList.add('d-none');
@@ -183,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       actionText: 'Review Booking',
       recommendation: 'Check refund trigger logs and update room availability status.'
     });
+    HotelState.notifications = notifications;
 
     showToast('New system notification received.', true);
     renderList();

@@ -68,63 +68,32 @@
   </nav>
 
   <!-- TOP HEADER SECTION -->
-  <header class="container px-xl-5 py-4 mt-2 text-start">
+  <header class="container-fluid px-xl-5 pt-2 pb-1 mt-0 text-start">
     <h1 class="my-bookings-title m-0">My Personal Reservations</h1>
     <p class="my-bookings-sub text-muted m-0">Track active, upcoming, completed or cancelled status of your bookings.</p>
   </header>
 
   <!-- WORKSPACE CONTAINER -->
-  <main class="container px-xl-5 pb-5">
+  <main class="container-fluid px-xl-5 pb-5">
     
-    <!-- SECTION 1: Dynamic Statistics Cards Sum Row -->
-    <div class="row g-3 mb-4 text-start">
-      <div class="col-md-3">
-        <div class="stat-card active-stat-upcoming p-3 d-flex align-items-center gap-3">
-          <span class="stat-icon-circle"><i class="bi bi-calendar-event"></i></span>
-          <div>
-            <strong class="stat-count text-white mb-0" id="upcomingCount">Upcoming Stay (1)</strong>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card p-3 d-flex align-items-center gap-3 bg-white border border-light">
-          <span class="stat-icon-circle purple"><i class="bi bi-clock"></i></span>
-          <div>
-            <strong class="stat-count text-dark mb-0">Active Logs (0)</strong>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card p-3 d-flex align-items-center gap-3 bg-white border border-light">
-          <span class="stat-icon-circle green"><i class="bi bi-check-circle"></i></span>
-          <div>
-            <strong class="stat-count text-dark mb-0">Completed (3)</strong>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card p-3 d-flex align-items-center gap-3 bg-white border border-light">
-          <span class="stat-icon-circle red"><i class="bi bi-x-circle"></i></span>
-          <div>
-            <strong class="stat-count text-dark mb-0" id="cancelledCount">Cancelled (1)</strong>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- SECTION 2: Horizontal Dropdown Filters row -->
     <div class="filter-row-container p-3 mb-4 bg-white rounded border d-flex align-items-center justify-content-between flex-wrap gap-3">
-      <div class="d-flex align-items-center gap-3 flex-wrap col-md-5">
-        <select id="branchFilter" class="form-select custom-select-filter">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <select id="branchFilter" class="form-select custom-select-filter" style="width: auto; min-width: 150px;">
           <option value="all">All Branches</option>
           <option value="Coimbatore">Coimbatore Branch</option>
           <option value="Salem">Salem Branch</option>
+          <option value="Chennai">Chennai Branch</option>
         </select>
-        <select id="statusFilter" class="form-select custom-select-filter">
+        <select id="statusFilter" class="form-select custom-select-filter" style="width: auto; min-width: 150px;">
           <option value="all">All Bookings</option>
           <option value="Upcoming">Upcoming Stay</option>
           <option value="Cancelled">Cancelled</option>
         </select>
+        <button id="btnApplyTableFilters" class="btn text-white py-2 px-3 fw-semibold small" style="background-color: #1A0A2E; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s;" type="button">Apply</button>
+        <button id="btnResetTableFilters" class="btn text-warning py-2 px-3 fw-semibold small" style="border: 1px dashed rgba(212, 175, 55, 0.4); background: transparent; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s;" type="button">Reset</button>
       </div>
       <div class="search-filter-box col-md-4">
         <div class="input-group search-group-input border rounded">
@@ -149,60 +118,6 @@
           </tr>
         </thead>
         <tbody>
-          <tr id="bookingRow1">
-            <!-- Ref ID and image column -->
-            <td>
-              <div class="d-flex align-items-center gap-3">
-                <img src="../../../assets/images/hotel_cbe.png" alt="The Elegant Suites Coimbatore resort facade" class="row-hotel-img rounded">
-                <div class="ref-texts">
-                  <span class="booking-ref-number d-block text-dark fw-bold" id="lblBookingRef">EE-COB-260625-7852</span>
-                  <span class="booking-txn-number small text-muted d-block" id="lblTxnId">Booking ID: TXN7894561230</span>
-                </div>
-              </div>
-            </td>
-            <!-- Branch Location -->
-            <td>
-              <strong class="d-block text-dark">Coimbatore Branch</strong>
-              <span class="small text-muted">The Elegant Suites Coimbatore</span>
-            </td>
-            <!-- Check-in -->
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-calendar-event text-warning fs-5"></i>
-                <div>
-                  <span class="fw-semibold text-dark d-block">25 Jun 2026</span>
-                  <span class="small text-muted">Thursday</span>
-                </div>
-              </div>
-            </td>
-            <!-- Check-out -->
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-calendar-check text-warning fs-5"></i>
-                <div>
-                  <span class="fw-semibold text-dark d-block">28 Jun 2026</span>
-                  <span class="small text-muted">Sunday</span>
-                </div>
-              </div>
-            </td>
-            <!-- Total Bill -->
-            <td>
-              <strong class="d-block text-dark font-serif fs-6">Rs. 23,010.00</strong>
-              <span class="text-success small fw-bold">Paid</span>
-            </td>
-            <!-- Status Badge -->
-            <td class="text-center">
-              <span class="status-upcoming-badge py-1 px-3 rounded-pill" id="lblStatusBadge">Upcoming Stay</span>
-            </td>
-            <!-- Action buttons column -->
-            <td class="text-end">
-              <div class="d-flex flex-column gap-2 align-items-end" id="actionButtonsGroup">
-                <a href="../../hotels/hotel_details.html" class="btn btn-action-view py-1 px-3 d-flex align-items-center justify-content-between gap-2">View Details <i class="bi bi-chevron-right"></i></a>
-                <a href="../../bookings/modify_booking_step1.html" class="btn btn-action-outline-modify py-1 px-3 d-flex align-items-center justify-content-center gap-2" id="btnModify"><i class="bi bi-pencil"></i> Modify Booking</a>
-                <button class="btn btn-action-outline-cancel py-1 px-3 d-flex align-items-center justify-content-center gap-2" id="btnCancel"><i class="bi bi-trash"></i> Cancel Booking</button>
-              </div>
-            </td>
-          </tr>
         </tbody>
       </table>
 
@@ -216,8 +131,10 @@
         </div>
         <div class="d-flex align-items-center gap-2">
           <span class="small text-muted">Rows per page:</span>
-          <select class="form-select select-rows-count py-1">
-            <option value="10">10</option>
+          <select class="form-select select-rows-count py-1" id="rowsPerPageSelect">
+            <option value="5">5</option>
+            <option value="7">7</option>
+            <option value="10" selected>10</option>
             <option value="25">25</option>
           </select>
         </div>
@@ -333,35 +250,35 @@
         <div id="cancelPanelSuccess" class="d-none text-start">
           <div class="text-center mb-4">
             <span class="success-icon-badge mx-auto mb-3 d-flex align-items-center justify-content-center" style="background-color: #E2F6EA; color: #1F8B4C;"><i class="bi bi-check-lg"></i></span>
-            <h5 class="modal-title font-serif text-dark fw-bold fs-4">Reservation Cancelled Successfully</h5>
-            <p class="text-secondary small mt-2">Your booking has been cancelled successfully.<br>A refund of 90% has been initiated through your original payment method.</p>
+            <h5 class="modal-title font-serif text-dark fw-bold fs-4">Reservation Cancelled</h5>
+            <p class="text-secondary small mt-2" id="cancelSuccessMsg">Your booking has been cancelled successfully.<br>A refund of 90% has been initiated through your original payment method.</p>
           </div>
 
           <h6 class="text-dark fw-bold mb-2 small">Refund Summary Card</h6>
           <div class="p-3 bg-light rounded border small d-flex flex-column gap-2 mb-3">
             <div class="d-flex justify-content-between">
               <span class="text-muted">Booking Reference</span>
-              <span class="text-dark fw-bold">HBS-2026-9901</span>
+              <span class="text-dark fw-bold" id="cancelSuccessRef">HBS-2026-9901</span>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Original Payment</span>
-              <span class="text-dark fw-bold">Rs. 23,010</span>
+              <span class="text-dark fw-bold" id="cancelSuccessOriginal">Rs. 23,010</span>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Refund Percentage</span>
-              <span class="text-dark fw-bold">90%</span>
+              <span class="text-dark fw-bold" id="cancelSuccessPercent">90%</span>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-success fw-bold">Refund Amount</span>
-              <span class="text-success fw-bold">Rs. 20,709</span>
+              <span class="text-success fw-bold" id="cancelSuccessAmount">Rs. 20,709</span>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Refund Method</span>
-              <span class="text-dark fw-semibold">Debit / Credit Card</span>
+              <span class="text-dark fw-semibold" id="cancelSuccessMethod">Debit / Credit Card</span>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Refund Status</span>
-              <span class="badge bg-success-light text-success">Initiated</span>
+              <span class="badge bg-success-light text-success" id="cancelSuccessStatus">Initiated</span>
             </div>
           </div>
 
@@ -383,8 +300,31 @@
     </div>
   </div>
 
+  <!-- BOOKING DETAILS POPUP MODAL -->
+  <div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-labelledby="bookingDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content custom-modal-content border-0 p-3" style="border-radius: 16px;">
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h5 class="modal-title font-serif text-dark fw-bold fs-4" id="bookingDetailsModalLabel">Reservation Details</h5>
+            <p class="text-secondary small mb-0">Dynamic real-time specifications overview of your stay.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start pt-3 small" id="bookingDetailsModalBody" style="font-size: 0.9rem;">
+          <!-- Dynamic details content goes here -->
+        </div>
+        <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+          <button type="button" id="btnDownloadTicket" class="btn text-white py-2 px-3 fw-semibold small" style="background-color: #1A0A2E; border-radius: 8px; font-size: 0.85rem;"><i class="bi bi-download me-1"></i> Download Ticket / Invoice</button>
+          <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto; height: auto;" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap and JS bundle -->
   <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/state.js"></script>
   <script src="../../../Shared/UtilityClass/session.js"></script>
   <script src="../../../Shared/UtilityClass/policy_modal.js"></script>
   <script src="../../../Shared/UtilityClass/back_nav.js"></script>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -107,7 +107,7 @@
         <div class="d-flex align-items-center gap-3 col-lg-8">
           <span class="alert-icon-check"><i class="bi bi-check-circle"></i></span>
           <div>
-            <strong class="d-block text-success-dark">Confirmed stay record at Coimbatore Suites branch for June 25th, 2026.</strong>
+            <strong class="d-block text-success-dark" id="successBannerText">Confirmed stay record at Coimbatore Suites branch for June 25th, 2026.</strong>
             <span class="small text-muted">An invoice confirmation receipt has been dispatched to your email.</span>
           </div>
         </div>
@@ -125,11 +125,11 @@
 
         <div class="row g-0 border-bottom pb-4 mb-4 text-start">
           <div class="col-md-3 col-lg-2">
-            <img src="../../assets/images/hotel_cbe.png" alt="The Elegant Suites Coimbatore resort facade" class="summary-hotel-img rounded mb-3 mb-md-0">
+            <img src="../../assets/images/hotel_cbe.png" alt="Hotel facade" class="summary-hotel-img rounded mb-3 mb-md-0" id="successHotelImg">
           </div>
           <div class="col-md-9 col-lg-10 ps-md-4 d-flex flex-column justify-content-center">
-            <h3 class="hotel-display-name m-0">The Elegant Suites Coimbatore</h3>
-            <p class="hotel-display-branch text-muted mb-0">Coimbatore Branch - Executive Studio Room</p>
+            <h3 class="hotel-display-name m-0" id="successHotelName">The Elegant Suites Coimbatore</h3>
+            <p class="hotel-display-branch text-muted mb-0" id="successHotelBranchRoom">Coimbatore Branch - Executive Studio Room</p>
           </div>
         </div>
 
@@ -137,22 +137,22 @@
         <div class="row g-3 border-bottom pb-4 mb-4 text-start">
           <div class="col-md-6 col-lg-3">
             <strong class="small text-muted text-uppercase d-block mb-1"><i class="bi bi-calendar-check text-warning me-1"></i>Check-In</strong>
-            <span class="fw-bold d-block text-dark">25 Jun 2026</span>
-            <span class="small text-muted">Thursday</span>
+            <span class="fw-bold d-block text-dark" id="successCheckInDate">20 Nov 2026</span>
+            <span class="small text-muted" id="successCheckInDay">Friday</span>
           </div>
           <div class="col-md-6 col-lg-3">
             <strong class="small text-muted text-uppercase d-block mb-1"><i class="bi bi-calendar-x text-warning me-1"></i>Check-Out</strong>
-            <span class="fw-bold d-block text-dark">28 Jun 2026</span>
-            <span class="small text-muted">Sunday</span>
+            <span class="fw-bold d-block text-dark" id="successCheckOutDate">23 Nov 2026</span>
+            <span class="small text-muted" id="successCheckOutDay">Monday</span>
           </div>
           <div class="col-md-6 col-lg-3">
             <strong class="small text-muted text-uppercase d-block mb-1"><i class="bi bi-moon text-warning me-1"></i>Duration</strong>
-            <span class="fw-bold d-block text-dark">3 Nights</span>
+            <span class="fw-bold d-block text-dark" id="successDuration">3 Nights</span>
           </div>
           <div class="col-md-6 col-lg-3">
             <strong class="small text-muted text-uppercase d-block mb-1"><i class="bi bi-people text-warning me-1"></i>Guests</strong>
-            <span class="fw-bold d-block text-dark">2 Adults</span>
-            <span class="small text-muted">1 Room</span>
+            <span class="fw-bold d-block text-dark" id="successGuests">2 Adults</span>
+            <span class="small text-muted" id="successRooms">1 Room</span>
           </div>
         </div>
 
@@ -169,7 +169,7 @@
                 </li>
                 <li class="d-flex justify-content-between py-2 border-bottom border-light">
                   <span class="text-secondary small">Total Amount Paid</span>
-                  <span class="fw-bold text-success font-serif">Rs. 23,010.00</span>
+                  <span class="fw-bold text-success font-serif" id="successTotalAmount">Rs. 23,010.00</span>
                 </li>
                 <li class="d-flex justify-content-between py-2 border-bottom border-light">
                   <span class="text-secondary small">Payment Status</span>
@@ -189,7 +189,7 @@
               <ul class="next-steps-list ps-0 mb-0 d-flex flex-column gap-3">
                 <li class="d-flex gap-3 align-items-start">
                   <i class="bi bi-envelope text-warning fs-5"></i>
-                  <span class="small text-secondary">A booking confirmation email has been sent to <strong class="text-dark">customer@elegantenclave.com</strong></span>
+                  <span class="small text-secondary">A booking confirmation email has been sent to <strong class="text-dark" id="successEmail">customer@elegantenclave.com</strong></span>
                 </li>
                 <li class="d-flex gap-3 align-items-start">
                   <i class="bi bi-journal-text text-warning fs-5"></i>
@@ -254,9 +254,9 @@
           </div>
         </div>
         <div class="d-flex align-items-center gap-4 flex-wrap text-secondary small">
-          <span><i class="bi bi-telephone-outbound me-2 text-warning"></i>+91 422 990 000</span>
+            <span><i class="bi bi-telephone-outbound me-2 text-warning"></i>+91 98765 43210</span>
           <span><i class="bi bi-envelope me-2 text-warning"></i>support@elegantenclave.com</span>
-          <span><i class="bi bi-chat-left-dots me-2 text-warning"></i>Live Chat</span>
+          <span><i class="bi bi-chat-left-dots me-2 text-warning"></i></span>
         </div>
       </footer>
 
@@ -265,6 +265,7 @@
 
   <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="../../Shared/UtilityClass/back_nav.js"></script>
   <script src="booking_success.js"></script>

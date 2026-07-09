@@ -68,7 +68,12 @@
   </nav>
 
   <!-- TOP HEADER SECTION -->
-  <header class="container px-xl-5 py-4 mt-2 text-start">
+  <header class="container px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <div class="mb-2">
+      <a href="../User/Candidate/my_bookings.html" class="btn btn-sm d-inline-flex align-items-center gap-1 p-0 text-dark fw-semibold" style="font-size: 0.8rem; text-decoration: none; border: none; background: transparent;">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
     <h1 class="modify-title m-0">Modify Booking</h1>
     <p class="modify-sub text-muted m-0">Update your stay details in just a few simple steps.</p>
   </header>
@@ -178,36 +183,56 @@
         </div>
 
         <form id="modifyStayForm" novalidate>
-          <div class="row g-4 mb-4">
-            <div class="col-md-4">
-              <label for="checkinDate" class="form-label text-dark fw-bold">Check-in Date</label>
-              <div class="input-group custom-input-group">
-                <input type="date" id="checkinDate" class="form-control" value="2026-06-25" placeholder="dd-mm-yyyy" required>
-              </div>
-              <span class="small mt-1 d-none" id="checkinError"></span>
+          <div id="generalFormError" class="alert alert-danger d-none py-2 mb-4 small"></div>
+          <!-- Choose modification type -->
+          <div class="mb-4 p-3 bg-light rounded border d-none" id="modificationTypeContainer">
+            <label class="form-label text-dark fw-bold d-block mb-2">What would you like to modify?</label>
+            <div class="form-check form-check-inline me-4">
+              <input class="form-check-input" type="radio" name="modifyOptionRadio" id="modifyOptionDates" value="dates" checked>
+              <label class="form-check-label text-dark fw-semibold" for="modifyOptionDates"><i class="bi bi-calendar-date me-1"></i> Stay Dates</label>
             </div>
-            <div class="col-md-4">
-              <label for="checkoutDate" class="form-label text-dark fw-bold">Check-out Date</label>
-              <div class="input-group custom-input-group">
-                <input type="date" id="checkoutDate" class="form-control" value="2026-06-30" placeholder="dd-mm-yyyy" required>
-              </div>
-              <span class="small mt-1 d-none" id="checkoutError"></span>
-            </div>
-            <div class="col-md-4">
-              <label for="selectGuests" class="form-label text-dark fw-bold">Guests</label>
-              <select id="selectGuests" class="form-select custom-select">
-                <option value="2">2 Guests, 1 Room</option>
-                <option value="4" selected>4 Guests, 1 Room</option>
-              </select>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="modifyOptionRadio" id="modifyOptionRoom" value="room">
+              <label class="form-check-label text-dark fw-semibold" for="modifyOptionRoom"><i class="bi bi-door-open me-1"></i> Room Type</label>
             </div>
           </div>
 
-          <div class="mb-5 col-md-6">
-            <label for="selectRoomType" class="form-label text-dark fw-bold">Room Type</label>
-            <select id="selectRoomType" class="form-select custom-select">
-              <option value="deluxe">Deluxe King</option>
-              <option value="family" selected>Family Suite</option>
-            </select>
+           <!-- Dates modification panel -->
+          <div id="datesSelectionSection">
+            <div class="row g-4 mb-4">
+              <div class="col-md-4">
+                <label for="checkinDate" class="form-label text-dark fw-bold">Check-in Date <span class="text-danger">*</span></label>
+                <div class="input-group custom-input-group">
+                  <input type="date" id="checkinDate" class="form-control" value="" placeholder="dd-mm-yyyy" required>
+                </div>
+                <span class="small mt-1 d-none" id="checkinError"></span>
+              </div>
+              <div class="col-md-4">
+                <label for="checkoutDate" class="form-label text-dark fw-bold">Check-out Date <span class="text-danger">*</span></label>
+                <div class="input-group custom-input-group">
+                  <input type="date" id="checkoutDate" class="form-control" value="" placeholder="dd-mm-yyyy" required>
+                </div>
+                <span class="small mt-1 d-none" id="checkoutError"></span>
+              </div>
+              <div class="col-md-4">
+                <label for="selectGuests" class="form-label text-dark fw-bold">Guests <span class="text-danger">*</span></label>
+                <select id="selectGuests" class="form-select custom-select">
+                  <option value="1">1 Guest</option>
+                  <option value="2" selected>2 Guests</option>
+                  <option value="3">3 Guests</option>
+                  <option value="4">4 Guests</option>
+                </select>
+                <span class="small mt-1 d-none" id="guestsError"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Room modification panel -->
+          <div id="roomSelectionSection" class="d-none">
+            <label class="form-label text-dark fw-bold mb-3">Select a Room Type (available at your branch) <span class="text-danger">*</span></label>
+            <div class="row g-3" id="availableRoomsList">
+              <!-- Dynamically populated room cards -->
+            </div>
           </div>
 
           <!-- Purple informational alert warning card notice block -->
@@ -215,7 +240,7 @@
             <span class="notice-icon-circle"><i class="bi bi-info-circle"></i></span>
             <div>
               <strong class="text-primary-dark d-block">Important</strong>
-              <span class="small text-secondary">Updating dates, guests or room type may change availability, pricing and taxes.</span>
+              <span class="small text-secondary">Updating dates, guests or room type may change availability, pricing and taxes.<br><strong>* denotes that the field is mandatory</strong></span>
             </div>
           </div>
 
@@ -284,8 +309,31 @@
     </div>
   </main>
 
+  <!-- DATE MODIFICATION PRICE CHANGES POPUP MODAL -->
+  <div class="modal fade" id="priceChangeModal" tabindex="-1" aria-labelledby="priceChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-modal-content border-0 p-3" style="border-radius: 16px;">
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h5 class="modal-title font-serif text-dark fw-bold fs-4" id="priceChangeModalLabel">Modification Summary</h5>
+            <p class="text-secondary small mb-0">Dynamic comparison details for your stay dates.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start pt-3 small" id="priceChangeModalBody">
+          <!-- Dynamic details content goes here -->
+        </div>
+        <div class="modal-footer border-0 pt-0 d-flex justify-content-between" id="priceChangeModalFooter">
+          <!-- Buttons dynamically wired -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- state.js MUST come before session.js so HotelState.getBookingLifecycle() is available -->
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="../../Shared/UtilityClass/policy_modal.js"></script>
   <script src="modify_booking_step1.js"></script>

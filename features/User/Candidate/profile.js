@@ -1,187 +1,224 @@
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Customer') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('profileForm');
-  
-  // Verify auth session credentials. Hide data if unauthenticated.
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  if (!isLoggedIn) {
-    if (form) {
-      form.innerHTML = `
-        <div class="profile-card bg-white p-5 rounded border text-center shadow-sm my-4">
-          <div class="mb-4 text-warning" style="font-size: 3rem;"><i class="bi bi-shield-lock"></i></div>
-          <h3 class="font-serif text-dark mb-3">Login to View Profile</h3>
-          <p class="text-muted mb-4 small">You must be logged in to view your profile settings and update credentials.</p>
-          <a href="../authentication/login.html" class="btn btn-confirm-pay px-4 py-2" style="background-color: #1A0A2E; color: white; border-radius: 8px;">Login to Continue</a>
-        </div>
-      `;
-    }
+  if (!form) return;
+
+  const user = HotelState.getUserById(userId);
+  if (!user) {
+    window.location.href = '../../../features/Auth/login.html';
     return;
   }
 
-  // Inputs fields
+  // 1. Populate Avatar Initials
+  const avatarEl = document.querySelector('.profile-avatar');
+  if (avatarEl && user.firstName && user.lastName) {
+    const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
+    avatarEl.textContent = initials;
+    avatarEl.style.display = 'flex';
+    avatarEl.style.alignItems = 'center';
+    avatarEl.style.justifyContent = 'center';
+    avatarEl.style.backgroundColor = '#D4AF37';
+    avatarEl.style.color = '#fff';
+    avatarEl.style.fontWeight = 'bold';
+    avatarEl.style.width = '40px';
+    avatarEl.style.height = '40px';
+    avatarEl.style.borderRadius = '50%';
+  }
+
+  // 2. Inject Display Fields
+  const joinDate = new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const readOnlySection = document.createElement('section');
+  readOnlySection.className = 'profile-card bg-white p-4 shadow-sm border rounded text-start mb-3';
+  readOnlySection.innerHTML = `
+    <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+      <span class="badge-icon-circle"><i class="bi bi-star"></i></span>
+      <h2 class="section-title m-0">Your Details</h2>
+    </div>
+    <div class="row g-3 mb-2 text-dark">
+      <div class="col-md-4"><strong>Email:</strong><br>${user.email}</div>
+      <div class="col-md-4"><strong>Loyalty Points:</strong><br>${user.loyaltyPoints}</div>
+      <div class="col-md-4"><strong>Member Since:</strong><br>${joinDate}</div>
+      <div class="col-md-12"><strong>Address:</strong><br>${user.address?.street || ''}, ${user.address?.city || ''}, ${user.address?.state || ''} ${user.address?.pincode || ''}</div>
+    </div>
+  `;
+  form.insertBefore(readOnlySection, form.firstChild);
+
+  // 3. Form Inputs
   const firstName = document.getElementById('firstName');
   const lastName = document.getElementById('lastName');
   const mobilePhone = document.getElementById('mobilePhone');
-  const newPassword = document.getElementById('newPassword');
-  const oldPassword = document.getElementById('oldPassword');
-
-  // Error placeholders
+  
   const firstNameErr = document.getElementById('firstNameErr');
   const lastNameErr = document.getElementById('lastNameErr');
   const mobilePhoneErr = document.getElementById('mobilePhoneErr');
-  const newPasswordErr = document.getElementById('newPasswordErr');
 
-  // Toggle show/hide password buttons
-  const btnToggleOld = document.getElementById('btnToggleOld');
-  const btnToggleNew = document.getElementById('btnToggleNew');
+  if (firstName) firstName.value = user.firstName;
+  if (lastName) lastName.value = user.lastName;
+  if (mobilePhone) mobilePhone.value = user.phone;
 
-  function setupToggleVisibility(btn, inputField) {
-    if (btn && inputField) {
-      btn.addEventListener('click', () => {
-        if (inputField.type === 'password') {
-          inputField.type = 'text';
-          btn.innerHTML = '<i class="bi bi-eye-slash"></i>';
-        } else {
-          inputField.type = 'password';
-          btn.innerHTML = '<i class="bi bi-eye"></i>';
-        }
-      });
-    }
-  }
+  // Make fields uneditable initially
+  [firstName, lastName, mobilePhone].forEach(el => el && el.setAttribute('disabled', 'true'));
 
-  setupToggleVisibility(btnToggleOld, oldPassword);
-  setupToggleVisibility(btnToggleNew, newPassword);
+  const btnEditProfile = document.getElementById('btnEditProfile');
+  const btnSave = document.getElementById('btnSaveSettings');
+  let isEditing = false;
 
-  // Live password strength indicator logs
-  if (newPassword) {
-    newPassword.addEventListener('input', () => {
-      const val = newPassword.value;
-      const strengthStatusText = document.getElementById('strengthStatusText');
-      const bars = document.querySelectorAll('.strength-bar');
-
-      // Clear bar states
-      bars.forEach(b => {
-        b.className = 'strength-bar text-muted bg-light';
-      });
-
-      if (val.length === 0) {
-        if (strengthStatusText) strengthStatusText.textContent = '';
-        return;
-      }
-
-      let score = 0;
-      if (val.length >= 8) score++;
-      if (/[A-Z]/.test(val)) score++;
-      if (/[a-z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
-
-      if (score <= 2) {
-        bars[0].className = 'strength-bar weak';
-        if (strengthStatusText) {
-          strengthStatusText.textContent = 'Weak';
-          strengthStatusText.className = 'small text-danger fw-bold';
-        }
-      } else if (score <= 4) {
-        bars[0].className = 'strength-bar medium';
-        bars[1].className = 'strength-bar medium';
-        if (strengthStatusText) {
-          strengthStatusText.textContent = 'Medium';
-          strengthStatusText.className = 'small text-warning fw-bold';
-        }
-      } else {
-        bars[0].className = 'strength-bar strong';
-        bars[1].className = 'strength-bar strong';
-        bars[2].className = 'strength-bar strong';
-        if (strengthStatusText) {
-          strengthStatusText.textContent = 'Strong';
-          strengthStatusText.className = 'small text-success fw-bold';
-        }
+  if (btnEditProfile && btnSave) {
+    btnEditProfile.addEventListener('click', (e) => {
+      if (!isEditing) {
+        e.preventDefault();
+        isEditing = true;
+        [firstName, lastName, mobilePhone].forEach(el => el && el.removeAttribute('disabled'));
+        btnEditProfile.classList.add('d-none');
+        btnSave.classList.remove('d-none');
       }
     });
   }
 
-  // Submit Handler Validations
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+  // 4. Change Password Section logic
+  const oldPassword = document.getElementById('oldPassword');
+  const newPassword = document.getElementById('newPassword');
+  const newPasswordErr = document.getElementById('newPasswordErr');
+  const confirmPassword = document.getElementById('confirmPassword');
+  const confirmPasswordErr = document.getElementById('confirmPasswordErr');
+  const btnChangePassword = document.getElementById('btnChangePassword');
 
-      let hasError = false;
+  function validatePasswordStrength(pwd) {
+    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return re.test(pwd);
+  }
 
-      // 1. First Name Validation
-      const nameRegex = /^[A-Za-z\s]+$/;
-      if (!firstName.value.trim() || !nameRegex.test(firstName.value) || firstName.value.length > 50) {
-        firstNameErr.classList.remove('d-none');
-        hasError = true;
-      } else {
-        firstNameErr.classList.add('d-none');
+  if (btnChangePassword) {
+    btnChangePassword.addEventListener('click', () => {
+      let valid = true;
+      const oldVal = oldPassword.value;
+      const newVal = newPassword.value;
+      const confirmVal = confirmPassword.value;
+
+      if (oldVal !== user.password) {
+        alert('Current password is incorrect.'); // Used inline alert below instead
+        valid = false;
       }
-
-      // 2. Last Name Validation
-      if (!lastName.value.trim() || !nameRegex.test(lastName.value) || lastName.value.length > 50) {
-        lastNameErr.classList.remove('d-none');
-        hasError = true;
-      } else {
-        lastNameErr.classList.add('d-none');
-      }
-
-      // 3. Phone Validation (Indian, exactly 10 digits parsed)
-      const cleanPhone = mobilePhone.value.replace(/[^0-9]/g, '');
-      if (cleanPhone.length < 10) {
-        mobilePhoneErr.classList.remove('d-none');
-        hasError = true;
-      } else {
-        mobilePhoneErr.classList.add('d-none');
-      }
-
-      // 4. New Password validation check
-      const passVal = newPassword.value;
-      const meetsPass = passVal.length >= 8 && /[A-Z]/.test(passVal) && /[a-z]/.test(passVal) && /[0-9]/.test(passVal) && /[^A-Za-z0-9]/.test(passVal);
-      if (passVal.length > 0 && !meetsPass) {
+      
+      if (!validatePasswordStrength(newVal)) {
         newPasswordErr.classList.remove('d-none');
-        hasError = true;
+        valid = false;
       } else {
         newPasswordErr.classList.add('d-none');
       }
 
-      if (hasError) {
-        return;
+      if (newVal !== confirmVal) {
+        confirmPasswordErr.classList.remove('d-none');
+        valid = false;
+      } else {
+        confirmPasswordErr.classList.add('d-none');
       }
 
-      // Show Policy Confirmation modal before saving modifications
-      window.policyModal.show({
-        title: 'Review Profile & Security Policy',
-        policyType: 'profile',
-        onContinue: () => {
-           // Sync updated name variables back to global session variables
-          const updatedName = `${firstName.value.trim()} ${lastName.value.trim()}`;
-          localStorage.setItem('userName', updatedName);
-          
-          // Re-populate page navigation avatar details
-          const userNameEl = document.querySelector('.auth-logged-in .user-name');
-          if (userNameEl) userNameEl.textContent = updatedName;
+      if (!valid) return;
 
-          // If there is an email input or display, it can be updated here as well:
-          const userEmailEl = document.querySelector('.auth-logged-in .user-email');
-          const emailInput = document.getElementById('emailAddress');
-          if (userEmailEl && emailInput) {
-            const updatedEmail = emailInput.value.trim();
-            if (updatedEmail) {
-              localStorage.setItem('userEmail', updatedEmail);
-              userEmailEl.textContent = updatedEmail;
-            }
-          }
+      // Update password
+      user.password = newVal;
+      const users = HotelState.users;
+      const idx = users.findIndex(u => u.id === userId);
+      if (idx !== -1) {
+        users[idx] = user;
+        HotelState.users = users;
+      }
 
-          // Trigger success Toast popup
-          const toastEl = document.getElementById('successToast');
-          if (toastEl) {
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
-          }
-        },
-        onBack: () => {
-          console.log('User cancelled profile policy agreement');
-        }
-      });
+      HotelState.addAuditLog(userId, user.firstName + ' ' + user.lastName, 'Customer', 'PASSWORD_UPDATED', 'Profile', 'Customer updated their password.');
+
+      let alertBox = document.getElementById('pwdAlertBox');
+      if (!alertBox) {
+        alertBox = document.createElement('div');
+        alertBox.id = 'pwdAlertBox';
+        alertBox.className = 'alert alert-success mt-3';
+        btnChangePassword.parentElement.appendChild(alertBox);
+      }
+      alertBox.textContent = 'Password changed successfully.';
+      alertBox.className = 'alert alert-success mt-3';
+      
+      oldPassword.value = '';
+      newPassword.value = '';
+      confirmPassword.value = '';
     });
   }
+
+  // 5. Submit Profile Info
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!isEditing) return;
+
+    let hasError = false;
+
+    if (!firstName.value.trim()) {
+      firstNameErr.classList.remove('d-none');
+      hasError = true;
+    } else {
+      firstNameErr.classList.add('d-none');
+    }
+
+    if (!lastName.value.trim()) {
+      lastNameErr.classList.remove('d-none');
+      hasError = true;
+    } else {
+      lastNameErr.classList.add('d-none');
+    }
+
+    if (!mobilePhone.value.trim()) { // Simplified phone validation
+      mobilePhoneErr.classList.remove('d-none');
+      hasError = true;
+    } else {
+      mobilePhoneErr.classList.add('d-none');
+    }
+
+    if (hasError) return;
+
+    const updatedName = `${firstName.value.trim()} ${lastName.value.trim()}`;
+    
+    user.firstName = firstName.value.trim();
+    user.lastName = lastName.value.trim();
+    user.name = updatedName;
+    user.phone = mobilePhone.value.trim();
+
+    const users = HotelState.users;
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx !== -1) {
+      users[idx] = user;
+      HotelState.users = users;
+    }
+
+    HotelState.currentUser = user;
+    localStorage.setItem('userName', updatedName);
+
+    HotelState.addAuditLog(userId, updatedName, 'Customer', 'PROFILE_UPDATED', 'Profile', 'Customer updated their profile.');
+
+    let inlineAlert = document.getElementById('profileSuccessAlert');
+    if (!inlineAlert) {
+      inlineAlert = document.createElement('div');
+      inlineAlert.id = 'profileSuccessAlert';
+      inlineAlert.className = 'alert alert-success mb-3';
+      btnSave.closest('.text-end').insertBefore(inlineAlert, btnSave.closest('.text-end').firstChild);
+    }
+    inlineAlert.textContent = 'Profile updated successfully.';
+
+    const userNameEl = document.querySelector('.auth-logged-in .user-name');
+    if (userNameEl) userNameEl.textContent = updatedName;
+    const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
+    if (avatarEl) avatarEl.textContent = initials;
+
+    isEditing = false;
+    [firstName, lastName, mobilePhone].forEach(el => el && el.setAttribute('disabled', 'true'));
+    if (btnEditProfile && btnSave) {
+      btnEditProfile.classList.remove('d-none');
+      btnSave.classList.add('d-none');
+    }
+  });
+
 });

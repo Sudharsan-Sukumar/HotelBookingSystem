@@ -15,93 +15,89 @@
 <body class="manager-body">
 
   <nav class="navbar navbar-expand-md manager-top-nav py-2 sticky-top" style="background-color: #1A0A2E !important;">
-    <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
-      
-      <!-- Brand Logo -->
-      <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
-        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
-        <span class="brand-text text-white font-serif fw-bold fs-4">Elegant<span>Enclave</span></span>
-      </a>
-
-      <!-- Horizontal Menu Tabs -->
-      <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2" id="topNavbarCollapse">
-        <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
-          <li class="nav-item">
-            <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navBookings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-calendar-check-fill me-1"></i> Bookings
-            </a>
-            <ul class="dropdown-menu shadow border" aria-labelledby="navBookings" style="background-color: #1A0A2E;">
-              <li><a class="dropdown-item text-white small py-2" href="bookings.html">All Bookings</a></li>
-              
-              <li><a class="dropdown-item text-white small py-2" href="check_in.html">Check-in</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="check_out.html">Check-out</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="booking_calendar.html">Booking Calendar</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="booking_history.html">Booking History</a></li>
-            </ul>
-          </li>
-          <!-- Rooms Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle active" href="#" id="navRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-building-fill me-1"></i> Rooms
-            </a>
-            <ul class="dropdown-menu shadow border" aria-labelledby="navRooms" style="background-color: #1A0A2E;">
-              <li><a class="dropdown-item text-white small py-2" href="rooms.html">Room Management</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="room_types.html">Room Types</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="room_availability.html">Room Availability</a></li>
-              <li><a class="dropdown-item text-white small py-2" href="housekeeping.html">Housekeeping</a></li>
-              
-            </ul>
-          </li>
-          <!-- Guests Dropdown -->
-          <!-- Guests Menu -->
-          <li class="nav-item">
-            <a class="nav-link" href="guests.html" id="navGuests">
-              <i class="bi bi-people-fill me-1"></i> Guests
-            </a>
-          </li>
-          <!-- Reports Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-bar-chart-line-fill me-1"></i> Reports
-            </a>
-            <ul class="dropdown-menu shadow border" aria-labelledby="navReports" style="background-color: #1A0A2E;">
-              <li><a class="dropdown-item text-white small py-2" href="reports_occupancy.html">Occupancy Report</a></li>
-              
-              <li><a class="dropdown-item text-white small py-2" href="reports_bookings.html">Booking Report</a></li>
-              
-              
-              <li><a class="dropdown-item text-white small py-2" href="reports_payments.html">Payment Report</a></li>
-              
-            </ul>
-          </li>
-        </ul>
-
-        <!-- Right Widgets -->
-        <div class="d-flex align-items-center flex-wrap gap-2">
-          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-2" id="navNotificationBell">
-            <i class="bi bi-bell-fill text-warning"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">12</span>
+  <div class="container-fluid px-4 d-flex align-items-center flex-nowrap">
+    
+    <!-- Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="dashboard.html" style="flex-shrink: 0;">
+      <img src="../../../assets/images/logo.png" alt="Elegant Enclave" style="height: 42px; width: auto; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+      <span class="brand-text text-white fw-bold fs-4">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+    </a>
+    <!-- Navigation Menu -->
+    <div class="d-flex align-items-center justify-content-between flex-grow-1 gap-2">
+      <ul class="navbar-nav ms-xl-4 gap-1 flex-row flex-nowrap">
+        
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a class="nav-link " href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a>
+        </li>
+        
+        <!-- Operations Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle " href="#" id="navOperations" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-calendar-check-fill me-1"></i> Operations
           </a>
-          <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
-            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
-              <div class="profile-avatar-circle">SK</div>
-              <div class="lh-sm text-start text-white d-none d-lg-block">
-                <strong class="d-block small" style="font-size: 0.75rem;">Sridhar</strong>
-              </div>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
-              <li><a class="dropdown-item py-2 px-3 text-white small" href="reports_profile.html">View Profile</a></li>
-              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
-              <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
-            </ul>
-          </div>
+          <ul class="dropdown-menu shadow border" style="background-color: #1A0A2E;">
+            <li><a class="dropdown-item text-white small py-2 " href="check_in.html">Check-In</a></li>
+            <li><a class="dropdown-item text-white small py-2 " href="check_out.html">Check-Out</a></li>
+          </ul>
+        </li>
+        
+        <!-- Rooms Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" id="navRooms" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-building-fill me-1"></i> Rooms
+          </a>
+          <ul class="dropdown-menu shadow border" style="background-color: #1A0A2E;">
+            <li><a class="dropdown-item text-white small py-2 " href="room_availability.html">Room Availability</a></li>
+            <li><a class="dropdown-item text-white small py-2 active" href="housekeeping.html">Housekeeping</a></li>
+          </ul>
+        </li>
+      </ul>
+      <!-- Right: Notification Bell + Profile -->
+      <div class="d-flex align-items-center gap-2">
+        <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-2">
+          <i class="bi bi-bell-fill text-warning"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="navNotifCount" style="font-size: 0.6rem; display: none;">0</span>
+        </a>
+        <div class="dropdown border-start border-secondary border-opacity-50 ps-2">
+          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" style="background: transparent !important;">
+            <div class="profile-avatar-circle" id="navAvatarInitials">MG</div>
+            <div class="lh-sm text-start text-white d-none d-lg-block">
+              <strong class="d-block small" id="navManagerName" style="font-size: 0.75rem;">Manager</strong>
+            </div>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E; border-radius: 12px; margin-top: 10px;">
+            <li><a class="dropdown-item py-2 px-3 text-white d-flex align-items-center gap-2" href="#" id="navViewProfile" style="font-size: 0.85rem;"><i class="bi bi-person-fill text-warning"></i> View Profile</a></li>
+            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+            <li><a class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2" href="#" onclick="triggerConfirmLogout(event)" style="font-size: 0.85rem;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
         </div>
       </div>
     </div>
-  </nav>
+  </div>
+</nav>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const userName = localStorage.getItem('userName') || 'Manager';
+    const userId = localStorage.getItem('userId');
+    const nameEl = document.getElementById('navManagerName');
+    const initialsEl = document.getElementById('navAvatarInitials');
+    if (nameEl) nameEl.textContent = userName.split(' ')[0];
+    if (initialsEl) {
+      const parts = userName.split(' ');
+      initialsEl.textContent = (parts[0]?.[0] || 'M') + (parts[1]?.[0] || '');
+    }
+    // Load unread notification count
+    if (window.HotelState) {
+      const notifs = HotelState.getNotificationsByUser(userId, 'Manager').filter(n => !n.isRead);
+      const badge = document.getElementById('navNotifCount');
+      if (badge && notifs.length > 0) {
+        badge.textContent = notifs.length;
+        badge.style.display = 'block';
+      }
+    }
+  });
+</script>
 
   <div class="container-fluid px-4 py-4" style="min-height: calc(100vh - 72px);">
     <nav aria-label="breadcrumb">

@@ -1,15 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Mock Booking Database
-  let bookings = [
-    { id: 'EE-2026-9841', guest: 'Arjun Mehta', email: 'arjun@email.com', phone: '+91 98765 43210', room: '304', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-07-03', checkout: '2026-07-06', amount: 23010, payment: 'Paid', status: 'Confirmed', notes: 'Prefers high floor' },
-    { id: 'EE-2026-8911', guest: 'Sarah Jenkins', email: 'sarah@email.com', phone: '+91 98765 43211', room: '201', type: 'Executive Studio', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-07-02', checkout: '2026-07-05', amount: 27500, payment: 'Pending', status: 'Confirmed', notes: 'Anniversary celebration' },
-    { id: 'EE-2026-9042', guest: 'Ramesh Krishnan', email: 'ramesh@email.com', phone: '+91 98765 43212', room: '108', type: 'Standard Room', branch: 'Elegant Enclave Chennai', guests: 1, checkin: '2026-07-02', checkout: '2026-07-04', amount: 12000, payment: 'Paid', status: 'Checked In', notes: 'Early check-in request' },
-    { id: 'EE-2026-9730', guest: 'Priya Sharma', email: 'priya@email.com', phone: '+91 98765 43213', room: '501', type: 'Penthouse Suite', branch: 'Elegant Enclave Chennai', guests: 4, checkin: '2026-07-03', checkout: '2026-07-07', amount: 45000, payment: 'Paid', status: 'Confirmed', notes: 'Late checkout requested' },
-    { id: 'EE-2026-9812', guest: 'Amit Patel', email: 'amit@email.com', phone: '+91 98765 43214', room: '302', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 3, checkin: '2026-07-02', checkout: '2026-07-05', amount: 29000, payment: 'Paid', status: 'Checked In', notes: 'Extra bed required' },
-    { id: 'EE-2026-7811', guest: 'Divya Nair', email: 'divya@email.com', phone: '+91 98765 43215', room: '102', type: 'Standard Room', branch: 'Elegant Enclave Chennai', guests: 1, checkin: '2026-06-30', checkout: '2026-07-02', amount: 8000, payment: 'Refunded', status: 'Cancelled', notes: 'Change of travel plans' },
-    { id: 'EE-2026-9400', guest: 'Sridhar Kumar', email: 'sridhar@email.com', phone: '+91 98765 43216', room: '204', type: 'Executive Studio', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-06-28', checkout: '2026-07-02', amount: 16000, payment: 'Paid', status: 'Checked In', notes: 'Frequent guest' },
-    { id: 'EE-2026-9102', guest: 'Srinivas Murthy', email: 'srinivas@email.com', phone: '+91 98765 43217', room: '311', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-06-25', checkout: '2026-07-02', amount: 35000, payment: 'Paid', status: 'Checked Out', notes: 'Business traveler' }
-  ];
+  let bookings = HotelState.bookings || [];
+  if (!bookings.some(b => b.id === 'EE-2026-9841')) {
+    const mockBookings = [
+      { id: 'EE-2026-9841', guest: 'Arjun Mehta', email: 'arjun@email.com', phone: '+91 98765 43210', room: '304', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-07-03', checkout: '2026-07-06', amount: 23010, payment: 'Paid', status: 'Confirmed', notes: 'Prefers high floor' },
+      { id: 'EE-2026-8911', guest: 'Sarah Jenkins', email: 'sarah@email.com', phone: '+91 98765 43211', room: '201', type: 'Executive Studio', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-07-02', checkout: '2026-07-05', amount: 27500, payment: 'Pending', status: 'Confirmed', notes: 'Anniversary celebration' },
+      { id: 'EE-2026-9042', guest: 'Ramesh Krishnan', email: 'ramesh@email.com', phone: '+91 98765 43212', room: '108', type: 'Standard Room', branch: 'Elegant Enclave Chennai', guests: 1, checkin: '2026-07-02', checkout: '2026-07-04', amount: 12000, payment: 'Paid', status: 'Checked In', notes: 'Early check-in request' },
+      { id: 'EE-2026-9730', guest: 'Priya Sharma', email: 'priya@email.com', phone: '+91 98765 43213', room: '501', type: 'Penthouse Suite', branch: 'Elegant Enclave Chennai', guests: 4, checkin: '2026-07-03', checkout: '2026-07-07', amount: 45000, payment: 'Paid', status: 'Confirmed', notes: 'Late checkout requested' },
+      { id: 'EE-2026-9812', guest: 'Amit Patel', email: 'amit@email.com', phone: '+91 98765 43214', room: '302', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 3, checkin: '2026-07-02', checkout: '2026-07-05', amount: 29000, payment: 'Paid', status: 'Checked In', notes: 'Extra bed required' },
+      { id: 'EE-2026-7811', guest: 'Divya Nair', email: 'divya@email.com', phone: '+91 98765 43215', room: '102', type: 'Standard Room', branch: 'Elegant Enclave Chennai', guests: 1, checkin: '2026-06-30', checkout: '2026-07-02', amount: 8000, payment: 'Refunded', status: 'Cancelled', notes: 'Change of travel plans' },
+      { id: 'EE-2026-9400', guest: 'Sridhar Kumar', email: 'sridhar@email.com', phone: '+91 98765 43216', room: '204', type: 'Executive Studio', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-06-28', checkout: '2026-07-02', amount: 16000, payment: 'Paid', status: 'Checked In', notes: 'Frequent guest' },
+      { id: 'EE-2026-9102', guest: 'Srinivas Murthy', email: 'srinivas@email.com', phone: '+91 98765 43217', room: '311', type: 'Deluxe Suite', branch: 'Elegant Enclave Chennai', guests: 2, checkin: '2026-06-25', checkout: '2026-07-02', amount: 35000, payment: 'Paid', status: 'Checked Out', notes: 'Business traveler' }
+    ];
+    bookings = bookings.concat(mockBookings);
+    HotelState.bookings = bookings;
+  }
 
   // 2. Selectors
   const tblBody = document.querySelector('#tblAllBookings tbody');
@@ -69,9 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusVal = selStatus.value;
 
       let filtered = bookings.filter(b => {
-        if (query && !b.id.toLowerCase().includes(query) && !b.guest.toLowerCase().includes(query) && !b.phone.includes(query)) return false;
-        if (branchVal !== 'all' && !b.branch.includes(branchVal)) return false;
-        if (roomVal !== 'all' && b.type !== roomVal) return false;
+        let bId = b.id || b.txnId || '';
+        let bGuest = b.guest || b.name || b.email || 'Customer';
+        let bPhone = b.phone || '';
+        let bBranch = b.branch || '';
+        let bType = b.type || '';
+        if (query && !bId.toLowerCase().includes(query) && !bGuest.toLowerCase().includes(query) && !bPhone.includes(query)) return false;
+        if (branchVal !== 'all' && !bBranch.includes(branchVal)) return false;
+        if (roomVal !== 'all' && bType !== roomVal) return false;
         if (statusVal !== 'all' && b.status !== statusVal) return false;
         return true;
       });
@@ -122,18 +132,29 @@ document.addEventListener('DOMContentLoaded', () => {
           buttons += `<button class="btn btn-danger btn-sm py-0 px-2 me-1" onclick="confirmCheckout('${b.id}')">Check-out</button>`;
         }
 
+        let amountVal = b.amount;
+        if (typeof amountVal === 'string') {
+          amountVal = parseFloat(amountVal.replace(/,/g, '')) || 0;
+        }
+        
+        let guestName = b.guest || b.name || b.email || 'Customer';
+        let roomName = b.room ? `Room ${b.room}` : 'Unassigned';
+        let roomType = b.type || 'Standard';
+        let checkinDate = b.checkin || b.checkIn || 'TBD';
+        let checkoutDate = b.checkout || b.checkOut || 'TBD';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${b.id}</strong></td>
-          <td>${b.guest}</td>
-          <td>Room ${b.room} <span class="text-muted d-block small" style="font-size: 0.65rem;">${b.type}</span></td>
+          <td><strong>${b.id || b.txnId}</strong></td>
+          <td>${guestName}</td>
+          <td>${roomName} <span class="text-muted d-block small" style="font-size: 0.65rem;">${roomType}</span></td>
           <td>${b.branch}</td>
-          <td>${b.guests}</td>
-          <td>${b.checkin}</td>
-          <td>${b.checkout}</td>
+          <td>${b.guests || 1}</td>
+          <td>${checkinDate}</td>
+          <td>${checkoutDate}</td>
           <td><span class="badge ${statusClass} badge-status">${b.status}</span></td>
-          <td><span class="badge ${paymentClass} badge-payment">${b.payment}</span></td>
-          <td class="text-end fw-bold">₹${b.amount.toLocaleString('en-IN')}</td>
+          <td><span class="badge ${paymentClass} badge-payment">${b.payment || 'Pending'}</span></td>
+          <td class="text-end fw-bold">₹${amountVal.toLocaleString('en-IN')}</td>
           <td class="text-end text-nowrap">${buttons}</td>
         `;
         tblBody.appendChild(tr);
@@ -224,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (b) {
         b.status = 'Cancelled';
         b.payment = 'Refund Pending';
+        HotelState.bookings = bookings;
         showToast(`Booking ${id} cancelled successfully.`);
         renderTable();
         updateKpis();
@@ -238,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = bookings.find(x => x.id === id);
       if (b) {
         b.status = 'Checked In';
+        HotelState.bookings = bookings;
         showToast(`Guest checked in successfully.`);
         renderTable();
         updateKpis();
@@ -252,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = bookings.find(x => x.id === id);
       if (b) {
         b.status = 'Checked Out';
+        HotelState.bookings = bookings;
         showToast(`Check-out completed. Final receipts sent to email.`);
         renderTable();
         updateKpis();

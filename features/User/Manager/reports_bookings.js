@@ -1,13 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Mock Database representing detailed bookings data
-  let bookingsLog = [
-    { id: 'HBS-2026-001', guest: 'Rajesh Kumar', type: 'Executive Studio', checkin: '25 Jun 2026', checkout: '28 Jun 2026', source: 'Website', status: 'Checked Out', amount: '₹23,010' },
-    { id: 'HBS-2026-002', guest: 'Priya Sharma', type: 'Deluxe Suite', checkin: '26 Jun 2026', checkout: '29 Jun 2026', source: 'Phone Call', status: 'Staying', amount: '₹27,500' },
-    { id: 'HBS-2026-003', guest: 'Arun Menon', type: 'Standard Room', checkin: '27 Jun 2026', checkout: '30 Jun 2026', source: 'Walk-in', status: 'Checked Out', amount: '₹12,000' },
-    { id: 'HBS-2026-004', guest: 'Meena Varma', type: 'Penthouse Suite', checkin: '28 Jun 2026', checkout: '02 Jul 2026', source: 'Website', status: 'Confirmed', amount: '₹45,000' },
-    { id: 'HBS-2026-005', guest: 'Suresh Patel', type: 'Deluxe Suite', checkin: '01 Jul 2026', checkout: '05 Jul 2026', source: 'Travel Agent', status: 'Upcoming', amount: '₹29,000' },
-    { id: 'HBS-2026-006', guest: 'Kavya Reddy', type: 'Standard Room', checkin: '30 Jun 2026', checkout: '02 Jul 2026', source: 'Website', status: 'Cancelled', amount: '₹8,000' }
-  ];
+  let bookingsLog = HotelState.bookingsLog;
+  if (!bookingsLog || bookingsLog.length === 0) {
+    bookingsLog = [
+      { id: 'HBS-2026-001', guest: 'Rajesh Kumar', type: 'Executive Studio', checkin: '20 Nov 2026', checkout: '23 Nov 2026', source: 'Website', status: 'Checked Out', amount: '₹23,010' },
+      { id: 'HBS-2026-002', guest: 'Priya Sharma', type: 'Deluxe Suite', checkin: '26 Jun 2026', checkout: '29 Jun 2026', source: 'Phone Call', status: 'Staying', amount: '₹27,500' },
+      { id: 'HBS-2026-003', guest: 'Arun Menon', type: 'Standard Room', checkin: '27 Jun 2026', checkout: '30 Jun 2026', source: 'Walk-in', status: 'Checked Out', amount: '₹12,000' },
+      { id: 'HBS-2026-004', guest: 'Meena Varma', type: 'Penthouse Suite', checkin: '23 Nov 2026', checkout: '02 Jul 2026', source: 'Website', status: 'Confirmed', amount: '₹45,000' },
+      { id: 'HBS-2026-005', guest: 'Suresh Patel', type: 'Deluxe Suite', checkin: '01 Jul 2026', checkout: '05 Jul 2026', source: 'Travel Agent', status: 'Upcoming', amount: '₹29,000' },
+      { id: 'HBS-2026-006', guest: 'Kavya Reddy', type: 'Standard Room', checkin: '30 Jun 2026', checkout: '02 Jul 2026', source: 'Website', status: 'Cancelled', amount: '₹8,000' }
+    ];
+    HotelState.bookingsLog = bookingsLog;
+  }
 
   const tblBody = document.querySelector('#tblReportBookings tbody');
   const btnApply = document.getElementById('btnApplyBookingFilters');

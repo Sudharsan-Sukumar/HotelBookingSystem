@@ -133,8 +133,8 @@
               <span class="block-icon"><i class="bi bi-calendar-check"></i></span>
               <div>
                 <strong class="small text-muted text-uppercase">Check-In</strong>
-                <span class="fw-bold d-block text-dark">25 Jun 2026</span>
-                <span class="small text-muted">Thursday</span>
+                <span class="fw-bold d-block text-dark">20 Nov 2026</span>
+                <span class="small text-muted">Friday</span>
               </div>
             </div>
           </div>
@@ -143,8 +143,8 @@
               <span class="block-icon"><i class="bi bi-calendar-x"></i></span>
               <div>
                 <strong class="small text-muted text-uppercase">Check-Out</strong>
-                <span class="fw-bold d-block text-dark">28 Jun 2026</span>
-                <span class="small text-muted">Sunday</span>
+                <span class="fw-bold d-block text-dark">23 Nov 2026</span>
+                <span class="small text-muted">Monday</span>
               </div>
             </div>
           </div>
@@ -169,17 +169,21 @@
           </div>
         </div>
       </div>
+      
+      <!-- SECTION 2.5: Guest & Room Details -->
+      <div class="p-4 border-bottom text-start d-none" id="guestRoomInvoiceDetails">
+      </div>
 
       <!-- SECTION 3: Billing Breakdown -->
       <div class="p-4 border-bottom text-start">
         <h4 class="section-badge-title mb-4"><i class="bi bi-receipt me-2 text-warning"></i>Billing Breakdown</h4>
         <div class="d-flex justify-content-between align-items-center py-2">
-          <span class="text-secondary fw-semibold">Base room charge (3 &times; Rs. 6,500)</span>
-          <span class="fw-bold text-dark">Rs. 19,500.00</span>
+          <span class="text-secondary fw-semibold" id="baseRoomChargeLabel">Base room charge (3 &times; Rs. 6,500)</span>
+          <span class="fw-bold text-dark" id="baseRoomChargeValue">Rs. 19,500.00</span>
         </div>
         <div class="d-flex justify-content-between align-items-center py-2">
           <span class="text-secondary fw-semibold">Taxes & fees (18% GST)</span>
-          <span class="fw-bold text-dark">Rs. 3,510.00</span>
+          <span class="fw-bold text-dark" id="gstValue">Rs. 3,510.00</span>
         </div>
         
         <!-- Total amount highlight bar -->
@@ -187,6 +191,38 @@
           <span class="text-white fw-bold uppercase">Total bill amount</span>
           <span class="total-bill-value text-warning font-serif">Rs. 23,010.00</span>
         </div>
+      </div>
+
+      <!-- SECTION 4: Select Payment Method -->
+      <div class="p-4 border-bottom text-start">
+        <h4 class="section-badge-title mb-4"><i class="bi bi-credit-card me-2 text-warning"></i>Select Payment Method</h4>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3" style="transition: all 0.2s ease-in-out;" onclick="selectPaymentMethod('UPI')">
+              <input type="radio" name="paymentMethod" id="payUpi" value="UPI" class="form-check-input cursor-pointer">
+              <label for="payUpi" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-qr-code text-warning fs-5"></i> UPI
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3" style="transition: all 0.2s ease-in-out;" onclick="selectPaymentMethod('Card')">
+              <input type="radio" name="paymentMethod" id="payCard" value="Card" class="form-check-input cursor-pointer">
+              <label for="payCard" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-credit-card-2-front text-warning fs-5"></i> Credit/Debit Card
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3" style="transition: all 0.2s ease-in-out;" onclick="selectPaymentMethod('Net Banking')">
+              <input type="radio" name="paymentMethod" id="payNetBanking" value="Net Banking" class="form-check-input cursor-pointer">
+              <label for="payNetBanking" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-bank text-warning fs-5"></i> Net Banking
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="text-danger small mt-2 d-none" id="paymentMethodError">Please select a payment method to proceed.</div>
       </div>
 
       <!-- Proceed Button Alert with Terms -->
@@ -201,6 +237,9 @@
       </div>
 
     </div>
+
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- BOTTOM INFORMATION INFORMATIONAL ICONS ROW -->
     <div class="row g-3 justify-content-between mt-5 text-start">
@@ -246,10 +285,10 @@
 
   <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../Shared/UtilityClass/session.js"></script>
-  <script src="../../Shared/UtilityClass/back_nav.js"></script>
-  <script src="invoice_summary.js"></script>
-  <script src="../../Shared/UtilityClass/session.js"></script>
+  <script src="../../Shared/UtilityClass/state.js?v=4"></script>
+  <script src="../../Shared/UtilityClass/session.js?v=4"></script>
+  <script src="../../Shared/UtilityClass/back_nav.js?v=4"></script>
+  <script src="../../Shared/Components/policy_modal.js"></script>
+  <script src="invoice_summary.js?v=4"></script>
 </body>
 </html>
-

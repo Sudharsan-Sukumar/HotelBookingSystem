@@ -1,13 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const managerBranch = localStorage.getItem('userBranch') || 'Chennai';
+
   // 1. Mock Booking Database
-  let bookings = [
-    { id: 'HBS-2026-001', guest: 'Rajesh K.', email: 'rajesh@email.com', phone: '+91 98765 43210', room: 'Exec Studio 201', type: 'Executive Studio', checkin: '2026-06-25', checkout: '2026-06-28', guests: '2 Adults', amount: 23010, payment: 'Paid', status: 'Checked In', notes: 'Prefers high floor', idType: 'Aadhaar Card' },
-    { id: 'HBS-2026-002', guest: 'Priya S.', email: 'priya@email.com', phone: '+91 98765 43211', room: 'Deluxe Suite 305', type: 'Deluxe Suite', checkin: '2026-06-26', checkout: '2026-06-29', guests: '2 Adults', amount: 27500, payment: 'Pending', status: 'Pending', notes: 'Anniversary celebration', idType: '' },
-    { id: 'HBS-2026-003', guest: 'Arun M.', email: 'arun@email.com', phone: '+91 98765 43212', room: 'Standard 108', type: 'Standard Room', checkin: '2026-06-27', checkout: '2026-06-30', guests: '1 Adult', amount: 12000, payment: 'Paid', status: 'Checked Out', notes: 'Early check-in request', idType: 'Driving License' },
-    { id: 'HBS-2026-004', guest: 'Meena V.', email: 'meena@email.com', phone: '+91 98765 43213', room: 'Penthouse 501', type: 'Penthouse Suite', checkin: '2026-06-28', checkout: '2026-07-02', guests: '4 Adults', amount: 45000, payment: 'Paid', status: 'Confirmed', notes: 'Late checkout requested', idType: 'Passport' },
-    { id: 'HBS-2026-005', guest: 'Suresh P.', email: 'suresh@email.com', phone: '+91 98765 43214', room: 'Deluxe Suite 302', type: 'Deluxe Suite', checkin: '2026-06-29', checkout: '2026-07-03', guests: '3 Guests', amount: 29000, payment: 'Pending', status: 'Pending', notes: 'Extra bed required', idType: '' },
-    { id: 'HBS-2026-006', guest: 'Kavya R.', email: 'kavya@email.com', phone: '+91 98765 43215', room: 'Standard 102', type: 'Standard Room', checkin: '2026-06-30', checkout: '2026-07-02', guests: '1 Guest', amount: 8000, payment: 'Refund Pending', status: 'Cancelled', notes: 'Change of travel plans', idType: '' }
-  ];
+  let bookings = HotelState.bookings;
+  if (bookings.length === 0) {
+    bookings = [
+      { id: 'HBS-2026-001', guest: 'Rajesh K.', email: 'rajesh@email.com', phone: '+91 98765 43210', room: 'Exec Studio 201', type: 'Executive Studio', checkin: '2026-06-25', checkout: '2026-06-28', guests: '2 Adults', amount: 23010, payment: 'Paid', status: 'Checked In', notes: 'Prefers high floor', idType: 'Aadhaar Card', branch: 'Chennai' },
+      { id: 'HBS-2026-002', guest: 'Priya S.', email: 'priya@email.com', phone: '+91 98765 43211', room: 'Deluxe Suite 305', type: 'Deluxe Suite', checkin: '2026-06-26', checkout: '2026-06-29', guests: '2 Adults', amount: 27500, payment: 'Pending', status: 'Pending', notes: 'Anniversary celebration', idType: '', branch: 'Coimbatore' },
+      { id: 'HBS-2026-003', guest: 'Arun M.', email: 'arun@email.com', phone: '+91 98765 43212', room: 'Standard 108', type: 'Standard Room', checkin: '2026-06-27', checkout: '2026-06-30', guests: '1 Adult', amount: 12000, payment: 'Paid', status: 'Checked Out', notes: 'Early check-in request', idType: 'Driving License', branch: 'Chennai' },
+      { id: 'HBS-2026-004', guest: 'Meena V.', email: 'meena@email.com', phone: '+91 98765 43213', room: 'Penthouse 501', type: 'Penthouse Suite', checkin: '2026-06-28', checkout: '2026-07-02', guests: '4 Adults', amount: 45000, payment: 'Paid', status: 'Confirmed', notes: 'Late checkout requested', idType: 'Passport', branch: 'Salem' },
+      { id: 'HBS-2026-005', guest: 'Suresh P.', email: 'suresh@email.com', phone: '+91 98765 43214', room: 'Deluxe Suite 302', type: 'Deluxe Suite', checkin: '2026-06-29', checkout: '2026-07-03', guests: '3 Guests', amount: 29000, payment: 'Pending', status: 'Pending', notes: 'Extra bed required', idType: '', branch: 'Chennai' },
+      { id: 'HBS-2026-006', guest: 'Kavya R.', email: 'kavya@email.com', phone: '+91 98765 43215', room: 'Standard 102', type: 'Standard Room', checkin: '2026-06-30', checkout: '2026-07-02', guests: '1 Guest', amount: 8000, payment: 'Refund Pending', status: 'Cancelled', notes: 'Change of travel plans', idType: '', branch: 'Coimbatore' }
+    ];
+    HotelState.bookings = bookings;
+  }
 
   const tblBody = document.querySelector('#tblAllBookings tbody');
   const searchInput = document.getElementById('filterSearch');
@@ -30,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Modals
-  const detailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
-  const actionModal = new bootstrap.Modal(document.getElementById('bookingActionModal'));
+  const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+  const actionModal = new bootstrap.Modal(document.getElementById('confirmModal'));
 
   function renderTable() {
     tblBody.innerHTML = '';
@@ -44,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bookings.forEach(b => {
       // Filtering rules
+      if (b.branch && b.branch !== managerBranch) return;
       if (query && !b.guest.toLowerCase().includes(query) && !b.id.toLowerCase().includes(query)) return;
       
       if (selectedStatus !== 'all') {
@@ -86,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><strong>${b.id}</strong></td>
         <td>${b.guest}</td>
         <td>${b.room}</td>
-        <td>Chennai Enclave</td>
+        <td>${b.branch || managerBranch} Enclave</td>
         <td>${b.guests}</td>
         <td>${b.checkin}</td>
         <td>${b.checkout}</td>
@@ -122,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = btn.dataset.id;
         const b = bookings.find(x => x.id === id);
         
-        const content = document.getElementById('detailModalContent');
+        const content = document.getElementById('detailModalBody');
         content.innerHTML = `
           <div class="row g-3">
             <div class="col-md-6">
@@ -156,12 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (b.status === 'Pending') {
           document.getElementById('btnDetailApprove').addEventListener('click', () => {
             b.status = 'Confirmed';
-            b.payment = 'Paid';
+            HotelState.bookings = bookings;
             detailModal.hide();
             renderTable();
           });
           document.getElementById('btnDetailReject').addEventListener('click', () => {
             b.status = 'Cancelled';
+            HotelState.bookings = bookings;
             detailModal.hide();
             renderTable();
           });
@@ -177,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = btn.dataset.id;
         const b = bookings.find(x => x.id === id);
         
-        const content = document.getElementById('actionModalContent');
+        const content = document.querySelector('#confirmModal .modal-body');
         content.innerHTML = `
           <p>Are you sure you want to approve the stay request for guest <strong>${b.guest}</strong> (${b.id})?</p>
           <div class="mt-4 d-flex justify-content-end gap-2">
@@ -188,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('btnConfirmApprove').addEventListener('click', () => {
           b.status = 'Confirmed';
-          b.payment = 'Paid';
+          HotelState.bookings = bookings;
           actionModal.hide();
           renderTable();
         });
@@ -203,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = btn.dataset.id;
         const b = bookings.find(x => x.id === id);
 
-        const content = document.getElementById('actionModalContent');
+        const content = document.querySelector('#confirmModal .modal-body');
         content.innerHTML = `
           <h5 class="text-warning font-serif mb-3">Front Desk Check-in Console</h5>
           <div class="mb-3">
@@ -230,9 +238,16 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         document.getElementById('btnConfirmCheckin').addEventListener('click', () => {
-          const idVal = document.getElementById('checkinIdType').value;
-          b.idType = idVal;
+          const idType = document.getElementById('checkinIdType').value;
+          const idNum = document.getElementById('checkinIdNum').value.trim();
+          if (!idNum) {
+            alert('Please enter a valid Government ID number before completing check-in.');
+            return;
+          }
+          b.idType = idType;
+          b.idNum = idNum;
           b.status = 'Checked In';
+          HotelState.bookings = bookings;
           actionModal.hide();
           renderTable();
         });
@@ -247,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = btn.dataset.id;
         const b = bookings.find(x => x.id === id);
 
-        const content = document.getElementById('actionModalContent');
+        const content = document.querySelector('#confirmModal .modal-body');
         content.innerHTML = `
           <h5 class="text-warning font-serif mb-3">Front Desk Check-out Console</h5>
           <p>Review Billing Details for room checkout.</p>
@@ -278,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('btnConfirmCheckout').addEventListener('click', () => {
           b.status = 'Checked Out';
+          HotelState.bookings = bookings;
           actionModal.hide();
           renderTable();
         });

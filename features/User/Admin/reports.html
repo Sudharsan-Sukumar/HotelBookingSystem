@@ -12,64 +12,62 @@
   <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
   <link rel="stylesheet" href="../Manager/dashboard.css?v=1.9">
   <link rel="stylesheet" href="admin.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
 
-  <!-- TOP NAVIGATION -->
-  <nav class="navbar navbar-expand-md manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
-    <div class="container-fluid d-flex flex-column align-items-stretch p-0">
+    <!-- TOP NAVIGATION -->
+  <nav class="navbar navbar-expand-xl manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-3 px-md-4">
       
-      <!-- ROW 1 -->
-      <div class="admin-nav-row1">
-        <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
-          <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
-          <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
-        </a>
+      <!-- Brand Logo & Name -->
+      <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+      </a>
 
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
-          
-          <li class="nav-item"><a class="nav-link" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-warning text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Collapsible Menu -->
+      <div class="collapse navbar-collapse" id="adminNavbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 gap-1 gap-xl-2">
+          <li class="nav-item"><a class="nav-link text-white nav-dashboard" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-users" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-hotels" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-content" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-backup" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-monitoring" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-reports active" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
         </ul>
 
-        <div class="dropdown">
-          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
-            <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
-            <div class="lh-sm text-start text-white">
-              <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
-              <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
-            </div>
-            <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
-            <li><a class="dropdown-item py-2 px-3 text-white small" href="../../../Features/User/Candidate/profile.html">View Profile</a></li>
-            
-            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
-            <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- ROW 2 -->
-      <div class="admin-nav-row2">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup & Recovery</a></li>
-          <li class="nav-item"><a class="nav-link" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Booking Monitoring</a></li>
-          <li class="nav-item"><a class="nav-link" href="audit_logs.html"><i class="bi bi-shield-fill-check me-1"></i> Audit Logs</a></li>
-          <li class="nav-item"><a class="nav-link active reports-active" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
-        </ul>
-
-        <div class="d-flex align-items-center">
-          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+        <!-- Right Side: Notifications & Profile -->
+        <div class="d-flex align-items-center gap-4 mt-3 mt-xl-0">
+          <!-- Notification Bell -->
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0 nav-notifications" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
             <i class="bi bi-bell-fill text-warning" style="font-size: 1.2rem;"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(50%, -50%) !important;">3</span>
           </a>
+
+          <!-- User Profile Dropdown -->
+          <div class="dropdown">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+              <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
+              <div class="lh-sm text-start text-white">
+                <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
+                <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
+              </div>
+              <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item py-2 px-3 text-white small nav-profile" href="../../../features/User/Candidate/profile.html">View Profile</a></li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-
     </div>
   </nav>
 
@@ -187,19 +185,9 @@
     <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="font-serif fw-bold text-purple mb-0">Monthly Revenue Trend</h5>
-        <div class="d-flex gap-2">
-          <select class="form-select form-select-sm w-auto" id="chartType">
-            <option value="bar">Type: Bar Chart</option>
-            <option value="line">Type: Line Chart</option>
-            <option value="pie">Type: Pie Chart</option>
-          </select>
-          <select class="form-select form-select-sm w-auto" id="chartGroup">
-            <option value="Branch">Group by: Branch</option>
-          </select>
-        </div>
       </div>
-      <div style="height: 250px; position: relative;">
-        <canvas id="revenueChart"></canvas>
+      <div class="chart-container w-100" id="revenueChartContainer" style="display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; height: 250px; padding: 10px; border-bottom: 2px solid #eee;">
+        <!-- CSS Chart filled dynamically -->
       </div>
     </div>
 
@@ -273,165 +261,148 @@
   </footer>
 
   <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/state.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let revenueChartInstance = null;
-      const ctx = document.getElementById('revenueChart').getContext('2d');
+      // Data Load
+      const bookings = HotelState.bookings || [];
+      const hotels = HotelState.hotels || [];
 
-      const chartData = {
-        labels: ['Apr 2026', 'May 2026', 'Jun 2026'],
-        datasets: [
-          { label: 'Salem Main', data: [14.2, 16.8, 4.8], backgroundColor: '#8A2BE2', borderColor: '#8A2BE2', fill: false },
-          { label: 'Coimbatore', data: [11.4, 13.6, 16.8], backgroundColor: '#1E90FF', borderColor: '#1E90FF', fill: false },
-          { label: 'Chennai', data: [12.8, 15.2, 19.2], backgroundColor: '#2E8B57', borderColor: '#2E8B57', fill: false }
-        ]
-      };
+      // Computations
+      let totalRevenue = 0;
+      let bookingsThisMonth = 0;
+      
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
 
-      function renderChart(type = 'bar') {
-        if (revenueChartInstance) {
-          revenueChartInstance.destroy();
+      // Hotel counts for top hotel
+      const hotelCounts = {};
+
+      bookings.forEach(b => {
+        if (b.paymentStatus === 'Paid' || b.bookingStatus === 'CheckedOut' || b.bookingStatus === 'Confirmed' || b.bookingStatus === 'CheckedIn') {
+          totalRevenue += b.grandTotal || 0;
         }
 
-        // Deep copy chart data config
-        const configData = JSON.parse(JSON.stringify(chartData));
+        const bDate = new Date(b.checkIn || b.createdAt);
+        if (bDate.getMonth() === currentMonth && bDate.getFullYear() === currentYear) {
+          bookingsThisMonth++;
+        }
 
-        if (type === 'pie') {
-          // Adjust dataset labels and aggregate sum totals
-          revenueChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-              labels: ['Salem Main', 'Coimbatore', 'Chennai'],
-              datasets: [{
-                data: [35.8, 41.8, 47.2],
-                backgroundColor: ['#8A2BE2', '#1E90FF', '#2E8B57']
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false
-            }
-          });
-        } else {
-          revenueChartInstance = new Chart(ctx, {
-            type: type,
-            data: configData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: { callback: value => value + 'L' }
-                }
-              }
-            }
-          });
+        if (b.bookingStatus !== 'Cancelled') {
+          hotelCounts[b.hotelId] = (hotelCounts[b.hotelId] || 0) + 1;
+        }
+      });
+
+      // Top Hotel
+      let topHotelId = null;
+      let maxCount = 0;
+      for (const [hId, count] of Object.entries(hotelCounts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          topHotelId = hId;
         }
       }
+      const topHotelName = topHotelId ? (HotelState.getHotelById(topHotelId)?.name || topHotelId) : 'N/A';
 
-      // Initial Chart Render
-      renderChart('bar');
+      // Avg Occupancy (Naive assumption)
+      const totalRoomsSystem = HotelState.rooms?.length || 0;
+      let occupiedCount = HotelState.rooms?.filter(r => r.status === 'Occupied').length || 0;
+      let avgOcc = totalRoomsSystem > 0 ? Math.round((occupiedCount / totalRoomsSystem) * 100) : 0;
 
-      // Dropdown Switcher
-      const chartTypeSelect = document.getElementById('chartType');
-      if (chartTypeSelect) {
-        chartTypeSelect.addEventListener('change', (e) => {
-          renderChart(e.target.value);
+      // Update KPI DOM
+      const kpiTotal = document.getElementById('kpiTotal');
+      if (kpiTotal) kpiTotal.textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+
+      // We re-use KPI cards for dynamic stats:
+      // kpi[1]: Bookings This Month
+      const kpis = document.querySelectorAll('.kpi-card strong');
+      if (kpis.length >= 4) {
+        kpis[1].textContent = bookingsThisMonth;
+        kpis[1].nextElementSibling.textContent = 'Bookings this month';
+        kpis[1].previousElementSibling.textContent = 'Monthly Volume';
+
+        kpis[2].textContent = `${avgOcc}%`;
+        kpis[2].nextElementSibling.textContent = 'Current system wide';
+        kpis[2].previousElementSibling.textContent = 'Avg Occupancy';
+
+        kpis[3].textContent = topHotelName;
+        kpis[3].nextElementSibling.textContent = `${maxCount} total bookings`;
+        kpis[3].previousElementSibling.textContent = 'Top Hotel';
+      }
+
+      // CSS Chart: Monthly Revenue Trend (Last 6 Months)
+      const chartContainer = document.getElementById('revenueChartContainer');
+      const monthsData = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        monthsData.push({
+          label: d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear(),
+          month: d.getMonth(),
+          year: d.getFullYear(),
+          revenue: 0
         });
       }
 
-      // Filters setup
-      const filterBranch = document.getElementById('filterBranch');
-      const filterDate = document.getElementById('filterDate');
-      const btnApply = document.getElementById('btnApplyFilters');
-      const btnReset = document.getElementById('btnResetFilters');
+      bookings.forEach(b => {
+        if (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus)) {
+          const bDate = new Date(b.checkIn || b.createdAt);
+          const mItem = monthsData.find(m => m.month === bDate.getMonth() && m.year === bDate.getFullYear());
+          if (mItem) mItem.revenue += (b.grandTotal || 0);
+        }
+      });
 
-      function filterTable() {
-        const branch = filterBranch.value;
-        const rows = document.querySelectorAll('#tblRevenue tbody tr:not(.table-light)');
-        let visibleSum = 0;
+      const maxRev = Math.max(...monthsData.map(m => m.revenue), 1000);
+      
+      chartContainer.innerHTML = '';
+      monthsData.forEach(m => {
+        const heightPct = Math.max((m.revenue / maxRev) * 100, 5); // min 5% height
+        const barGroup = document.createElement('div');
+        barGroup.className = 'd-flex flex-column align-items-center text-center';
+        barGroup.style.width = '12%';
+        
+        barGroup.innerHTML = `
+          <div style="font-size: 0.65rem; color: #666; margin-bottom: 4px;">₹${(m.revenue/1000).toFixed(1)}k</div>
+          <div class="chart-bar" style="height: ${heightPct}%; background: linear-gradient(to top, #4B0082, #8A2BE2); width: 100%; border-radius: 4px 4px 0 0; min-height: 20px;" title="₹${m.revenue.toLocaleString('en-IN')}"></div>
+          <div style="font-size: 0.75rem; font-weight: 600; margin-top: 8px;">${m.label.split(' ')[0]}</div>
+        `;
+        chartContainer.appendChild(barGroup);
+      });
 
-        rows.forEach(r => {
-          const rowBranch = r.getAttribute('data-branch');
-          if (branch === 'all' || rowBranch === branch) {
-            r.style.display = '';
-            visibleSum++;
-          } else {
-            r.style.display = 'none';
+      // Populate Revenue Summary Table dynamically
+      const tblBody = document.querySelector('#tblRevenue tbody');
+      if (tblBody) {
+        tblBody.innerHTML = '';
+        let sysTotal = 0;
+        
+        hotels.forEach(h => {
+          let hTotal = 0;
+          bookings.forEach(b => {
+            if (b.hotelId === h.id && (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus))) {
+              hTotal += (b.grandTotal || 0);
+            }
+          });
+          sysTotal += hTotal;
+          if (hTotal > 0) {
+            tblBody.innerHTML += `
+              <tr data-branch="${h.name}">
+                <td><strong>${h.name}</strong></td>
+                <td colspan="3" class="text-muted small">Dynamic Monthly Breakdown Hidden</td>
+                <td><strong>₹${hTotal.toLocaleString('en-IN')}</strong></td>
+                <td>-</td>
+              </tr>
+            `;
           }
         });
 
-        const totalRow = document.getElementById('rowTotal');
-        if (totalRow) {
-          totalRow.style.display = branch === 'all' ? '' : 'none';
-        }
-      }
-
-      if (btnApply) {
-        btnApply.addEventListener('click', filterTable);
-      }
-      if (btnReset) {
-        btnReset.addEventListener('click', () => {
-          filterBranch.value = 'all';
-          filterDate.value = 'This Quarter';
-          filterTable();
-        });
-      }
-
-      // Dynamic exporter file downloader
-      function triggerDownload(format) {
-        const toastEl = document.getElementById('statusToast');
-        document.getElementById('toastMessage').textContent = `Revenue Analytics report successfully exported in ${format} format.`;
-        toastEl.className = 'toast align-items-center text-white border-0 shadow bg-success';
-        new bootstrap.Toast(toastEl).show();
-
-        const filename = `Revenue_Report_${new Date().toISOString().slice(0,10)}.${format === 'PDF' ? 'txt' : 'xlsx'}`;
-        let content = '';
-        let mimeType = 'text/plain';
-
-        if (format === 'PDF') {
-          content = '=== ELEGANT ENCLAVE REVENUE REPORT ===\n\n' +
-                    'Branch,Apr,May,Jun,Total\n' +
-                    'Salem,14.2L,16.8L,4.8L,35.8L\n' +
-                    'Coimbatore,11.4L,13.6L,16.8L,41.8L\n' +
-                    'Chennai,12.8L,15.2L,19.2L,47.2L';
-          mimeType = 'text/plain';
-        } else {
-          content = 'Excel Binary Data Sheet';
-          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        }
-
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }
-
-      document.getElementById('btnExportPDF').addEventListener('click', () => triggerDownload('PDF'));
-      document.getElementById('btnExportExcel').addEventListener('click', () => triggerDownload('Excel'));
-
-      // One-time session hover tooltip setup
-      const tabGroup = document.getElementById('reportsTabGroup');
-      if (tabGroup && !sessionStorage.getItem('reportsTooltipShown')) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'reports-tooltip-popup';
-        tooltip.textContent = 'Click here to explore more reports';
-        tabGroup.appendChild(tooltip);
-
-        tabGroup.addEventListener('mouseenter', function showOnce() {
-          tooltip.classList.add('show-tooltip');
-          sessionStorage.setItem('reportsTooltipShown', 'true');
-          tabGroup.removeEventListener('mouseenter', showOnce);
-          setTimeout(() => {
-            tooltip.classList.remove('show-tooltip');
-            setTimeout(() => tooltip.remove(), 300);
-          }, 2000);
-        });
+        tblBody.innerHTML += `
+          <tr class="table-light" id="rowTotal">
+            <td><strong>All Branches</strong></td>
+            <td colspan="3"></td>
+            <td><strong>₹${sysTotal.toLocaleString('en-IN')}</strong></td>
+            <td>-</td>
+          </tr>
+        `;
       }
     });
   </script>

@@ -415,3 +415,165 @@ body .manager-top-nav .dropdown-menu .dropdown-item:disabled:hover {
   border-left: 4px solid transparent !important;
 }
 
+/* ==========================================
+   STAGE 8 UI POLISH OVERRIDES 
+   ========================================== */
+
+/* KPI Cards Responsive Grid Overrides */
+section.row.g-4.mb-4.text-start {
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+section.row.g-4.mb-4.text-start > div[class*="col-"] {
+  flex: 0 0 33.333% !important;
+  max-width: 33.333% !important;
+  width: 33.333% !important;
+  padding: 8px !important;
+}
+@media (max-width: 992px) {
+  section.row.g-4.mb-4.text-start > div[class*="col-"] {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+  }
+}
+@media (max-width: 576px) {
+  section.row.g-4.mb-4.text-start > div[class*="col-"] {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.kpi-card {
+  background-color: #FFFFFF !important;
+  box-shadow: 0 8px 30px rgba(26, 10, 46, 0.05) !important;
+  border-radius: 12px !important;
+  border-left: 4px solid #D4AF37 !important;
+  border-top: 1px solid #ECE6D8 !important;
+  border-right: 1px solid #ECE6D8 !important;
+  border-bottom: 1px solid #ECE6D8 !important;
+}
+
+/* Room Availability Grid as Colored Tiles */
+#tblAvailability {
+  display: block !important;
+  border: none !important;
+}
+#tblAvailability thead {
+  display: none !important;
+}
+#tblAvailability tbody {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  padding: 12px 0 !important;
+}
+#tblAvailability tbody tr {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 70px !important;
+  height: 80px !important;
+  border-radius: 8px !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  border: 1px solid #E2E8F0 !important;
+  background-color: #FFFFFF !important;
+}
+#tblAvailability tbody tr:hover {
+  transform: scale(1.05) !important;
+}
+#tblAvailability tbody tr td {
+  display: none !important;
+  border: none !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+/* Room number (the first td) should be displayed */
+#tblAvailability tbody tr td:first-child {
+  display: block !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #1A0A2E !important;
+}
+/* Room Status indicator */
+#tblAvailability tbody tr td:nth-child(4) {
+  display: block !important;
+  margin-top: 4px !important;
+}
+#tblAvailability tbody tr td:nth-child(4) .badge {
+  font-size: 0.65rem !important;
+  padding: 2px 6px !important;
+  text-transform: uppercase !important;
+}
+
+/* Color Coding for Tiles */
+#tblAvailability tbody tr td .badge.bg-success {
+  background-color: #10B981 !important; /* Available */
+  color: #FFFFFF !important;
+}
+#tblAvailability tbody tr td .badge.bg-primary {
+  background-color: #EF4444 !important; /* Occupied */
+  color: #FFFFFF !important;
+}
+#tblAvailability tbody tr td .badge.bg-warning,
+#tblAvailability tbody tr td .badge[style*="orange"] {
+  background-color: #F59E0B !important; /* Housekeeping */
+  color: #FFFFFF !important;
+}
+#tblAvailability tbody tr td .badge.bg-danger {
+  background-color: #6B7280 !important; /* Maintenance */
+  color: #FFFFFF !important;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Overdue check-in/out rows */
+tr.table-danger {
+  border-left: 4px solid #EF4444 !important;
+  background-color: rgba(239, 68, 68, 0.03) !important;
+}
+
+/* Housekeeping Priority Badges */
+.badge.bg-danger { background-color: #EF4444 !important; }
+.badge.bg-warning { background-color: #F59E0B !important; }
+.badge.bg-info { background-color: #10B981 !important; }
+
+/* Housekeeping Toggle Hover Transitions */
+.btn-action-task {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-action-task:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Notification Styling */
+.list-group-item.bg-light.border-start.border-4.border-primary {
+  border-left: 3px solid #D4AF37 !important;
+  background-color: rgba(212, 175, 55, 0.05) !important;
+}
+
+/* Active Navigation Overrides */
+.manager-top-nav .nav-link.active {
+  color: #D4AF37 !important;
+  background-color: transparent !important;
+  border-bottom: 2px solid #D4AF37 !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+}
+
+

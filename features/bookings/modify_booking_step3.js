@@ -1,7 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const selectedOption = sessionStorage.getItem('modify_selected_option') || 'radioOption1';
+  // Resolve current logged-in user from HotelState (app stores user in hbs_state_currentUser, not raw 'userId')
+  const currentUser = (window.HotelState && HotelState.currentUser) ? HotelState.currentUser : null;
+  const userId = currentUser ? (currentUser.id || currentUser.email || '') : '';
+  if (!currentUser || !currentUser.email) {
+    window.location.href = '../Auth/login.html';
+    return;
+  }
 
-  // Get UI elements
+  // Retrieve parameters
+  const bookingId = localStorage.getItem('selectedBookingId');
+  const modContextStr = localStorage.getItem('bookingModificationContext');
+
+  if (!bookingId || !modContextStr) {
+    document.body.innerHTML = '<div class="container mt-5"><div class="alert alert-danger text-center">No modification session active. <br><br><a href="../../Features/User/Candidate/my_bookings.html" class="btn btn-primary">Return to My Bookings</a></div></div>';
+    return;
+  }
+  const modContext = JSON.parse(modContextStr);
+  const modifyType = modContext.modificationType;
+
+  const bookings = HotelState.bookings;
+  const booking = bookings.find(b => b.id === bookingId);
+  if (!booking) {
+    document.body.innerHTML = '<div class="container mt-5"><div class="alert alert-danger text-center">Booking record not found. <br><br><a href="../../Features/User/Candidate/my_bookings.html" class="btn btn-primary">Return to My Bookings</a></div></div>';
+    return;
+  }
+
+  // Load new calculated values from local storage
+  const calc = modContext.draftChanges.calculated || {};
+  const newCheckIn = calc.newCheckIn || booking.checkIn;
+  const newCheckOut = calc.newCheckOut || booking.checkOut;
+  const newNights = parseInt(calc.newNights || booking.nights || 1, 10);
+  const newGrandTotal = parseFloat(calc.newGrandTotal || 0);
+  const priceDiff = parseFloat(calc.priceDiff || 0);
+  const newRoomType = calc.newRoomType || booking.roomType;
+  const newRoomId = calc.newRoomId || booking.roomId;
+  const newGuests = parseInt(calc.newGuests || booking.guests || booking.adultsCount || 2, 10);
+
+  // Fetch UI elements
   const currentTotalEl = document.getElementById('lblCurrentTotal');
   const newTotalEl = document.getElementById('lblNewTotal');
   const diffCard = document.getElementById('diffCardContainer');
@@ -13,134 +48,393 @@ document.addEventListener('DOMContentLoaded', () => {
   const successAlertText = successAlertBanner ? successAlertBanner.querySelector('.small') : null;
   const btnProceedPayment = document.getElementById('btnProceedPayment');
 
-  // Comparison details cards (New Selection values)
-  const newRoomTypeEl = document.querySelector('.col-md-5:last-child .comparison-details-card span.text-success.fw-bold');
-  const newGuestsEl = document.querySelector('.col-md-5:last-child .comparison-details-card span.text-success.small.fw-bold');
-  const newExtrasEl = document.querySelector('.col-md-5:last-child .comparison-details-card span.text-success.small.fw-bold:last-child');
+  // Fill old details card
+  const oldGrandTotal = booking.grandTotal || Number(booking.amount?.replace(/,/g, '') || 0);
+  if (currentTotalEl) currentTotalEl.textContent = oldGrandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+  
+  // Fill new details card
+  if (newTotalEl) newTotalEl.textContent = newGrandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
 
-  // Option configurations
-  let newTotal = "Rs. 60,000";
-  let diffAmount = "Rs. 0";
-  let diffType = "none"; // "none" or "refund" or "extra"
-  let roomType = "Deluxe King Room";
-  let guests = "2 Adults";
-  let extras = "Breakfast, Wi-Fi, City View";
-
-  if (selectedOption === 'radioOption1') {
-    // Same Room Type, Dates Modified - No difference
-    newTotal = "Rs. 60,000";
-    diffAmount = "Rs. 0";
-    diffType = "none";
-    roomType = "Deluxe King Room";
-    guests = "2 Adults";
-    extras = "Breakfast, Wi-Fi, City View";
-  } else if (selectedOption === 'radioOption2') {
-    // Upgrade Option - Extra Pay
-    newTotal = "Rs. 67,500";
-    diffAmount = "Rs. 7,500";
-    diffType = "extra";
-    roomType = "Family Suite";
-    guests = "4 Adults";
-    extras = "Breakfast, Wi-Fi, City View, Bathtub";
-  } else if (selectedOption === 'radioOption3') {
-    // Downgrade Option - Refund
-    newTotal = "Rs. 45,000";
-    diffAmount = "Rs. 15,000";
-    diffType = "refund";
-    roomType = "Executive Studio Room";
-    guests = "2 Adults";
-    extras = "Breakfast, Wi-Fi, Garden View";
+  // Update dynamic review text fields
+  const oldCard = document.querySelector('.col-md-5:first-child .comparison-details-card');
+  if (oldCard) {
+    oldCard.innerHTML = `
+      <div class="py-2 border-bottom"><strong>Room Type:</strong> <span>${booking.roomType}</span></div>
+      <div class="py-2 border-bottom"><strong>Check-In:</strong> <span>${booking.checkIn}</span></div>
+      <div class="py-2 border-bottom"><strong>Check-Out:</strong> <span>${booking.checkOut}</span></div>
+      <div class="py-2"><strong>Duration:</strong> <span>${booking.nights || 1} Nights</span></div>
+    `;
   }
 
-  // Update DOM details
-  if (newTotalEl) newTotalEl.textContent = newTotal;
-  if (newRoomTypeEl) newRoomTypeEl.textContent = roomType;
-  if (newGuestsEl) newGuestsEl.textContent = guests;
-  if (newExtrasEl) newExtrasEl.textContent = extras;
+  const newCard = document.querySelector('.col-md-5:last-child .comparison-details-card');
+  if (newCard) {
+    newCard.innerHTML = `
+      <div class="py-2 border-bottom"><strong>Room Type:</strong> <span class="text-success fw-bold">${newRoomType}</span></div>
+      <div class="py-2 border-bottom"><strong>Check-In:</strong> <span class="text-success fw-bold">${newCheckIn}</span></div>
+      <div class="py-2 border-bottom"><strong>Check-Out:</strong> <span class="text-success fw-bold">${newCheckOut}</span></div>
+      <div class="py-2"><strong>Duration:</strong> <span class="text-success fw-bold">${newNights} Nights</span></div>
+    `;
+  }
 
-  if (diffAmountEl) {
-    diffAmountEl.textContent = diffAmount;
-    if (diffType === 'refund') {
-      diffAmountEl.className = "fw-bold text-success font-serif fs-3";
-      if (diffTitle) diffTitle.textContent = "Refund Amount";
-      if (diffDesc) diffDesc.textContent = "To be credited back to your original payment source";
-      if (labelMathSymbol) labelMathSymbol.className = "bi bi-distribute-vertical";
-      if (successAlertText) successAlertText.textContent = "Your modification results in a price decrease. A refund of " + diffAmount + " will be credited back to your account.";
-      if (successAlertBanner) successAlertBanner.className = "success-alert-banner p-3 d-flex align-items-center gap-3 text-start bg-success-light border-success";
-      if (btnProceedPayment) {
-        btnProceedPayment.innerHTML = 'Confirm Modification & Refund <i class="bi bi-arrow-right"></i>';
-        btnProceedPayment.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.policyModal.show({
-            title: 'Review Booking Modification Policy',
-            policyType: 'modification',
-            onContinue: () => {
-              sessionStorage.setItem('currentBookingPaid', 'true');
-              sessionStorage.setItem('currentBookingMethod', 'Wallet / Refund');
-              sessionStorage.setItem('modify_refund_applied', 'true');
-              sessionStorage.setItem('modify_refund_val', diffAmount);
-              window.location.href = 'booking_success.html';
-            },
-            onBack: () => {
-              console.log('User cancelled modification policy check');
-            }
+  // Clean up function on confirm
+  function finalizeModification() {
+    localStorage.removeItem('bookingModificationContext');
+  }
+
+  // Handle options pathways
+  if (priceDiff > 0) {
+    // 1. Higher Price Room / Additional Payment path
+    if (diffAmountEl) diffAmountEl.textContent = priceDiff.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+    if (diffTitle) diffTitle.textContent = "Additional Amount Required";
+    if (diffDesc) diffDesc.textContent = "To confirm this modification, you must pay the difference.";
+    if (labelMathSymbol) labelMathSymbol.className = "bi bi-plus-lg text-danger";
+    if (successAlertBanner) successAlertBanner.classList.add('d-none');
+
+
+    if (btnProceedPayment) {
+      btnProceedPayment.innerHTML = 'Proceed to Payment <i class="bi bi-arrow-right"></i>';
+      btnProceedPayment.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Directly reveal payment method selection — no intermediate modal
+        const paySection = document.getElementById('paymentMethodSection');
+        if (paySection) {
+          paySection.classList.remove('d-none');
+          paySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Hide proceed button to prevent duplicate clicks
+        btnProceedPayment.style.display = 'none';
+      });
+    }
+  } else if (priceDiff < 0) {
+    // 2. Lower Price Room / Refund path
+    if (diffAmountEl) diffAmountEl.textContent = Math.abs(priceDiff).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+    if (diffTitle) diffTitle.textContent = "Refund Amount Due";
+    if (diffDesc) diffDesc.textContent = "The price difference will be refunded to your original payment method. Refunds are processed within 3-5 business days.";
+    if (labelMathSymbol) labelMathSymbol.className = "bi bi-distribute-vertical text-success";
+    if (successAlertBanner) successAlertBanner.classList.add('d-none');
+
+
+    if (btnProceedPayment) {
+      btnProceedPayment.innerHTML = 'Confirm Stay Modification & Refund <i class="bi bi-arrow-right"></i>';
+      btnProceedPayment.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Update booking list in Local Storage directly
+        const bList = HotelState.bookings;
+        const bIdx = bList.findIndex(b => b.id === bookingId);
+        if (bIdx !== -1) {
+          const oldB = bList[bIdx];
+          
+          if (oldB.roomId !== newRoomId) {
+            HotelState.updateRoomStatus(oldB.roomId, 'Available');
+            HotelState.updateRoomStatus(newRoomId, 'Occupied');
+          }
+
+          let actionMsg = 'Modification';
+          let prevVal = `Dates: ${oldB.checkIn} to ${oldB.checkOut}, Room: ${oldB.roomType}`;
+          let newVal = `Dates: ${newCheckIn} to ${newCheckOut}, Room: ${newRoomType}`;
+
+          oldB.checkIn = newCheckIn;
+          oldB.checkOut = newCheckOut;
+          oldB.nights = newNights;
+          oldB.roomId = newRoomId;
+          oldB.roomType = newRoomType;
+          oldB.guests = newGuests;
+          oldB.adultsCount = newGuests;
+          
+          oldB.totalAmount = newGrandTotal / 1.18;
+          oldB.taxAmount = newGrandTotal - (newGrandTotal / 1.18);
+          oldB.grandTotal = newGrandTotal;
+          oldB.amount = newGrandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+          
+          oldB.refundStatus = 'Pending';
+          oldB.refundAmount = Math.abs(priceDiff);
+          oldB.refundMethod = oldB.paymentMethod || 'Debit / Credit Card';
+          oldB.updatedAt = new Date().toISOString();
+
+          if (!oldB.modificationHistory) oldB.modificationHistory = [];
+          oldB.modificationHistory.push({
+            bookingId: bookingId,
+            action: actionMsg,
+            prev: prevVal,
+            new: newVal,
+            timestamp: new Date().toISOString(),
+            diff: priceDiff
           });
-        });
-      }
-    } else if (diffType === 'extra') {
-      diffAmountEl.className = "fw-bold text-danger font-serif fs-3";
-      if (diffTitle) diffTitle.textContent = "Additional Amount";
-      if (diffDesc) diffDesc.textContent = "To be paid";
-      if (labelMathSymbol) labelMathSymbol.className = "bi bi-plus-lg";
-      if (successAlertText) successAlertText.textContent = "You need to pay an additional amount to confirm your modified booking.";
-      if (successAlertBanner) successAlertBanner.className = "success-alert-banner p-3 d-flex align-items-center gap-3 text-start";
-      if (btnProceedPayment) {
-        btnProceedPayment.innerHTML = 'Proceed to Payment <i class="bi bi-arrow-right"></i>';
-        btnProceedPayment.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.policyModal.show({
-            title: 'Review Booking Modification Policy',
-            policyType: 'modification',
-            onContinue: () => {
-              sessionStorage.setItem('modify_refund_applied', 'false');
-              window.location.href = 'payment_portal.html';
-            },
-            onBack: () => {
-              console.log('User cancelled modification policy check');
-            }
+
+          bList[bIdx] = oldB;
+          HotelState.bookings = bList;
+
+          // Audit log
+          const userObj = HotelState.getUserById(userId);
+          const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
+          HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings', `${actionMsg} for booking ${bookingId}. Refund processed: ₹${Math.abs(priceDiff).toLocaleString('en-IN')}`);
+          
+          // Notification
+          const mockNotifs = HotelState.notifications;
+          mockNotifs.unshift({
+            id: 'NOTIF' + Date.now(),
+            recipientId: userId,
+            recipientRole: 'Customer',
+            type: 'Modification',
+            title: 'Booking Modified & Refund Initiated',
+            message: `Your booking ${bookingId} was modified. Refund of ₹${Math.abs(priceDiff).toLocaleString('en-IN')} pending.`,
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            relatedId: bookingId
           });
-        });
-      }
-    } else {
-      // No price difference (Same room, modified dates)
-      diffAmountEl.className = "fw-bold text-dark font-serif fs-3";
-      if (diffTitle) diffTitle.textContent = "Balance Difference";
-      if (diffDesc) diffDesc.textContent = "No extra charges or refunds required for this modification.";
-      if (labelMathSymbol) labelMathSymbol.className = "bi bi-check-all text-success";
-      if (successAlertText) successAlertText.textContent = "Your stay modification details are updated. No extra payment or refund is required.";
-      if (successAlertBanner) successAlertBanner.className = "success-alert-banner p-3 d-flex align-items-center gap-3 text-start bg-success-light border-success";
-      if (btnProceedPayment) {
-        btnProceedPayment.innerHTML = 'Confirm Stay Modification <i class="bi bi-arrow-right"></i>';
-        btnProceedPayment.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.policyModal.show({
-            title: 'Review Booking Modification Policy',
-            policyType: 'modification',
-            onContinue: () => {
-              sessionStorage.setItem('currentBookingPaid', 'true');
-              sessionStorage.setItem('currentBookingMethod', 'Stay Modified (No Charge)');
-              sessionStorage.setItem('modify_refund_applied', 'false');
-              window.location.href = 'booking_success.html';
-            },
-            onBack: () => {
-              console.log('User cancelled modification policy check');
-            }
+          HotelState.notifications = mockNotifs;
+        }
+
+        sessionStorage.setItem('hbs_last_booking_id', bookingId);
+        sessionStorage.setItem('modify_refund_applied', 'true');
+        sessionStorage.setItem('modify_refund_val', Math.abs(priceDiff).toLocaleString('en-IN'));
+        finalizeModification();
+        window.location.href = 'booking_success.html';
+      });
+    }
+  } else {
+    // 3. Same Price Room path
+    if (diffAmountEl) diffAmountEl.textContent = '₹0';
+    if (diffTitle) diffTitle.textContent = "Stay Modified Successfully";
+    if (diffDesc) diffDesc.textContent = "No extra charges or refunds required.";
+    if (labelMathSymbol) labelMathSymbol.className = "bi bi-check-all text-success";
+    if (successAlertText) successAlertText.textContent = "Your stay details are updated. No extra payment required.";
+    if (successAlertBanner) successAlertBanner.className = "success-alert-banner p-3 d-flex align-items-center gap-3 text-start bg-success-light border-success";
+
+    if (btnProceedPayment) {
+      btnProceedPayment.innerHTML = 'Confirm Stay Modification <i class="bi bi-arrow-right"></i>';
+      btnProceedPayment.addEventListener('click', (e) => {
+        e.preventDefault();
+        const bList = HotelState.bookings;
+        const bIdx = bList.findIndex(b => b.id === bookingId);
+        if (bIdx !== -1) {
+          const oldB = bList[bIdx];
+          
+          if (oldB.roomId !== newRoomId) {
+            HotelState.updateRoomStatus(oldB.roomId, 'Available');
+            HotelState.updateRoomStatus(newRoomId, 'Occupied');
+          }
+
+          let actionMsg = 'Modification';
+          let prevVal = `Dates: ${oldB.checkIn} to ${oldB.checkOut}, Room: ${oldB.roomType}`;
+          let newVal = `Dates: ${newCheckIn} to ${newCheckOut}, Room: ${newRoomType}`;
+
+          oldB.checkIn = newCheckIn;
+          oldB.checkOut = newCheckOut;
+          oldB.nights = newNights;
+          oldB.roomId = newRoomId;
+          oldB.roomType = newRoomType;
+          oldB.guests = newGuests;
+          oldB.adultsCount = newGuests;
+          oldB.updatedAt = new Date().toISOString();
+
+          if (!oldB.modificationHistory) oldB.modificationHistory = [];
+          oldB.modificationHistory.push({
+            bookingId: bookingId,
+            action: actionMsg,
+            prev: prevVal,
+            new: newVal,
+            timestamp: new Date().toISOString(),
+            diff: 0
           });
-        });
-      }
+
+          bList[bIdx] = oldB;
+          HotelState.bookings = bList;
+
+          // Audit log
+          const userObj = HotelState.getUserById(userId);
+          const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
+          HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings', `${actionMsg} for booking ${bookingId}. No price difference.`);
+          
+          // Notification
+          const mockNotifs = HotelState.notifications;
+          mockNotifs.unshift({
+            id: 'NOTIF' + Date.now(),
+            recipientId: userId,
+            recipientRole: 'Customer',
+            type: 'Modification',
+            title: 'Booking Modified',
+            message: `Your booking ${bookingId} stay details have been updated successfully.`,
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            relatedId: bookingId
+          });
+          HotelState.notifications = mockNotifs;
+        }
+
+        sessionStorage.setItem('hbs_last_booking_id', bookingId);
+        sessionStorage.setItem('modify_refund_applied', 'false');
+        finalizeModification();
+        window.location.href = 'booking_success.html';
+      });
     }
   }
-  // Help & Contact Support Modal setup
+
+  // ── Global: highlight selected payment method card ─────────────────────────
+  window.selectModPayMethod = function(method) {
+    document.querySelectorAll('.payment-method-option').forEach(card => {
+      card.style.border = '1px solid #dee2e6';
+      card.style.backgroundColor = '#fff';
+    });
+    const radioMap = { 'UPI': 'radioUPI', 'Net Banking': 'radioNetBanking', 'Card': 'radioCard' };
+    const radio = document.getElementById(radioMap[method]);
+    if (radio) {
+      radio.checked = true;
+      const card = radio.closest('.payment-method-option');
+      if (card) {
+        card.style.border = '2px solid #D4AF37';
+        card.style.backgroundColor = '#FAF8F4';
+      }
+    }
+    const err = document.getElementById('payMethodError');
+    if (err) err.classList.add('d-none');
+  };
+
+  // ── "Pay Now with Razorpay" button ─────────────────────────────────────────
+  const btnLaunchRazorpay = document.getElementById('btnLaunchRazorpay');
+  if (btnLaunchRazorpay) {
+    btnLaunchRazorpay.addEventListener('click', () => {
+      // Validate: method must be selected
+      const selectedRadio = document.querySelector('input[name="modPayMethod"]:checked');
+      if (!selectedRadio) {
+        const err = document.getElementById('payMethodError');
+        if (err) err.classList.remove('d-none');
+        return;
+      }
+      const selectedMethod = selectedRadio.value;
+
+      const originalHTML = btnLaunchRazorpay.innerHTML;
+      btnLaunchRazorpay.disabled = true;
+      btnLaunchRazorpay.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Opening Razorpay…';
+
+      const currentUser = (window.HotelState && HotelState.currentUser) ? HotelState.currentUser : {};
+      const displayName  = currentUser.name || `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || 'Guest';
+      const displayEmail = currentUser.email || '';
+
+      const amountToPay = Math.round(priceDiff); // only the price difference
+
+      const rzpOptions = {
+        key: 'rzp_test_T8UtZpyMedZBY8',
+        amount: Math.round(amountToPay * 100), // paise
+        currency: 'INR',
+        name: 'Elegant Enclave',
+        description: `Booking Modification – ${bookingId}`,
+        image: '../../assets/images/logo.png',
+        handler: function(response) {
+          btnLaunchRazorpay.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing…';
+          completeModificationWithPayment(selectedMethod, response.razorpay_payment_id);
+        },
+        prefill: {
+          name:    displayName,
+          email:   displayEmail,
+          contact: currentUser.phone || currentUser.mobile || ''
+        },
+        notes: { booking_id: bookingId },
+        theme: { color: '#1A0A2E' },
+        modal: {
+          ondismiss: function() {
+            btnLaunchRazorpay.disabled = false;
+            btnLaunchRazorpay.innerHTML = originalHTML;
+          }
+        }
+      };
+
+      const rzp = new Razorpay(rzpOptions);
+      rzp.on('payment.failed', function(response) {
+        btnLaunchRazorpay.disabled = false;
+        btnLaunchRazorpay.innerHTML = originalHTML;
+        const failModal = new bootstrap.Modal(document.getElementById('paymentFailedModal'));
+        const reason = document.getElementById('lblModPayFailReason');
+        if (reason) reason.textContent = response.error?.description || 'Payment was declined. Please try again.';
+        failModal.show();
+      });
+
+      rzp.open();
+    });
+  }
+
+  // Retry on failure modal
+  const btnRetryModPay = document.getElementById('btnRetryModPay');
+  if (btnRetryModPay) {
+    btnRetryModPay.addEventListener('click', () => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('paymentFailedModal'));
+      if (modal) modal.hide();
+      setTimeout(() => btnLaunchRazorpay?.click(), 400);
+    });
+  }
+
+  // ── Complete modification after successful Razorpay payment ─────────────────
+  function completeModificationWithPayment(selectedMethod, razorpayPaymentId) {
+    const bList = HotelState.bookings;
+    const bIdx  = bList.findIndex(b => b.id === bookingId);
+    if (bIdx !== -1) {
+      const oldB   = bList[bIdx];
+      const prevVal = `Dates: ${oldB.checkIn} to ${oldB.checkOut}, Room: ${oldB.roomType}`;
+      const newValStr = `Dates: ${newCheckIn} to ${newCheckOut}, Room: ${newRoomType}`;
+
+      // Update room availability
+      if (oldB.roomId !== newRoomId) {
+        HotelState.updateRoomStatus(oldB.roomId, 'Available');
+        HotelState.updateRoomStatus(newRoomId, 'Occupied');
+      }
+
+      // Apply changes
+      oldB.checkIn      = newCheckIn;
+      oldB.checkOut     = newCheckOut;
+      oldB.nights       = newNights;
+      oldB.roomId       = newRoomId;
+      oldB.roomType     = newRoomType;
+      oldB.guests       = newGuests;
+      oldB.adultsCount  = newGuests;
+      oldB.totalAmount  = newGrandTotal / 1.18;
+      oldB.taxAmount    = newGrandTotal - (newGrandTotal / 1.18);
+      oldB.grandTotal   = newGrandTotal;
+      oldB.amount       = newGrandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+      oldB.paymentMethod = selectedMethod;
+      oldB.txnId        = razorpayPaymentId || ('TXN' + Date.now());
+      oldB.updatedAt    = new Date().toISOString();
+
+      if (!oldB.modificationHistory) oldB.modificationHistory = [];
+      oldB.modificationHistory.push({
+        bookingId: bookingId,
+        action:    'Upgrade — Additional Payment',
+        prev:      prevVal,
+        new:       newValStr,
+        timestamp: new Date().toISOString(),
+        diff:      priceDiff
+      });
+
+      bList[bIdx] = oldB;
+      HotelState.bookings = bList;
+
+      // Audit
+      const userObj  = HotelState.getUserById(userId);
+      const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
+      HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings',
+        `Upgrade payment of ₹${priceDiff.toLocaleString('en-IN')} via Razorpay (${selectedMethod}) for booking ${bookingId}.`);
+
+      // Notification
+      const notifs = HotelState.notifications;
+      notifs.unshift({
+        id:            'NOTIF' + Date.now(),
+        recipientId:   userId,
+        recipientRole: 'Customer',
+        type:          'Modification',
+        title:         'Booking Modified & Payment Received',
+        message:       `Booking ${bookingId} upgraded. Payment of ₹${Math.round(priceDiff).toLocaleString('en-IN')} received via ${selectedMethod}.`,
+        isRead:        false,
+        createdAt:     new Date().toISOString(),
+        relatedId:     bookingId
+      });
+      HotelState.notifications = notifs;
+    }
+
+    sessionStorage.setItem('hbs_last_booking_id', bookingId);
+    finalizeModification();
+    window.location.href = 'booking_success.html';
+  }
+
+  // ── Help & Contact Support Modal setup ─────────────────────────────────────
   const btnContactSupport = document.getElementById('btnContactSupport');
   if (btnContactSupport) {
     btnContactSupport.addEventListener('click', () => {
@@ -215,94 +509,71 @@ document.addEventListener('DOMContentLoaded', () => {
       osc2.start();
 
       setTimeout(() => {
-        try {
-          osc1.stop();
-          osc2.stop();
-          osc1.disconnect();
-          osc2.disconnect();
-          gainNode.disconnect();
-          if (audioCtx && audioCtx.state !== 'closed') {
-            audioCtx.close();
-          }
-        } catch (err) {}
+        osc1.stop();
+        osc2.stop();
+        if (audioCtx) {
+          audioCtx.close();
+          audioCtx = null;
+        }
       }, 2000);
     } catch (e) {
-      console.warn('Audio Context blocked or failed:', e);
-    }
-  }
-
-  function stopAllCallActivities() {
-    isCallActive = false;
-    clearInterval(durationInterval);
-    clearTimeout(ringTimeout1);
-    clearTimeout(ringTimeout2);
-    clearTimeout(finalSpeechTimeout);
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    if (audioCtx && audioCtx.state !== 'closed') {
-      audioCtx.close();
+      console.log('AudioContext error:', e);
     }
   }
 
   if (phoneBtn) {
     phoneBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      
-      const contactModal = bootstrap.Modal.getInstance(document.getElementById('receptionContactModal'));
-      if (contactModal) contactModal.hide();
-
-      callProgressState.classList.remove('d-none');
-      callResultState.classList.add('d-none');
-      callDurationTimer.textContent = 'Duration: 00:00';
-      durationSec = 0;
-      isCallActive = true;
-
       const callModal = new bootstrap.Modal(callModalEl);
       callModal.show();
+
+      isCallActive = true;
+      callProgressState.classList.remove('d-none');
+      callResultState.classList.add('d-none');
+      durationSec = 0;
+      callDurationTimer.textContent = '00:00';
 
       playRingingTone();
       ringTimeout1 = setTimeout(() => {
         playRingingTone();
-      }, 4000);
-
-      durationInterval = setInterval(() => {
-        durationSec++;
-        const mins = String(Math.floor(durationSec / 60)).padStart(2, '0');
-        const secs = String(durationSec % 60).padStart(2, '0');
-        callDurationTimer.textContent = `Duration: ${mins}:${secs}`;
-      }, 1000);
+      }, 3000);
 
       ringTimeout2 = setTimeout(() => {
-        if (!isCallActive) return;
-        clearInterval(durationInterval);
+        playRingingTone();
+      }, 6000);
+
+      finalSpeechTimeout = setTimeout(() => {
         callProgressState.classList.add('d-none');
         callResultState.classList.remove('d-none');
 
-        const speechMsg = "The support team is currently busy assisting other guests. Please leave a message or send an email.";
-        if (window.speechSynthesis) {
-          const utterance = new SpeechSynthesisUtterance(speechMsg);
-          utterance.rate = 0.95;
-          window.speechSynthesis.speak(utterance);
-        } else {
-          document.getElementById('callResultMsg').textContent = speechMsg;
-        }
-      }, 8000);
+        durationInterval = setInterval(() => {
+          durationSec++;
+          const mins = String(Math.floor(durationSec / 60)).padStart(2, '0');
+          const secs = String(durationSec % 60).padStart(2, '0');
+          callDurationTimer.textContent = `${mins}:${secs}`;
+        }, 1000);
+      }, 9000);
     });
+  }
+
+  function handleEndCall() {
+    isCallActive = false;
+    clearTimeout(ringTimeout1);
+    clearTimeout(ringTimeout2);
+    clearTimeout(finalSpeechTimeout);
+    clearInterval(durationInterval);
+    if (audioCtx) {
+      audioCtx.close();
+      audioCtx = null;
+    }
+    const callModal = bootstrap.Modal.getInstance(callModalEl);
+    if (callModal) callModal.hide();
   }
 
   if (btnCancelCall) {
-    btnCancelCall.addEventListener('click', () => {
-      stopAllCallActivities();
-      const callModal = bootstrap.Modal.getInstance(callModalEl);
-      if (callModal) callModal.hide();
-    });
+    btnCancelCall.addEventListener('click', handleEndCall);
   }
-
-  // Cancel events fallback handler
   if (callModalEl) {
-    callModalEl.addEventListener('hidden.bs.modal', () => {
-      stopAllCallActivities();
-    });
+    callModalEl.addEventListener('hidden.bs.modal', handleEndCall);
   }
 });

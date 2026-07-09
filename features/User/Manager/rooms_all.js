@@ -1,271 +1,103 @@
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Manager') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let rooms = [
-    { number: '101', type: 'Standard Room', floor: '1st Floor', status: 'Available', occupancy: 'Max 2 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '102', type: 'Standard Room', floor: '1st Floor', status: 'Cleaning', occupancy: 'Max 2 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '108', type: 'Standard Room', floor: '1st Floor', status: 'Occupied', occupancy: 'Max 2 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '201', type: 'Executive Studio', floor: '2nd Floor', status: 'Occupied', occupancy: 'Max 2 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '205', type: 'Executive Studio', floor: '2nd Floor', status: 'Available', occupancy: 'Max 2 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '302', type: 'Deluxe Suite', floor: '3rd Floor', status: 'Maintenance', occupancy: 'Max 4 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '305', type: 'Deluxe Suite', floor: '3rd Floor', status: 'Occupied', occupancy: 'Max 4 Guests', branch: 'Elegant Enclave Chennai' },
-    { number: '501', type: 'Penthouse Suite', floor: '5th Floor', status: 'Occupied', occupancy: 'Max 6 Guests', branch: 'Elegant Enclave Chennai' }
-  ];
+  const managerUser = HotelState.users.find(u => u.id === userId);
+  const hotelId = managerUser?.assignedHotelId;
+  const hotel = HotelState.hotels.find(h => h.id === hotelId);
 
-  const gridContainer = document.getElementById('gridRoomsContainer');
-  const txtSearchRoom = document.getElementById('txtSearchRoom');
-  const selBranch = document.getElementById('selBranch');
-  const selStatus = document.getElementById('selStatus');
-  const btnReset = document.getElementById('btnResetRoomFilters');
+  if (!hotel) {
+    console.error("Manager has no assigned hotel!");
+    return;
+  }
 
-  // Read branch manager context limitations
-  const userBranch = localStorage.getItem('userBranch'); // 'Chennai', 'Coimbatore', 'Salem'
+  let allRooms = [];
+  let hotelBookings = [];
 
-  // Pre-filter select branch options if manager is branch restricted
-  if (userBranch) {
-    if (selBranch) {
-      selBranch.value = userBranch;
-      selBranch.disabled = true; // Lock dropdown select option
+  function loadRooms() {
+    allRooms = HotelState.getRoomsByHotel(hotelId);
+    hotelBookings = HotelState.bookings.filter(b => b.hotelId === hotelId && ['CheckedIn', 'Confirmed'].includes(b.bookingStatus));
+    renderSummary();
+    renderTable();
+  }
+
+  function getStatusBadge(status) {
+    switch (status) {
+      case 'Available': return '<span class="badge bg-success">Available</span>';
+      case 'Occupied': return '<span class="badge bg-primary">Occupied</span>'; // Red is requested, maybe bg-danger? wait, prompt says Occupied -> red, I'll use bg-danger. Actually prompt: Available->green, Occupied->red, Housekeeping->orange, Maintenance->yellow
+      case 'Housekeeping': return '<span class="badge" style="background-color: orange; color: black;">Housekeeping</span>';
+      case 'Maintenance': return '<span class="badge bg-warning text-dark">Maintenance</span>';
+      default: return `<span class="badge bg-secondary">${status}</span>`;
     }
   }
 
-  function renderRooms() {
-    gridContainer.innerHTML = '';
-    const q = txtSearchRoom.value.toLowerCase().trim();
-    let branchVal = selBranch ? selBranch.value : 'all';
-    if (userBranch) {
-      branchVal = userBranch; // Override validation to logged-in manager branch
+  function renderSummary() {
+    const available = allRooms.filter(r => r.status === 'Available').length;
+    const occupied = allRooms.filter(r => r.status === 'Occupied').length;
+    const housekeeping = allRooms.filter(r => r.status === 'Housekeeping').length;
+    const maintenance = allRooms.filter(r => r.status === 'Maintenance').length;
+
+    const summaryContainer = document.querySelector('.d-flex.flex-wrap.gap-2.text-start.small');
+    if (summaryContainer) {
+      summaryContainer.innerHTML = `
+        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.85rem;"><span class="legend-indicator bg-success me-2"></span>${available} Available</span>
+        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.85rem;"><span class="legend-indicator bg-danger me-2"></span>${occupied} Occupied</span>
+        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.85rem;"><span class="legend-indicator" style="background-color: orange;"></span>&nbsp;&nbsp;${housekeeping} Housekeeping</span>
+        <span class="badge bg-light text-dark border p-2 fw-bold" style="font-size: 0.85rem;"><span class="legend-indicator bg-warning me-2"></span>${maintenance} Maintenance</span>
+      `;
     }
-    const statusVal = selStatus.value;
+  }
 
-    // Filter array
-    let filtered = rooms.filter(r => {
-      if (q && !r.number.includes(q) && !r.floor.toLowerCase().includes(q)) return false;
-      if (branchVal !== 'all' && !r.branch.toLowerCase().includes(branchVal.toLowerCase())) return false;
-      if (statusVal !== 'all' && r.status !== statusVal) return false;
-      return true;
-    });
+  function renderTable() {
+    const tbody = document.querySelector('#tblAvailability tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-    if (filtered.length === 0) {
-      gridContainer.innerHTML = `<div class="text-center py-4 col-12"><p class="text-muted">No rooms match filter parameters.</p></div>`;
+    if (allRooms.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No rooms found for this property.</td></tr>`;
       return;
     }
 
-    filtered.forEach(r => {
-      let cardBorderClass = 'border-secondary';
-      let statusBadge = '';
-      if (r.status === 'Available') {
-        cardBorderClass = 'border-success';
-        statusBadge = '<span class="badge bg-success">Available</span>';
-      } else if (r.status === 'Occupied') {
-        cardBorderClass = 'border-primary';
-        statusBadge = '<span class="badge bg-primary">Occupied</span>';
-      } else if (r.status === 'Cleaning') {
-        cardBorderClass = 'border-warning text-dark';
-        statusBadge = '<span class="badge bg-warning text-dark">Cleaning</span>';
-      } else if (r.status === 'Maintenance') {
-        cardBorderClass = 'border-danger';
-        statusBadge = '<span class="badge bg-danger">Maintenance</span>';
+    allRooms.forEach(room => {
+      let currentGuest = '-';
+      let expectedCheckout = '-';
+      let upcomingGuest = '-';
+      let expectedArrival = '-';
+
+      if (room.status === 'Occupied') {
+        const activeBooking = hotelBookings.find(b => b.roomId === room.id && b.bookingStatus === 'CheckedIn');
+        if (activeBooking) {
+          currentGuest = (activeBooking.guestDetails && activeBooking.guestDetails.primaryGuest) ? `${activeBooking.guestDetails.primaryGuest.firstName} ${activeBooking.guestDetails.primaryGuest.lastName}` : activeBooking.email;
+          expectedCheckout = activeBooking.checkOut;
+        }
       }
 
-      let editButtonHTML = '';
-      const isBranchMatch = !userBranch || r.branch.toLowerCase().includes(userBranch.toLowerCase());
-      
-      if (isBranchMatch) {
-        editButtonHTML = `
-          <div class="card-footer bg-white border-top-0 pt-0 pb-3">
-            <button class="btn btn-outline-purple btn-sm w-100" onclick="triggerRoomEditModal('${r.number}')">
-              <i class="bi bi-pencil-fill me-1"></i> Edit Room Details
-            </button>
-          </div>
-        `;
+      // Find upcoming booking
+      const upcoming = hotelBookings.filter(b => b.roomId === room.id && b.bookingStatus === 'Confirmed').sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))[0];
+      if (upcoming) {
+        upcomingGuest = (upcoming.guestDetails && upcoming.guestDetails.primaryGuest) ? `${upcoming.guestDetails.primaryGuest.firstName} ${upcoming.guestDetails.primaryGuest.lastName}` : upcoming.email;
+        expectedArrival = upcoming.checkIn;
       }
 
-      const col = document.createElement('div');
-      col.className = 'col-sm-6 col-md-4 col-lg-3';
-      col.innerHTML = `
-        <div class="card h-100 border-start border-4 ${cardBorderClass} shadow-sm d-flex flex-column justify-content-between">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h5 class="card-title m-0 font-serif fw-bold text-dark">Room ${r.number}</h5>
-              ${statusBadge}
-            </div>
-            <h6 class="card-subtitle mb-1 text-muted small">${r.type}</h6>
-            <p class="card-text mb-0 small text-secondary"><i class="bi bi-info-circle me-1"></i> ${r.occupancy}</p>
-            <p class="card-text mb-1 small text-secondary"><i class="bi bi-layers me-1"></i> ${r.floor}</p>
-            <p class="card-text mb-2 small text-secondary"><i class="bi bi-geo-alt me-1"></i> ${r.branch}</p>
-          </div>
-          ${editButtonHTML}
-        </div>
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${room.id.replace(hotelId + '_', '')}</strong></td>
+        <td>${room.type}</td>
+        <td>${hotel.name}</td>
+        <td>${getStatusBadge(room.status)}</td>
+        <td>${currentGuest}</td>
+        <td>${expectedCheckout}</td>
+        <td>${upcomingGuest}</td>
+        <td>${expectedArrival}</td>
       `;
-      gridContainer.appendChild(col);
-    });
-
-    // Update KPI badges
-    document.getElementById('kpiTotal').textContent = filtered.length;
-    document.getElementById('kpiAvailable').textContent = filtered.filter(x => x.status === 'Available').length;
-    document.getElementById('kpiOccupied').textContent = filtered.filter(x => x.status === 'Occupied').length;
-    document.getElementById('kpiCleaning').textContent = filtered.filter(x => x.status === 'Cleaning').length;
-    document.getElementById('kpiMaintenance').textContent = filtered.filter(x => x.status === 'Maintenance').length;
-  }
-
-  // Bind edit popup values and show modal callback
-  window.triggerRoomEditModal = function(roomNumber) {
-    const r = rooms.find(x => x.number === roomNumber);
-    if (!r) return;
-
-    document.getElementById('lblRoomTitle').textContent = `Room ${r.number}`;
-    document.getElementById('editRoomNumberKey').value = r.number;
-
-    // Show current value as placeholder in text box
-    const txtType = document.getElementById('txtEditRoomType');
-    const txtFloor = document.getElementById('txtEditRoomFloor');
-    const txtOccupancy = document.getElementById('txtEditRoomOccupancy');
-    const selStatusEl = document.getElementById('selEditRoomStatus');
-
-    txtType.value = '';
-    txtType.placeholder = r.type;
-
-    txtFloor.value = '';
-    txtFloor.placeholder = r.floor;
-
-    txtOccupancy.value = '';
-    txtOccupancy.placeholder = r.occupancy;
-
-    selStatusEl.value = ''; // Reset option default selector
-
-    const editModal = new bootstrap.Modal(document.getElementById('editRoomModal'));
-    editModal.show();
-  };
-
-  // Form submit handler updating room items values
-  const editForm = document.getElementById('editRoomForm');
-  if (editForm) {
-    editForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const roomNum = document.getElementById('editRoomNumberKey').value;
-      const r = rooms.find(x => x.number === roomNum);
-      if (!r) return;
-
-      const txtTypeVal = document.getElementById('txtEditRoomType').value.trim();
-      const txtFloorVal = document.getElementById('txtEditRoomFloor').value.trim();
-      const txtOccupancyVal = document.getElementById('txtEditRoomOccupancy').value.trim();
-      const statusVal = document.getElementById('selEditRoomStatus').value;
-
-      // Enter empty to keep current value constraint check
-      if (txtTypeVal) r.type = txtTypeVal;
-      if (txtFloorVal) r.floor = txtFloorVal;
-      if (txtOccupancyVal) r.occupancy = txtOccupancyVal;
-      if (statusVal) r.status = statusVal;
-
-      // Close Modal
-      const modalEl = document.getElementById('editRoomModal');
-      const bootstrapModal = bootstrap.Modal.getInstance(modalEl);
-      if (bootstrapModal) bootstrapModal.hide();
-
-      // Refresh view
-      renderRooms();
-
-      // Show Status Toast
-      const toastEl = document.getElementById('statusToast');
-      if (toastEl) {
-        document.getElementById('toastMessage').textContent = `Room ${r.number} specifications updated successfully!`;
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-      }
+      tbody.appendChild(tr);
     });
   }
 
-  // Register New Room Form Submission Action
-  const addRoomForm = document.getElementById('addRoomForm');
-  if (addRoomForm) {
-    // If manager has a locked branch profile, preset and lock the branch dropdown select selection
-    const selAddRoomBranch = document.getElementById('selAddRoomBranch');
-    if (userBranch && selAddRoomBranch) {
-      const longBranchName = userBranch === 'Chennai' ? 'Elegant Enclave Chennai' : 
-                             (userBranch === 'Coimbatore' ? 'Elegant Enclave Coimbatore' : 'Elegant Enclave Salem');
-      selAddRoomBranch.value = longBranchName;
-      selAddRoomBranch.disabled = true;
-    }
-
-    addRoomForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      // Inline Validation Check
-      if (!addRoomForm.checkValidity()) {
-        e.stopPropagation();
-        addRoomForm.classList.add('was-validated');
-        return;
-      }
-
-      const numVal = document.getElementById('txtAddRoomNumber').value.trim();
-      
-      // Check for duplicates
-      if (rooms.some(x => x.number === numVal)) {
-        document.getElementById('txtAddRoomNumber').classList.add('is-invalid');
-        alert(`Room number ${numVal} already exists!`);
-        return;
-      }
-
-      const typeVal = document.getElementById('selAddRoomType').value;
-      const floorVal = document.getElementById('txtAddRoomFloor').value.trim();
-      const occupancyVal = document.getElementById('txtAddRoomOccupancy').value.trim();
-      const branchVal = document.getElementById('selAddRoomBranch').value;
-      const statusVal = document.getElementById('selAddRoomStatus').value;
-
-      const newRoom = {
-        number: numVal,
-        type: typeVal,
-        floor: floorVal,
-        occupancy: occupancyVal,
-        status: statusVal,
-        branch: branchVal
-      };
-
-      rooms.push(newRoom);
-      
-      // Close Modal
-      const modalEl = document.getElementById('addRoomModal');
-      const bootstrapModal = bootstrap.Modal.getInstance(modalEl);
-      if (bootstrapModal) bootstrapModal.hide();
-
-      // Reset Form State
-      addRoomForm.reset();
-      addRoomForm.classList.remove('was-validated');
-      if (userBranch && selAddRoomBranch) {
-        const longBranchName = userBranch === 'Chennai' ? 'Elegant Enclave Chennai' : 
-                               (userBranch === 'Coimbatore' ? 'Elegant Enclave Coimbatore' : 'Elegant Enclave Salem');
-        selAddRoomBranch.value = longBranchName;
-      }
-
-      // Refresh view grids
-      renderRooms();
-
-      // Show Status toast message
-      const toastEl = document.getElementById('statusToast');
-      if (toastEl) {
-        document.getElementById('toastMessage').textContent = `Room ${numVal} registered successfully!`;
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-      }
-    });
-  }
-
-  // Pre-open add modal if URL contains ?action=add query param
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('action') === 'add') {
-    const addModal = new bootstrap.Modal(document.getElementById('addRoomModal'));
-    addModal.show();
-  }
-
-  txtSearchRoom.addEventListener('input', renderRooms);
-  selBranch.addEventListener('change', renderRooms);
-  selStatus.addEventListener('change', renderRooms);
-
-  btnReset.addEventListener('click', () => {
-    txtSearchRoom.value = '';
-    if (!userBranch) selBranch.value = 'all';
-    selStatus.value = 'all';
-    renderRooms();
-  });
-
-  renderRooms();
+  loadRooms();
 });

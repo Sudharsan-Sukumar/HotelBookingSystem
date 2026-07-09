@@ -1,15 +1,17 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let users = [
-    { id: 'CUST-001', name: 'Rajesh Kumar', email: 'rajesh.k@email.com', role: 'Customer', branch: 'N/A', status: 'Active', login: '29 Jun 2026, 10:15 AM' },
-    { id: 'MGR-001', name: 'Suresh Patel', email: 'suresh.p@ehbs.com', role: 'Manager', branch: 'Salem', status: 'Active', login: '29 Jun 2026, 09:40 AM' },
-    { id: 'MGR-002', name: 'Priya Sharma', email: 'priya.s@ehbs.com', role: 'Manager', branch: 'Coimbatore', status: 'Active', login: '29 Jun 2026, 08:55 AM' },
-    { id: 'CUST-002', name: 'Arun Menon', email: 'arun.m@email.com', role: 'Customer', branch: 'N/A', status: 'Active', login: '28 Jun 2026, 07:30 PM' },
-    { id: 'MGR-013', name: 'Gita Reddy', email: 'gita.r@ehbs.com', role: 'Manager', branch: 'Chennai', status: 'Pending', login: '-' },
-    { id: 'CUST-006', name: 'Kavya Reddy', email: 'kavya.r@email.com', role: 'Customer', branch: 'N/A', status: 'Inactive', login: '25 Jun 2026, 11:20 AM' },
-    { id: 'CUST-007', name: 'Mohan Verma', email: 'mohan.v@email.com', role: 'Customer', branch: 'N/A', status: 'Active', login: '28 Jun 2026, 06:10 PM' }
-  ];
+  let users = HotelState.users || [];
 
   const tblBody = document.querySelector('#tblUsers tbody');
+  const tblHeader = document.querySelector('#tblUsers thead');
   const userSearch = document.getElementById('userSearch');
   const roleFilter = document.getElementById('userRoleFilter');
   const statusFilter = document.getElementById('userStatusFilter');
@@ -23,34 +25,136 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
-    toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
+    if (toastEl) {
+      toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
+      toastMessage.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
   }
 
+  window.navigateToView = function(id) {
+    sessionStorage.setItem('adminViewUserId', id);
+    location.href = 'view_user.html';
+  };
+
+  window.navigateToEdit = function(id) {
+    sessionStorage.setItem('adminEditUserId', id);
+    location.href = 'edit_manager.html';
+  };
+
+  window.navigateToViewBooking = function(id) {
+    sessionStorage.setItem('adminViewBookingId', id);
+    location.href = 'view_booking.html';
+  };
+
   function renderTable() {
+    users = HotelState.users || [];
+    
+    // Clear and adjust table header based on active tab
     tblBody.innerHTML = '';
+    
+    if (activeTab === 'Guests') {
+      tblHeader.innerHTML = `
+        <tr>
+          <th>Guest Name</th>
+          <th>Email Address</th>
+          <th>Phone</th>
+          <th>ID Type</th>
+          <th>ID Number</th>
+          <th>Booking Ref</th>
+          <th>Hotel</th>
+          <th>Stay Dates</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      `;
+
+      // Extract guests from bookings
+      const bookings = HotelState.bookings || [];
+      const q = userSearch.value.toLowerCase().trim();
+
+      let filteredGuests = [];
+      bookings.forEach(b => {
+        const pg = b.guestDetails?.primaryGuest || {};
+        const name = pg.name || b.email || '';
+        const email = pg.email || b.email || '';
+        const phone = pg.phone || '';
+        const idType = b.guestDetails?.idType || 'Aadhaar';
+        const idNumber = b.guestDetails?.idNumber || 'N/A';
+        const hotel = HotelState.getHotelById(b.hotelId)?.name || b.hotelId;
+        const stayDates = `${b.checkIn} to ${b.checkOut}`;
+
+        if (q && !name.toLowerCase().includes(q) && !email.toLowerCase().includes(q)) {
+          return;
+        }
+
+        filteredGuests.push({
+          name, email, phone, idType, idNumber, bookingId: b.id, hotel, stayDates
+        });
+      });
+
+      if (filteredGuests.length === 0) {
+        tblBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No guest records found.</td></tr>`;
+        return;
+      }
+
+      filteredGuests.forEach(g => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${g.name}</strong></td>
+          <td>${g.email}</td>
+          <td>${g.phone || '-'}</td>
+          <td>${g.idType}</td>
+          <td>${g.idNumber}</td>
+          <td><span class="badge bg-secondary">${g.bookingId}</span></td>
+          <td>${g.hotel}</td>
+          <td>${g.stayDates}</td>
+          <td class="text-end text-nowrap">
+            <button class="btn btn-sm btn-outline-purple py-0 px-2" onclick="navigateToViewBooking('${g.bookingId}')"><i class="bi bi-eye-fill me-1"></i>View Booking</button>
+          </td>
+        `;
+        tblBody.appendChild(tr);
+      });
+
+      return;
+    }
+
+    // Default users table header
+    tblHeader.innerHTML = `
+      <tr>
+        <th>User ID</th>
+        <th>Full Name</th>
+        <th>Email Address</th>
+        <th>Assigned Role</th>
+        <th>Branch/Hotel</th>
+        <th>Account Status</th>
+        <th>Created/Last Login</th>
+        <th class="text-end">Actions</th>
+      </tr>
+    `;
+
     const q = userSearch.value.toLowerCase().trim();
     const roleVal = roleFilter.value;
     const statusVal = statusFilter.value;
     const branchVal = branchFilter.value;
 
     let filtered = users.filter(u => {
-      // Tab Category checks
       if (activeTab === 'Customer' && u.role !== 'Customer') return false;
       if (activeTab === 'Manager' && u.role !== 'Manager') return false;
       if (activeTab === 'Pending' && u.status !== 'Pending') return false;
 
-      // Filter settings
-      if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q) && !u.id.toLowerCase().includes(q)) return false;
+      const name = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || '');
+      if (q && !name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q) && !u.id.toLowerCase().includes(q)) return false;
       if (roleVal !== 'all' && u.role !== roleVal) return false;
       if (statusVal !== 'all' && u.status !== statusVal) return false;
-      if (branchVal !== 'all' && u.branch !== branchVal) return false;
+      
+      if (branchVal !== 'all') {
+        const hotelName = HotelState.getHotelById(u.assignedHotelId)?.name || u.branch || '';
+        if (!hotelName.toLowerCase().includes(branchVal.toLowerCase())) return false;
+      }
       return true;
     });
 
-    // Update KPI summary cards
     document.getElementById('kpiTotal').textContent = users.length;
     document.getElementById('kpiCustomers').textContent = users.filter(x => x.role === 'Customer').length;
     document.getElementById('kpiManagers').textContent = users.filter(x => x.role === 'Manager').length;
@@ -64,15 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(u => {
       let roleBadge = '';
-      if (u.role === 'Customer') roleBadge = '<span class="badge bg-primary bg-opacity-10 text-primary">Customer</span>';
-      else if (u.role === 'Manager') roleBadge = '<span class="badge bg-success bg-opacity-10 text-success">Manager</span>';
-      else roleBadge = '<span class="badge bg-info bg-opacity-10 text-info">Administrator</span>';
+      if (u.role === 'Customer') roleBadge = '<span class="badge bg-primary text-white">Customer</span>';
+      else if (u.role === 'Manager') roleBadge = '<span class="badge bg-success text-white">Manager</span>';
+      else roleBadge = '<span class="badge bg-purple text-white" style="background-color: purple !important;">Admin</span>';
 
       let statusBadge = '';
       if (u.status === 'Active') statusBadge = '<span class="badge bg-success">Active</span>';
-      else if (u.status === 'Pending') statusBadge = '<span class="badge bg-warning text-dark">Pending</span>';
-      else if (u.status === 'Inactive') statusBadge = '<span class="badge bg-secondary">Inactive</span>';
-      else statusBadge = '<span class="badge bg-danger">Blocked</span>';
+      else if (u.status === 'Suspended') statusBadge = '<span class="badge bg-warning text-dark">Suspended</span>';
+      else if (u.status === 'Inactive') statusBadge = '<span class="badge bg-danger">Inactive</span>';
+      else statusBadge = `<span class="badge bg-secondary">${u.status}</span>`;
 
       let actions = '';
       if (u.status === 'Pending') {
@@ -82,11 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       } else {
         actions += `
-          <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="location.href='view_user.html?id=${u.id}'"><i class="bi bi-eye-fill me-1"></i>View</button>
+          <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="navigateToView('${u.id}')"><i class="bi bi-eye-fill me-1"></i>View</button>
         `;
         if (u.role === 'Manager') {
           actions += `
-            <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="location.href='edit_manager.html?id=${u.id}'"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
+            <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="navigateToEdit('${u.id}')"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
           `;
         }
         actions += `
@@ -95,15 +199,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
 
+      const displayName = (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email);
+      const branchDisplay = HotelState.getHotelById(u.assignedHotelId)?.name || u.branch || 'N/A';
+      const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : (u.login || '-');
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${u.id}</strong></td>
-        <td>${u.name}</td>
+        <td>${displayName}</td>
         <td>${u.email}</td>
         <td>${roleBadge}</td>
-        <td>${u.branch}</td>
+        <td>${branchDisplay}</td>
         <td>${statusBadge}</td>
-        <td>${u.login}</td>
+        <td>${createdDate}</td>
         <td class="text-end text-nowrap">${actions}</td>
       `;
       tblBody.appendChild(tr);
@@ -111,25 +219,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.approveUser = function(id) {
-    const u = users.find(x => x.id === id);
+    const list = HotelState.users;
+    const u = list.find(x => x.id === id);
     if (u) {
       u.status = 'Active';
-      showToast(`User ${u.name} has been approved and activated.`, true);
+      HotelState.users = list;
+
+      showToast(`User ${u.firstName || u.name} approved.`, true);
       renderTable();
     }
   };
 
   window.rejectUser = function(id) {
-    const idx = users.findIndex(x => x.id === id);
+    const list = HotelState.users;
+    const idx = list.findIndex(x => x.id === id);
     if (idx !== -1) {
-      users.splice(idx, 1);
+      const u = list[idx];
+      list.splice(idx, 1);
+      HotelState.users = list;
+
       showToast(`Pending user registration rejected.`, false);
       renderTable();
     }
   };
 
   window.resetPassword = function(id) {
-    const u = users.find(x => x.id === id);
+    const u = HotelState.users.find(x => x.id === id);
     if (u) {
       showToast(`Temporary password generated and dispatched to ${u.email}`, true);
     }
@@ -149,21 +264,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = document.getElementById('deleteUserId').value;
     const reason = document.getElementById('deleteReasonInput').value;
 
-    if (!reason.trim()) {
-      return;
-    }
+    if (!reason.trim()) return;
 
-    const idx = users.findIndex(x => x.id === id);
+    const list = HotelState.users;
+    const idx = list.findIndex(x => x.id === id);
     if (idx !== -1) {
-      const u = users[idx];
-      users.splice(idx, 1);
-      showToast(`Profile ${u.id} deleted. Reason: "${reason.trim()}"`, true);
+      const u = list[idx];
+      
+      const bookingsCount = HotelState.getBookingsByCustomer(u.id).length;
+      if (bookingsCount > 0) {
+        u.status = 'Inactive';
+        list[idx] = u;
+        HotelState.users = list;
+        showToast(`User has active bookings. Status set to 'Inactive' instead of deleting.`, true);
+      } else {
+        list.splice(idx, 1);
+        HotelState.users = list;
+        showToast(`Profile ${u.id} deleted.`, true);
+      }
+
       renderTable();
       deleteModal.hide();
     }
   });
 
-  // Tab switcher
   tabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
       e.preventDefault();
@@ -174,15 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Filter actions
-  btnApply.addEventListener('click', renderTable);
-  btnReset.addEventListener('click', () => {
+  if (btnApply) btnApply.addEventListener('click', renderTable);
+  if (btnReset) btnReset.addEventListener('click', () => {
     userSearch.value = '';
     roleFilter.value = 'all';
     statusFilter.value = 'all';
     branchFilter.value = 'all';
     renderTable();
   });
+
+  userSearch.addEventListener('input', renderTable);
 
   renderTable();
 });

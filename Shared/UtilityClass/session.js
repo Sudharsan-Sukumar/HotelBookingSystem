@@ -1,3 +1,292 @@
+if (typeof window.HotelState === 'undefined') {
+class HotelState_Local {
+  static get(key, defaultValue = null) {
+    const val = localStorage.getItem('hbs_state_' + key);
+    return val ? JSON.parse(val) : defaultValue;
+  }
+  static set(key, value) {
+    localStorage.setItem('hbs_state_' + key, JSON.stringify(value));
+  }
+
+  static initDefaults() {
+    if (!this.get('savedCards')) {
+      this.set('savedCards', [
+        { id: 'card_1', type: 'Visa', last4: '4242', exp: '12/28', name: 'Bennet Customer' },
+        { id: 'card_2', type: 'Mastercard', last4: '5555', exp: '08/27', name: 'Bennet Customer' },
+        { id: 'card_3', type: 'Amex', last4: '3782', exp: '10/26', name: 'Bennet Customer' }
+      ]);
+    }
+    if (!this.get('currentUser')) {
+      this.set('currentUser', {
+        name: 'Bennet Customer',
+        firstName: 'Bennet',
+        lastName: 'Customer',
+        email: 'bennet@hbs.local',
+        phone: '+91 9876543210',
+        role: 'Customer',
+        loyaltyPoints: 1250,
+        memberTier: 'Gold'
+      });
+    }
+    let currentBookings = this.get('bookings');
+    if (!currentBookings) {
+      this.set('bookings', [
+        {
+          id: 'EE-COB-260625-7852',
+          txnId: 'TXN7894561230',
+          branch: 'Coimbatore',
+          hotelName: 'The Elegant Suites Coimbatore',
+          image: '../../../assets/images/hotel_cbe.png',
+          checkIn: '20 Nov 2026',
+          checkInDay: 'Friday',
+          checkOut: '23 Nov 2026',
+          checkOutDay: 'Monday',
+          amount: '23,010.00',
+          status: 'Upcoming',
+          email: 'bennet@hbs.local'
+        }
+      ]);
+    } else {
+      let migrated = false;
+      currentBookings.forEach(b => {
+        if (b.checkIn === '25 Jun 2026' || b.checkIn === '25 jun 2026') {
+          b.checkIn = '20 Nov 2026';
+          b.checkInDay = 'Friday';
+          b.checkOut = '23 Nov 2026';
+          b.checkOutDay = 'Monday';
+          migrated = true;
+        }
+      });
+      if (migrated) {
+        this.set('bookings', currentBookings);
+      }
+    }
+
+    if (!this.get('users')) {
+      this.set('users', []);
+    }
+    if (!this.get('hotels')) {
+      this.set('hotels', []);
+    }
+    if (!this.get('roomTypes')) {
+      this.set('roomTypes', []);
+    }
+    if (!this.get('auditLogs')) {
+      this.set('auditLogs', []);
+    }
+    if (!this.get('housekeeping')) {
+      this.set('housekeeping', []);
+    }
+    if (!this.get('guests')) {
+      this.set('guests', []);
+    }
+  }
+
+  static get currentUser() { return this.get('currentUser'); }
+  static set currentUser(val) { this.set('currentUser', val); }
+
+  static get savedCards() { return this.get('savedCards', []); }
+  static set savedCards(val) { this.set('savedCards', val); }
+
+  static addSavedCard(card) {
+    const cards = this.savedCards;
+    cards.push(card);
+    this.savedCards = cards;
+  }
+  
+  static get bookings() { return this.get('bookings', []); }
+  static set bookings(val) { this.set('bookings', val); }
+  
+  static updateBookingStatus(id, newStatus) {
+    const b = this.bookings;
+    const index = b.findIndex(x => x.id === id);
+    if(index !== -1) {
+      b[index].status = newStatus;
+      this.bookings = b;
+    }
+  }
+
+  static get notifications() { return this.get('notifications', []); }
+  static set notifications(val) { this.set('notifications', val); }
+
+  static get users() { return this.get('users', []); }
+  static set users(val) { this.set('users', val); }
+
+  static get hotels() { return this.get('hotels', []); }
+  static set hotels(val) { this.set('hotels', val); }
+
+  static get roomTypes() { return this.get('roomTypes', []); }
+  static set roomTypes(val) { this.set('roomTypes', val); }
+
+  static get auditLogs() { return this.get('auditLogs', []); }
+  static set auditLogs(val) { this.set('auditLogs', val); }
+
+  static get housekeeping() { return this.get('housekeeping', []); }
+  static set housekeeping(val) { this.set('housekeeping', val); }
+
+  static get guests() { return this.get('guests', []); }
+  static set guests(val) { this.set('guests', val); }
+
+  static get rooms() { return this.get('rooms', []); }
+  static set rooms(val) { this.set('rooms', val); }
+
+  static get content() { return this.get('content', {}); }
+  static set content(val) { this.set('content', val); }
+
+  // --- Utility query methods (mirrors state.js) ---
+  static authenticate(email, password) {
+    return this.users.find(u => u.email === email && u.password === password && u.status === 'Active') || null;
+  }
+  static getUserById(id) {
+    return this.users.find(u => u.id === id) || null;
+  }
+  static getHotelById(id) {
+    return this.hotels.find(h => h.id === id) || null;
+  }
+  static getRoomById(id) {
+    return this.rooms.find(r => r.id === id) || null;
+  }
+  static getRoomsByHotel(hotelId) {
+    return this.rooms.filter(r => r.hotelId === hotelId);
+  }
+  static getBookingsByCustomer(customerId) {
+    const user = this.getUserById(customerId);
+    return this.bookings.filter(b => b.customerId === customerId || (user && b.email === user.email));
+  }
+  static getBookingsByHotel(hotelId) {
+    return this.bookings.filter(b => b.hotelId === hotelId);
+  }
+  static getNotificationsByUser(userId, role) {
+    return this.notifications.filter(n => n.recipientId === userId || n.recipientRole === role);
+  }
+  static addAuditLog(userId, userName, userRole, action, module, description, severity = 'Info') {
+    const logs = this.auditLogs;
+    logs.unshift({
+      id: 'LOG' + Date.now(),
+      userId, userName, userRole, action, module, description,
+      ipAddress: '127.0.0.1',
+      timestamp: new Date().toISOString(),
+      severity
+    });
+    this.auditLogs = logs;
+  }
+  static updateBooking(bookingId, updates) {
+    const bookings = this.bookings;
+    const idx = bookings.findIndex(b => b.id === bookingId);
+    if (idx !== -1) {
+      bookings[idx] = { ...bookings[idx], ...updates, updatedAt: new Date().toISOString() };
+      this.bookings = bookings;
+      return bookings[idx];
+    }
+    return null;
+  }
+  static updateRoomStatus(roomId, status) {
+    const rooms = this.rooms;
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx !== -1) {
+      rooms[idx].status = status;
+      this.rooms = rooms;
+    }
+  }
+
+  // ── getBookingLifecycle ────────────────────────────────────────────────────
+  // DO NOT REMOVE OR MODIFY — mirrored from state.js.
+  // Computes the real-time lifecycle stage of a booking from local dates.
+  // Used by modify_booking_step1.js guard and my_bookings.js action rendering.
+  // ──────────────────────────────────────────────────────────────────────────
+  static getBookingLifecycle(booking) {
+    if (booking.status === 'Cancelled' || booking.bookingStatus === 'Cancelled') {
+      return { stage: 'cancelled', displayStatus: 'Cancelled',
+               badgeClass: 'bg-danger text-white py-1 px-3 rounded-pill',
+               canModify: false, canCancel: false, isRefundable: false };
+    }
+    const parseLocalMidnight = (str) => {
+      if (!str) return null;
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return null;
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    };
+    const checkInDay  = parseLocalMidnight(booking.checkIn);
+    const checkOutDay = parseLocalMidnight(booking.checkOut);
+    if (!checkInDay || !checkOutDay) {
+      return { stage: 'upcoming', displayStatus: 'Upcoming',
+               badgeClass: 'bg-primary text-white py-1 px-3 rounded-pill',
+               canModify: false, canCancel: false, isRefundable: false };
+    }
+    const now   = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const modificationDeadlineMs = checkInDay.getTime() - (24 * 60 * 60 * 1000);
+    if (today >= checkOutDay) {
+      return { stage: 'completed', displayStatus: 'Completed',
+               badgeClass: 'bg-secondary text-white py-1 px-3 rounded-pill',
+               canModify: false, canCancel: false, isRefundable: false };
+    }
+    if (today >= checkInDay && today < checkOutDay) {
+      return { stage: 'active', displayStatus: 'Stay in Hotel',
+               badgeClass: 'bg-success text-white py-1 px-3 rounded-pill',
+               canModify: false, canCancel: false, isRefundable: false };
+    }
+    if (now.getTime() >= modificationDeadlineMs) {
+      return { stage: 'upcoming-locked', displayStatus: 'Upcoming',
+               badgeClass: 'bg-warning text-dark py-1 px-3 rounded-pill',
+               canModify: false, canCancel: true, isRefundable: false };
+    }
+    return { stage: 'upcoming', displayStatus: 'Upcoming',
+             badgeClass: 'bg-primary text-white py-1 px-3 rounded-pill',
+             canModify: true, canCancel: true, isRefundable: true };
+  }
+  // ── End getBookingLifecycle ────────────────────────────────────────────────
+}
+
+window.HotelState = HotelState_Local;
+}
+
+
+if (typeof window.HBSValidation === 'undefined') {
+  class HBSValidation_Session {
+    static isNumeric(str) { return /^\d+$/.test(str); }
+    static isValidPhone(phone) {
+      const clean = phone.replace(/[\s\-\+]/g, '');
+      return /^\d{10,15}$/.test(clean);
+    }
+    static isStrongPassword(pwd) {
+      return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(pwd);
+    }
+    static isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    }
+    static isValidLuhn(cardNumber) {
+      const clean = cardNumber.replace(/\D/g, '');
+      if (clean.length < 13 || clean.length > 19) return false;
+      let sum = 0, shouldDouble = false;
+      for (let i = clean.length - 1; i >= 0; i--) {
+        let digit = parseInt(clean.charAt(i));
+        if (shouldDouble) { if ((digit *= 2) > 9) digit -= 9; }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      return (sum % 10) == 0;
+    }
+    static isValidExpiry(expStr) {
+      if (!/^\d{2}\/\d{2}$/.test(expStr)) return false;
+      const parts = expStr.split('/');
+      const month = parseInt(parts[0], 10);
+      const year = parseInt('20' + parts[1], 10);
+      if (month < 1 || month > 12) return false;
+      const now = new Date();
+      if (year < now.getFullYear()) return false;
+      if (year === now.getFullYear() && month < (now.getMonth() + 1)) return false;
+      return true;
+    }
+    static isValidCVV(cvv) { return /^\d{3,4}$/.test(cvv); }
+  }
+  window.HBSValidation = HBSValidation_Session;
+}
+
+if (window.HotelState && window.HotelState.initDefaults) {
+  window.HotelState.initDefaults();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Sync the navigation header profile card display with sessionStorage data
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -156,7 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dropLinkProfile').addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          window.location.href = `${candidatePath}profile.html`;
+          let profileUrl = `${candidatePath}profile.html`;
+          if (userRole === 'Admin') {
+            profileUrl = isNested ? (isAdminRole ? 'profile.html' : `${basePath}features/User/Admin/profile.html`) : 'features/User/Admin/profile.html';
+          } else if (userRole === 'Manager') {
+            profileUrl = isNested ? (isManagerRole ? 'reports_profile.html' : `${basePath}features/User/Manager/reports_profile.html`) : 'features/User/Manager/reports_profile.html';
+          }
+          window.location.href = profileUrl;
         });
 
         document.getElementById('dropLinkLogout').addEventListener('click', (e) => {

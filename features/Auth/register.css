@@ -108,10 +108,11 @@
   color: #A59FB0;
   font-size: 0.9rem;
 }
-.form-control:focus {
+.form-control:focus, .form-control:focus-visible {
   border-color: #D4AF37;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
   background-color: #FFFFFF;
+  outline: none;
 }
 .form-control.is-invalid {
   border-color: #DC3545;

@@ -1,9 +1,14 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let hotels = [
-    { id: 'HBS-HTL-01', name: 'ElegantEnclave Salem', branch: 'Main Branch', city: 'Salem', manager: 'Suresh Patel', rooms: 38, status: 'Active' },
-    { id: 'HBS-HTL-02', name: 'ElegantEnclave CBE', branch: 'City Centre', city: 'Coimbatore', manager: 'Priya Sharma', rooms: 32, status: 'Active' },
-    { id: 'HBS-HTL-03', name: 'ElegantEnclave Chennai', branch: 'Central Station', city: 'Chennai', manager: 'Gita Reddy', rooms: 45, status: 'Pending' }
-  ];
+  let hotels = HotelState.hotels || [];
 
   const tblBody = document.querySelector('#tblHotels tbody');
   const hotelSearch = document.getElementById('hotelSearch');
@@ -15,20 +20,34 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
-    toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
+    if (toastEl) {
+      toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
+      toastMessage.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
   }
 
+  window.navigateToViewHotel = function(id) {
+    sessionStorage.setItem('adminViewHotelId', id);
+    location.href = 'view_hotel.html';
+  };
+
+  window.navigateToEditHotel = function(id) {
+    sessionStorage.setItem('adminEditHotelId', id);
+    location.href = 'edit_hotel.html';
+  };
+
   function renderTable() {
+    hotels = HotelState.hotels || [];
+    
     tblBody.innerHTML = '';
     const q = hotelSearch.value.toLowerCase().trim();
     const cityVal = cityFilter.value;
     const statusVal = statusFilter.value;
 
     let filtered = hotels.filter(h => {
-      if (q && !h.name.toLowerCase().includes(q) && !h.id.toLowerCase().includes(q) && !h.city.toLowerCase().includes(q) && !h.manager.toLowerCase().includes(q)) return false;
+      if (q && !h.name.toLowerCase().includes(q) && !h.id.toLowerCase().includes(q) && !h.city.toLowerCase().includes(q) && !(h.manager || '').toLowerCase().includes(q)) return false;
       if (cityVal !== 'all' && h.city !== cityVal) return false;
       if (statusVal !== 'all' && h.status !== statusVal) return false;
       return true;
@@ -36,7 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update KPIs
     document.getElementById('kpiTotal').textContent = hotels.length;
-    document.getElementById('kpiRooms').textContent = hotels.reduce((acc, h) => acc + h.rooms, 0);
+    const totalRooms = hotels.reduce((acc, h) => {
+      const hRooms = HotelState.getRoomsByHotel(h.id) || [];
+      return acc + hRooms.length;
+    }, 0);
+    document.getElementById('kpiRooms').textContent = totalRooms;
     document.getElementById('kpiActive').textContent = hotels.filter(h => h.status === 'Active').length;
     document.getElementById('kpiPending').textContent = hotels.filter(h => h.status === 'Pending').length;
 
@@ -59,11 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       actions += `
-        <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="location.href='view_hotel.html?id=${h.id}'"><i class="bi bi-eye-fill me-1"></i>View</button>
+        <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="navigateToViewHotel('${h.id}')"><i class="bi bi-eye-fill me-1"></i>View</button>
       `;
       if (h.status !== 'Pending') {
         actions += `
-          <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="location.href='edit_hotel.html?id=${h.id}'"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
+          <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="navigateToEditHotel('${h.id}')"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
         `;
       }
       if (h.status === 'Active') {
@@ -76,14 +99,18 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
 
+      const hRooms = HotelState.getRoomsByHotel(h.id) || [];
+      const managerUser = HotelState.users.find(u => u.id === h.managerId);
+      const managerName = managerUser ? `${managerUser.firstName} ${managerUser.lastName}` : (h.manager || 'Unassigned');
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${h.id}</strong></td>
         <td>${h.name}</td>
-        <td>${h.branch}</td>
+        <td>${h.branch || 'Main'}</td>
         <td>${h.city}</td>
-        <td>${h.manager}</td>
-        <td>${h.rooms}</td>
+        <td>${managerName}</td>
+        <td>${hRooms.length}</td>
         <td>${statusBadge}</td>
         <td class="text-end text-nowrap">${actions}</td>
       `;
@@ -107,9 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.approveHotel = function(id) {
     customConfirmModalBody.textContent = 'Approve this hotel registration request? Status will change to Active.';
     activeConfirmAction = () => {
-      const h = hotels.find(x => x.id === id);
+      const list = HotelState.hotels;
+      const h = list.find(x => x.id === id);
       if (h) {
         h.status = 'Active';
+        HotelState.hotels = list;
+
         showToast('Hotel approved successfully.', true);
         renderTable();
       }
@@ -120,9 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.deactivateHotel = function(id) {
     customConfirmModalBody.textContent = 'Deactivate Hotel? The hotel branch will become unavailable for new room bookings.';
     activeConfirmAction = () => {
-      const h = hotels.find(x => x.id === id);
+      const list = HotelState.hotels;
+      const h = list.find(x => x.id === id);
       if (h) {
         h.status = 'Inactive';
+        HotelState.hotels = list;
+
         showToast('Hotel deactivated successfully.', true);
         renderTable();
       }
@@ -133,9 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.activateHotel = function(id) {
     customConfirmModalBody.textContent = 'Activate Hotel? The hotel branch will become available for room bookings.';
     activeConfirmAction = () => {
-      const h = hotels.find(x => x.id === id);
+      const list = HotelState.hotels;
+      const h = list.find(x => x.id === id);
       if (h) {
         h.status = 'Active';
+        HotelState.hotels = list;
+
         showToast('Hotel activated successfully.', true);
         renderTable();
       }
@@ -143,13 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
     customConfirmModal.show();
   };
 
-  btnApply.addEventListener('click', renderTable);
-  btnReset.addEventListener('click', () => {
+  if (btnApply) btnApply.addEventListener('click', renderTable);
+  if (btnReset) btnReset.addEventListener('click', () => {
     hotelSearch.value = '';
     cityFilter.value = 'all';
     statusFilter.value = 'all';
     renderTable();
   });
+
+  hotelSearch.addEventListener('input', renderTable);
 
   renderTable();
 });

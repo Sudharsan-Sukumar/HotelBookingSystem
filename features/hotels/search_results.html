@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <!-- Stylesheets -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="../../Shared/Abstracts/global.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../Shared/Abstracts/global.css">
   <link rel="stylesheet" href="search_results.css">
 </head>
 <body class="search-results-page">
@@ -52,14 +52,11 @@
           </li>
         </ul>
 
-        <!-- Right Side Controls (Search, Auth) -->
+        <!-- Right Side Controls -->
         <div class="d-flex align-items-center gap-3 align-middle flex-wrap justify-content-center justify-content-xl-end">
-          <!-- Search Bar with Integrated Action Button -->
-          
-          
           <!-- Auth States Container -->
           <div id="authHeaderContainer" class="d-flex align-items-center gap-2">
-            <!-- Logged Out View (Default Hidden in Demo, Toggleable) -->
+            <!-- Logged Out View -->
             <div class="auth-logged-out d-none align-items-center gap-2">
               <a href="#" onclick="triggerConfirmLogout(event)" class="btn btn-auth-outline btn-sm text-nowrap d-flex align-items-center justify-content-center">Login</a>
               <a href="../Auth/register.html" class="btn btn-auth-gold btn-sm text-nowrap d-flex align-items-center justify-content-center">Register</a>
@@ -77,13 +74,23 @@
   </nav>
 
   <!-- SEARCH RESULTS HEADER -->
-  <header class="results-header-section container px-xl-5 py-4 mt-2">
-    <h1 class="results-title">Search Results</h1>
-    <p class="results-subtitle text-muted">Filter and select properties in Salem, Coimbatore, Chennai</p>
+  <header class="results-header-section container-fluid px-xl-5 pt-3 pb-0 mt-0">
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+      <div class="text-start">
+        <div class="mb-2">
+          <a href="../../index.html" class="btn btn-back-to-home d-inline-flex align-items-center gap-2" style="color: #1A0A2E; border: 1px solid #1A0A2E; border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 0.85rem; text-decoration: none; transition: all 0.2s ease-in-out;" onmouseover="this.style.backgroundColor='#1A0A2E'; this.style.color='#fff';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1A0A2E';">
+            <i class="bi bi-arrow-left"></i> Back to Home
+          </a>
+        </div>
+        <h1 class="results-title m-0">Search Results</h1>
+        <p class="results-subtitle text-muted m-0">Filter and select properties in Salem, Coimbatore, Chennai</p>
+      </div>
+      <div id="sortSelectContainer" class="d-flex align-items-center"></div>
+    </div>
   </header>
 
   <!-- MAIN RESULTS VIEW CONTAINER -->
-  <main class="container px-xl-5 pb-5">
+  <main class="container-fluid px-xl-5 pt-3 pb-5">
     <div class="row g-4">
       
       <!-- Left Panel (Search Filters Column) -->
@@ -137,9 +144,13 @@
                 <input class="form-check-input filter-checkbox" type="checkbox" value="Deluxe" id="roomTypeDeluxe">
                 <label class="form-check-label check-label" for="roomTypeDeluxe">Executive Twin Suite</label>
               </div>
-              <div class="form-check">
+              <div class="form-check mb-2">
                 <input class="form-check-input filter-checkbox" type="checkbox" value="Suite" id="roomTypeSuite">
                 <label class="form-check-label check-label" for="roomTypeSuite">Penthouse Deluxe</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-checkbox" type="checkbox" value="Presidential Suite" id="roomTypePresidential">
+                <label class="form-check-label check-label" for="roomTypePresidential">Presidential Suite</label>
               </div>
             </div>
 
@@ -159,102 +170,10 @@
       </aside>
 
       <!-- Right Panel (Hotel Results List Column) -->
+      <!-- NOTE: Static hotel cards removed — JS renders them dynamically from LocalStorage data -->
       <section class="col-lg-8 col-xl-9">
         <div id="hotelListingsContainer" class="d-flex flex-column gap-4">
-          
-          <!-- Hotel Card 1 (Salem) -->
-          <article class="hotel-card" data-location="Salem" data-price="4500" data-types="Standard">
-            <div class="row g-0 h-100">
-              <div class="col-md-5 h-100">
-                <div class="hotel-img-wrapper">
-                  <img src="../../assets/images/hotel_salem.png" alt="The Elegant Enclave Salem resort exterior facade">
-                </div>
-              </div>
-              <div class="col-md-7 d-flex flex-column justify-content-between p-4">
-                <div>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="hotel-icon-badge"><i class="bi bi-building"></i></span>
-                    <h3 class="hotel-title m-0">The Elegant Enclave - Salem</h3>
-                  </div>
-                  <p class="hotel-rooms-sub text-muted">Available: Standard Room, Classic Twin</p>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-end mt-4">
-                  <div class="price-container">
-                    <span class="price-label">Base rate:</span>
-                    <p class="price-value m-0">Rs. 4,500 <span>/night</span></p>
-                  </div>
-                  
-                  <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-view-details" type="button">View Details <i class="bi bi-arrow-right ms-1"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- Hotel Card 2 (Coimbatore) -->
-          <article class="hotel-card" data-location="Coimbatore" data-price="6500" data-types="Deluxe">
-            <div class="row g-0 h-100">
-              <div class="col-md-5 h-100">
-                <div class="hotel-img-wrapper">
-                  <img src="../../assets/images/hotel_cbe.png" alt="The Elegant Enclave Coimbatore property exterior building facade">
-                </div>
-              </div>
-              <div class="col-md-7 d-flex flex-column justify-content-between p-4">
-                <div>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="hotel-icon-badge"><i class="bi bi-building"></i></span>
-                    <h3 class="hotel-title m-0">The Elegant Enclave - Coimbatore</h3>
-                  </div>
-                  <p class="hotel-rooms-sub text-muted">Available: Executive Suite, Premium Twin</p>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-end mt-4">
-                  <div class="price-container">
-                    <span class="price-label">Base rate:</span>
-                    <p class="price-value m-0">Rs. 6,500 <span>/night</span></p>
-                  </div>
-                  
-                  <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-view-details" type="button">View Details <i class="bi bi-arrow-right ms-1"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- Hotel Card 3 (Chennai) -->
-          <article class="hotel-card" data-location="Chennai" data-price="8000" data-types="Suite">
-            <div class="row g-0 h-100">
-              <div class="col-md-5 h-100">
-                <div class="hotel-img-wrapper">
-                  <img src="../../assets/images/hotel_chennai.png" alt="The Elegant Enclave Chennai outdoor swimming pool luxury resort">
-                </div>
-              </div>
-              <div class="col-md-7 d-flex flex-column justify-content-between p-4">
-                <div>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="hotel-icon-badge"><i class="bi bi-building"></i></span>
-                    <h3 class="hotel-title m-0">The Elegant Enclave - Chennai</h3>
-                  </div>
-                  <p class="hotel-rooms-sub text-muted">Available: Deluxe Ocean View, Royal Suite</p>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-end mt-4">
-                  <div class="price-container">
-                    <span class="price-label">Base rate:</span>
-                    <p class="price-value m-0">Rs. 8,000 <span>/night</span></p>
-                  </div>
-                  
-                  <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-view-details" type="button">View Details <i class="bi bi-arrow-right ms-1"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
+          <!-- Dynamic hotel cards are injected here by search_results.js -->
         </div>
 
         <!-- Empty State Container Block (Hidden by default) -->
@@ -262,7 +181,8 @@
           <div class="mb-3 fs-1 text-muted"><i class="bi bi-building-exclamation"></i></div>
           <h3 class="font-serif">No hotels match your search criteria.</h3>
           <p class="text-muted">Try adjusting your filters or resetting the inputs.</p>
-          <button id="btnResetFilters" class="btn btn-outline-warning mt-2" type="button">Reset Filters</button>
+          <!-- NOTE: id changed to btnResetFiltersEmpty to avoid duplicate id conflict -->
+          <button id="btnResetFiltersEmpty" class="btn btn-outline-warning mt-2" type="button">Reset Filters</button>
         </div>
       </section>
 
@@ -271,9 +191,8 @@
 
   <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="search_results.js"></script>
-  <script src="../../Shared/UtilityClass/session.js"></script>
 </body>
 </html>
-

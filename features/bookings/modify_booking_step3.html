@@ -68,7 +68,12 @@
   </nav>
 
   <!-- TOP HEADER SECTION -->
-  <header class="container px-xl-5 py-4 mt-2 text-start">
+  <header class="container px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <div class="mb-2">
+      <a href="modify_booking_step2.html" class="btn btn-sm d-inline-flex align-items-center gap-1 p-0 text-dark fw-semibold" style="font-size: 0.8rem; text-decoration: none; border: none; background: transparent;">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
     <h1 class="modify-title m-0">Modify Booking</h1>
     <p class="modify-sub text-muted m-0">Review your changes before confirming.</p>
   </header>
@@ -302,48 +307,83 @@
         </div>
       </section>
 
-      <!-- SECTION 5: Green alert information notice banner -->
-      <article class="success-alert-banner p-3 d-flex align-items-center gap-3 text-start">
-        <span class="alert-icon-check"><i class="bi bi-info-circle-fill text-success fs-4"></i></span>
-        <span class="small text-success-dark">You need to pay an additional amount to confirm your modified booking.</span>
-      </article>
-
-      <!-- SECTION 6: Modification Policy and Help Info Cards column -->
-      <section class="row g-4 text-start">
-        <!-- Policy Card -->
-        <div class="col-md-6">
-          <div class="policy-details-card bg-white p-4 h-100 rounded border">
-            <h4 class="card-title font-serif text-dark mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Modification Policy</h4>
-            <ul class="policy-list ps-0 mb-0 d-flex flex-column gap-2 text-secondary small">
-              <li><i class="bi bi-check-lg text-success me-2"></i> Modifications are allowed up to 24 hours before check-in time.</li>
-              <li><i class="bi bi-check-lg text-success me-2"></i> Rates are subject to availability and may change.</li>
-              <li><i class="bi bi-check-lg text-success me-2"></i> Additional charges or refunds will be processed as per hotel policy.</li>
-            </ul>
-          </div>
-        </div>
-        <!-- Help Card -->
-        <div class="col-md-6">
-          <div class="help-details-card bg-white p-4 h-100 rounded border d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <!-- SECTION 7: Payment Method Selection (hidden until Proceed clicked) -->
+      <section class="d-none" id="paymentMethodSection">
+        <div class="bg-white p-4 rounded border text-start" style="border-color: #D4AF37 !important;">
+          <div class="d-flex align-items-center gap-2 mb-4">
+            <span style="width:36px;height:36px;background:rgba(212,175,55,0.15);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#D4AF37;">
+              <i class="bi bi-credit-card-2-front"></i>
+            </span>
             <div>
-              <h4 class="card-title font-serif text-dark mb-1">Need Help?</h4>
-              <p class="small text-muted mb-0">Our support team is here to assist you with your modification.</p>
+              <h5 class="fw-bold text-dark m-0" style="font-family:'Playfair Display',serif;">Select Payment Method</h5>
+              <p class="small text-muted m-0">Choose how you'd like to pay the additional amount</p>
             </div>
-            <button class="btn btn-contact-support py-2 px-4" id="btnContactSupport">Contact Support</button>
           </div>
+
+          <div class="row g-3 mb-4" id="payMethodCards">
+            <!-- UPI -->
+            <div class="col-md-4">
+              <div class="payment-method-option p-3 rounded border d-flex align-items-center gap-3" id="pmUPI"
+                   style="cursor:pointer; transition:all 0.2s;" onclick="selectModPayMethod('UPI')"
+                   data-method="UPI">
+                <input class="form-check-input m-0" type="radio" name="modPayMethod" id="radioUPI" value="UPI">
+                <label for="radioUPI" class="d-flex align-items-center gap-2 fw-semibold text-dark" style="cursor:pointer;">
+                  <span style="width:32px;height:32px;background:#E8F5E9;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#388E3C;font-size:1rem;">
+                    <i class="bi bi-phone"></i>
+                  </span>
+                  UPI Payment
+                </label>
+              </div>
+            </div>
+            <!-- Net Banking -->
+            <div class="col-md-4">
+              <div class="payment-method-option p-3 rounded border d-flex align-items-center gap-3" id="pmNetBanking"
+                   style="cursor:pointer; transition:all 0.2s;" onclick="selectModPayMethod('Net Banking')"
+                   data-method="Net Banking">
+                <input class="form-check-input m-0" type="radio" name="modPayMethod" id="radioNetBanking" value="Net Banking">
+                <label for="radioNetBanking" class="d-flex align-items-center gap-2 fw-semibold text-dark" style="cursor:pointer;">
+                  <span style="width:32px;height:32px;background:#E3F2FD;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#1565C0;font-size:1rem;">
+                    <i class="bi bi-bank"></i>
+                  </span>
+                  Net Banking
+                </label>
+              </div>
+            </div>
+            <!-- Card -->
+            <div class="col-md-4">
+              <div class="payment-method-option p-3 rounded border d-flex align-items-center gap-3" id="pmCard"
+                   style="cursor:pointer; transition:all 0.2s;" onclick="selectModPayMethod('Card')"
+                   data-method="Card">
+                <input class="form-check-input m-0" type="radio" name="modPayMethod" id="radioCard" value="Card">
+                <label for="radioCard" class="d-flex align-items-center gap-2 fw-semibold text-dark" style="cursor:pointer;">
+                  <span style="width:32px;height:32px;background:#FFF3E0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#E65100;font-size:1rem;">
+                    <i class="bi bi-credit-card"></i>
+                  </span>
+                  Debit / Credit Card
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-danger small d-none mb-3" id="payMethodError">Please select a payment method to continue.</p>
+
+          <button type="button" class="btn btn-action-continue py-3 px-5 d-flex align-items-center gap-2 ms-auto" id="btnLaunchRazorpay">
+            <i class="bi bi-lock-fill"></i> Pay Now with Razorpay
+          </button>
         </div>
       </section>
 
       <!-- BOTTOM ACTIONS NAVIGATION BUTTONS ROW -->
       <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-2">
         <a href="modify_booking_step2.html" class="btn btn-action-back py-3 px-5"><i class="bi bi-arrow-left"></i> Back to Edit</a>
-        <a href="payment_portal.html" class="btn btn-action-continue py-3 px-5 d-flex align-items-center gap-2" id="btnProceedPayment">
+        <button type="button" class="btn btn-action-continue py-3 px-5 d-flex align-items-center gap-2" id="btnProceedPayment">
           Proceed to Payment <i class="bi bi-arrow-right"></i>
-        </a>
+        </button>
       </section>
 
       <!-- Terms & cancellation policies notice banner -->
       <div class="bottom-terms-notice text-start text-secondary small py-2">
-        <i class="bi bi-info-circle me-1"></i> By proceeding, you agree to the hotel's <strong class="text-dark">Terms & Conditions</strong> and <strong class="text-dark">Cancellation Policy.</strong>
+        <i class="bi bi-info-circle me-1"></i> By proceeding, you agree to the hotel's <strong class="text-dark">Terms &amp; Conditions</strong> and <strong class="text-dark">Cancellation Policy.</strong>
       </div>
 
     </div>
@@ -454,11 +494,33 @@
     }
   </style>
 
-  <!-- Bootstrap and JS bundle -->
+  <!-- Payment Failed Modal -->
+  <div class="modal fade" id="paymentFailedModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 p-4 text-center" style="border-radius:18px; box-shadow:0 15px 50px rgba(0,0,0,0.15); background:#FAF8F4;">
+        <span class="d-inline-flex align-items-center justify-content-center mx-auto mb-3"
+              style="width:68px;height:68px;border-radius:50%;background:#FDE8E8;color:#F05252;font-size:2.2rem;">
+          <i class="bi bi-x-circle"></i>
+        </span>
+        <h4 class="text-dark fw-bold" style="font-family:'Playfair Display',serif;">Payment Failed</h4>
+        <p class="text-secondary small" id="lblModPayFailReason">Payment was not completed. Please try again.</p>
+        <div class="d-flex flex-column gap-2 mt-4">
+          <button class="btn py-2 fw-bold" id="btnRetryModPay"
+                  style="background:#1A0A2E;color:#fff;border-radius:10px;">Retry Payment</button>
+          <button class="btn py-2 btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Core Scripts -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="../../Shared/UtilityClass/policy_modal.js"></script>
+  <script src="../../Shared/UtilityClass/back_nav.js"></script>
   <script src="modify_booking_step3.js"></script>
 </body>
 </html>
-

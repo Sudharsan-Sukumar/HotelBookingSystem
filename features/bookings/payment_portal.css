@@ -55,6 +55,10 @@
   border-color: #D4AF37;
   box-shadow: 0 4px 12px rgba(26, 10, 46, 0.03);
 }
+.btn-tab-option:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
 
 .payment-form-card {
   background-color: #FFFFFF;
@@ -172,6 +176,10 @@
 .btn-confirm-pay:hover:not(:disabled) {
   background-color: #2E1560;
   color: #FFFFFF;
+}
+.btn-confirm-pay:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
 }
 
 .summary-card {

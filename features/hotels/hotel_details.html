@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -79,9 +79,12 @@
   <!-- TOP HEADER SECTION -->
   <header class="container px-xl-5 py-4 mt-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <div>
-        <h1 class="hotel-details-title m-0">The Elegant Suites Coimbatore</h1>
-        <p class="hotel-details-sub text-muted m-0">Detailed property specs, location details, and features</p>
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          <h1 class="hotel-details-title m-0" id="lblDetailsTitle">The Elegant Suites Coimbatore</h1>
+          <p class="hotel-details-sub text-muted m-0">Detailed property specs, location details, and features</p>
+        </div>
+
       </div>
       <a href="search_results.html" class="btn btn-back-to-hotels d-flex align-items-center gap-2">
         <i class="bi bi-arrow-left"></i> Back to Hotels
@@ -254,6 +257,7 @@
 
   <!-- Bootstrap and JS bundle -->
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../Shared/UtilityClass/state.js"></script>
   <script src="../../Shared/UtilityClass/session.js"></script>
   <script src="../../Shared/UtilityClass/policy_modal.js"></script>
   <script src="hotel_details.js"></script>

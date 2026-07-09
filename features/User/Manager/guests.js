@@ -1,159 +1,163 @@
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Mock Database representing Guest Records (Operational Front Office data)
-  let guests = [
-    {
-      id: 'GUEST-001',
-      name: 'Rajesh Kumar',
-      email: 'rajesh.k@email.com',
-      phone: '+91 98765 43210',
-      avatar: '', 
-      room: 'Room 201',
-      stayDates: '25 Jun – 30 Jun 2026',
-      visits: 12,
-      spend: 245000,
-      membership: 'VIP Gold',
-      status: 'Staying',
-      govId: 'Aadhaar: XXXX-XXXX-4321',
-      emergencyContact: 'Suresh Kumar (+91 98765 43219)',
-      preferences: 'High floor, Extra pillows',
-      specialRequests: 'None',
-      history: [
-        { id: 'HBS-2026-001', branch: 'Coimbatore', room: 'Exec Studio 201', dates: '25 Jun – 30 Jun 2026', amount: '₹23,010', status: 'Checked In' }
-      ]
-    },
-    {
-      id: 'GUEST-002',
-      name: 'Priya Sharma',
-      email: 'priya.s@email.com',
-      phone: '+91 87654 32109',
-      avatar: '',
-      room: 'Room 305',
-      stayDates: '26 Jun – 29 Jun 2026',
-      visits: 8,
-      spend: 172500,
-      membership: 'VIP Silver',
-      status: 'Staying',
-      govId: 'Passport: Z8765432',
-      emergencyContact: 'Vijay Sharma (+91 87654 32199)',
-      preferences: 'Near elevator, King bed',
-      specialRequests: 'Anniversary cake in room',
-      history: [
-        { id: 'HBS-2026-002', branch: 'Coimbatore', room: 'Deluxe Suite 305', dates: '26 Jun – 29 Jun 2026', amount: '₹27,500', status: 'Checked In' }
-      ]
-    },
-    {
-      id: 'GUEST-003',
-      name: 'Arun Menon',
-      email: 'arun.m@email.com',
-      phone: '+91 76543 21098',
-      avatar: '',
-      room: 'Check-out Today',
-      stayDates: '27 Jun 2026',
-      visits: 5,
-      spend: 98300,
-      membership: 'Regular',
-      status: 'Checked Out',
-      govId: 'DL: TN-37-2015-0987',
-      emergencyContact: 'Latha Menon (+91 76543 21998)',
-      preferences: 'Late checkout',
-      specialRequests: 'None',
-      history: [
-        { id: 'HBS-2026-003', branch: 'Coimbatore', room: 'Standard 108', dates: '27 Jun – 30 Jun 2026', amount: '₹12,000', status: 'Checked Out' }
-      ]
-    },
-    {
-      id: 'GUEST-004',
-      name: 'Meena Varma',
-      email: 'meena.v@email.com',
-      phone: '+91 65432 10987',
-      avatar: '',
-      room: 'Room 501',
-      stayDates: '28 Jun – 02 Jul 2026',
-      visits: 15,
-      spend: 325800,
-      membership: 'VIP Gold',
-      status: 'Staying',
-      govId: 'Passport: A1234567',
-      emergencyContact: 'Karan Varma (+91 65432 19876)',
-      preferences: 'Mountain view, Feather free bedding',
-      specialRequests: 'Fruit basket requested',
-      history: [
-        { id: 'HBS-2026-004', branch: 'Coimbatore', room: 'Penthouse 501', dates: '28 Jun – 02 Jul 2026', amount: '₹45,000', status: 'Checked In' }
-      ]
-    },
-    {
-      id: 'GUEST-005',
-      name: 'Suresh Patel',
-      email: 'suresh.p@email.com',
-      phone: '+91 54321 09876',
-      avatar: '',
-      room: 'Upcoming',
-      stayDates: '01 Jul – 05 Jul 2026',
-      visits: 3,
-      spend: 45900,
-      membership: 'Regular',
-      status: 'Upcoming',
-      govId: 'Aadhaar: XXXX-XXXX-9876',
-      emergencyContact: 'Asha Patel (+91 54321 98765)',
-      preferences: 'Extra towels',
-      specialRequests: 'Extra rollaway bed in suite',
-      history: []
-    },
-    {
-      id: 'GUEST-006',
-      name: 'Kavya Reddy',
-      email: 'kavya.r@email.com',
-      phone: '+91 43210 98765',
-      avatar: '',
-      room: '—',
-      stayDates: '—',
-      visits: 1,
-      spend: 12500,
-      membership: 'Regular',
-      status: 'Blacklisted',
-      govId: 'Passport: B9876543',
-      emergencyContact: 'Ravi Reddy (+91 43210 98769)',
-      preferences: 'Silent wing room',
-      specialRequests: 'None',
-      history: []
-    },
-    {
-      id: 'GUEST-007',
-      name: 'Mohan Verma',
-      email: 'mohan.v@email.com',
-      phone: '+91 32109 87654',
-      avatar: '',
-      room: 'Room 108',
-      stayDates: '24 Jun – 28 Jun 2026',
-      visits: 7,
-      spend: 115700,
-      membership: 'VIP Silver',
-      status: 'Staying',
-      govId: 'Aadhaar: XXXX-XXXX-1111',
-      emergencyContact: 'Sunita Verma (+91 32109 87659)',
-      preferences: 'Quiet room',
-      specialRequests: 'None',
-      history: []
-    },
-    {
-      id: 'GUEST-008',
-      name: 'Ananya Singh',
-      email: 'ananya.s@email.com',
-      phone: '+91 21098 76543',
-      avatar: '',
-      room: '—',
-      stayDates: '—',
-      visits: 4,
-      spend: 67800,
-      membership: 'Regular',
-      status: 'Checked Out',
-      govId: 'Passport: C7654321',
-      emergencyContact: 'Rajesh Singh (+91 21098 76599)',
-      preferences: 'Near pool',
-      specialRequests: 'None',
-      history: []
-    }
-  ];
+  let guests = HotelState.guests;
+  if (guests.length === 0) {
+    guests = [
+      {
+        id: 'GUEST-001',
+        name: 'Rajesh Kumar',
+        email: 'rajesh.k@email.com',
+        phone: '+91 98765 43210',
+        avatar: '', 
+        room: 'Room 201',
+        stayDates: '25 Jun – 30 Jun 2026',
+        visits: 12,
+        spend: 245000,
+        membership: 'VIP Gold',
+        status: 'Staying',
+        govId: 'Aadhaar: XXXX-XXXX-4321',
+        emergencyContact: 'Suresh Kumar (+91 98765 43219)',
+        preferences: 'High floor, Extra pillows',
+        specialRequests: 'None',
+        history: [
+          { id: 'HBS-2026-001', branch: 'Coimbatore', room: 'Exec Studio 201', dates: '25 Jun – 30 Jun 2026', amount: '₹23,010', status: 'Checked In' }
+        ]
+      },
+      {
+        id: 'GUEST-002',
+        name: 'Priya Sharma',
+        email: 'priya.s@email.com',
+        phone: '+91 87654 32109',
+        avatar: '',
+        room: 'Room 305',
+        stayDates: '26 Jun – 29 Jun 2026',
+        visits: 8,
+        spend: 172500,
+        membership: 'VIP Silver',
+        status: 'Staying',
+        govId: 'Passport: Z8765432',
+        emergencyContact: 'Vijay Sharma (+91 87654 32199)',
+        preferences: 'Near elevator, King bed',
+        specialRequests: 'Anniversary cake in room',
+        history: [
+          { id: 'HBS-2026-002', branch: 'Coimbatore', room: 'Deluxe Suite 305', dates: '26 Jun – 29 Jun 2026', amount: '₹27,500', status: 'Checked In' }
+        ]
+      },
+      {
+        id: 'GUEST-003',
+        name: 'Arun Menon',
+        email: 'arun.m@email.com',
+        phone: '+91 76543 21098',
+        avatar: '',
+        room: 'Check-out Today',
+        stayDates: '27 Jun 2026',
+        visits: 5,
+        spend: 98300,
+        membership: 'Regular',
+        status: 'Checked Out',
+        govId: 'DL: TN-37-2015-0987',
+        emergencyContact: 'Latha Menon (+91 76543 21998)',
+        preferences: 'Late checkout',
+        specialRequests: 'None',
+        history: [
+          { id: 'HBS-2026-003', branch: 'Coimbatore', room: 'Standard 108', dates: '27 Jun – 30 Jun 2026', amount: '₹12,000', status: 'Checked Out' }
+        ]
+      },
+      {
+        id: 'GUEST-004',
+        name: 'Meena Varma',
+        email: 'meena.v@email.com',
+        phone: '+91 65432 10987',
+        avatar: '',
+        room: 'Room 501',
+        stayDates: '28 Jun – 02 Jul 2026',
+        visits: 15,
+        spend: 325800,
+        membership: 'VIP Gold',
+        status: 'Staying',
+        govId: 'Passport: A1234567',
+        emergencyContact: 'Karan Varma (+91 65432 19876)',
+        preferences: 'Mountain view, Feather free bedding',
+        specialRequests: 'Fruit basket requested',
+        history: [
+          { id: 'HBS-2026-004', branch: 'Coimbatore', room: 'Penthouse 501', dates: '28 Jun – 02 Jul 2026', amount: '₹45,000', status: 'Checked In' }
+        ]
+      },
+      {
+        id: 'GUEST-005',
+        name: 'Suresh Patel',
+        email: 'suresh.p@email.com',
+        phone: '+91 54321 09876',
+        avatar: '',
+        room: 'Upcoming',
+        stayDates: '01 Jul – 05 Jul 2026',
+        visits: 3,
+        spend: 45900,
+        membership: 'Regular',
+        status: 'Upcoming',
+        govId: 'Aadhaar: XXXX-XXXX-9876',
+        emergencyContact: 'Asha Patel (+91 54321 98765)',
+        preferences: 'Extra towels',
+        specialRequests: 'Extra rollaway bed in suite',
+        history: []
+      },
+      {
+        id: 'GUEST-006',
+        name: 'Kavya Reddy',
+        email: 'kavya.r@email.com',
+        phone: '+91 43210 98765',
+        avatar: '',
+        room: '—',
+        stayDates: '—',
+        visits: 1,
+        spend: 12500,
+        membership: 'Regular',
+        status: 'Blacklisted',
+        govId: 'Passport: B9876543',
+        emergencyContact: 'Ravi Reddy (+91 43210 98769)',
+        preferences: 'Silent wing room',
+        specialRequests: 'None',
+        history: []
+      },
+      {
+        id: 'GUEST-007',
+        name: 'Mohan Verma',
+        email: 'mohan.v@email.com',
+        phone: '+91 32109 87654',
+        avatar: '',
+        room: 'Room 108',
+        stayDates: '24 Jun – 23 Nov 2026',
+        visits: 7,
+        spend: 115700,
+        membership: 'VIP Silver',
+        status: 'Staying',
+        govId: 'Aadhaar: XXXX-XXXX-1111',
+        emergencyContact: 'Sunita Verma (+91 32109 87659)',
+        preferences: 'Quiet room',
+        specialRequests: 'None',
+        history: []
+      },
+      {
+        id: 'GUEST-008',
+        name: 'Ananya Singh',
+        email: 'ananya.s@email.com',
+        phone: '+91 21098 76543',
+        avatar: '',
+        room: '—',
+        stayDates: '—',
+        visits: 4,
+        spend: 67800,
+        membership: 'Regular',
+        status: 'Checked Out',
+        govId: 'Passport: C7654321',
+        emergencyContact: 'Rajesh Singh (+91 21098 76599)',
+        preferences: 'Near pool',
+        specialRequests: 'None',
+        history: []
+      }
+    ];
+    HotelState.guests = guests;
+  }
 
   // DOM Elements
   const tblBody = document.querySelector('#tblGuestsManager tbody');
@@ -440,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Dynamic updates to KPI cards count
       const activeBlacklistCount = guests.filter(item => item.status === 'Blacklisted').length;
       document.getElementById('kpiBlacklistGuests').textContent = activeBlacklistCount;
+      HotelState.guests = guests;
     }
 
     blacklistModal.hide();
@@ -512,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     guests.unshift(newGuest);
+    HotelState.guests = guests;
 
     // Close walkin modal
     walkinModal.hide();
@@ -544,14 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Triggers for buttons
   document.getElementById('btnRegisterWalkin').addEventListener('click', () => walkinModal.show());
-  document.getElementById('quickRegister').addEventListener('click', () => walkinModal.show());
-  document.getElementById('quickSearchBooking').addEventListener('click', () => { window.location.href = 'bookings.html'; });
-  document.getElementById('quickCheckin').addEventListener('click', () => { window.location.href = 'bookings.html?action=checkin'; });
-  document.getElementById('quickCheckout').addEventListener('click', () => { window.location.href = 'bookings.html?action=checkout'; });
-  
-  document.getElementById('quickExportReport').addEventListener('click', () => {
-    alert('Exporting Guest List details to PDF report... Check your downloads folder.');
-  });
+
 
   // Filters binding
   btnApply.addEventListener('click', renderTable);

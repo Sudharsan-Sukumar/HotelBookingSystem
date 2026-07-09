@@ -49,12 +49,12 @@
                 <div class="col-6 text-start">
                   <label for="firstName" class="form-label">First Name <span class="mandatory-star">*</span></label>
                   <input type="text" id="firstName" class="form-control" placeholder="First Name" required aria-required="true">
-                  <span class="invalid-feedback-msg" id="firstNameError"></span>
+                  <span class="invalid-feedback-msg" id="firstNameError" aria-live="assertive"></span>
                 </div>
                 <div class="col-6 text-start">
                   <label for="lastName" class="form-label">Last Name <span class="mandatory-star">*</span></label>
                   <input type="text" id="lastName" class="form-control" placeholder="Last Name" required aria-required="true">
-                  <span class="invalid-feedback-msg" id="lastNameError"></span>
+                  <span class="invalid-feedback-msg" id="lastNameError" aria-live="assertive"></span>
                 </div>
               </div>
 
@@ -62,28 +62,28 @@
               <div class="mb-3 text-start">
                 <label for="registerEmail" class="form-label">Email Address <span class="mandatory-star">*</span></label>
                 <input type="email" id="registerEmail" class="form-control" placeholder="example@domain.com" required aria-required="true">
-                <span class="invalid-feedback-msg" id="registerEmailError"></span>
+                <span class="invalid-feedback-msg" id="registerEmailError" aria-live="assertive"></span>
               </div>
 
               <!-- Phone Number -->
               <div class="mb-3 text-start">
                 <label for="registerPhone" class="form-label">Phone Number <span class="mandatory-star">*</span></label>
                 <input type="tel" id="registerPhone" class="form-control" placeholder="+91 XXXXX XXXXX" required aria-required="true">
-                <span class="invalid-feedback-msg" id="registerPhoneError"></span>
+                <span class="invalid-feedback-msg" id="registerPhoneError" aria-live="assertive"></span>
               </div>
 
               <!-- Password -->
               <div class="mb-3 text-start">
                 <label for="registerPassword" class="form-label">Password <span class="mandatory-star">*</span></label>
                 <input type="password" id="registerPassword" class="form-control" placeholder="Create password" required aria-required="true">
-                <span class="invalid-feedback-msg" id="registerPasswordError"></span>
+                <span class="invalid-feedback-msg" id="registerPasswordError" aria-live="assertive"></span>
               </div>
 
               <!-- Confirm Password -->
               <div class="mb-3 text-start">
                 <label for="confirmRegisterPassword" class="form-label">Confirm Password <span class="mandatory-star">*</span></label>
                 <input type="password" id="confirmRegisterPassword" class="form-control" placeholder="Confirm password" required aria-required="true">
-                <span class="invalid-feedback-msg" id="confirmRegisterPasswordError"></span>
+                <span class="invalid-feedback-msg" id="confirmRegisterPasswordError" aria-live="assertive"></span>
               </div>
 
               <!-- Show Password Checkbox -->
@@ -93,12 +93,12 @@
               </div>
 
   <!-- Policies Agreement Checkbox -->
-  <div class="mb-4 form-check text-start d-flex align-items-start gap-2">
+  <div class="mb-3 form-check text-start d-flex align-items-start gap-2">
     <input type="checkbox" class="form-check-input mt-1" id="agreePolicies" required>
     <label class="form-check-label checkbox-label" for="agreePolicies">
       I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#policiesModal">Registration Policies</a>, privacy guidelines, and terms of service.
     </label>
-    <span class="invalid-feedback-msg d-block" id="agreePoliciesError" style="font-size: 0.75rem; color: #dc3545;"></span>
+    <span class="invalid-feedback-msg d-block" id="agreePoliciesError" aria-live="assertive" style="font-size: 0.75rem; color: #dc3545;"></span>
   </div>
 
   <!-- Registration Policies Modal -->

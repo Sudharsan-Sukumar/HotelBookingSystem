@@ -146,7 +146,7 @@ class PolicyConfirmationModal {
         <h6 class="text-dark fw-bold mb-3">Payment & Pricing Policies</h6>
         <strong class="text-dark d-block mb-1 small">PRICING</strong>
         <ul class="ps-3 mb-3">
-          <li>Applicable GST (12%) is included in the final payable amount.</li>
+          <li>Applicable GST (18%) is included in the final payable amount.</li>
           <li>Final booking amount is displayed before payment confirmation.</li>
         </ul>
         <strong class="text-dark d-block mb-1 small">PAYMENT</strong>

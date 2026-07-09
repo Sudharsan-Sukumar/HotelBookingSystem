@@ -1,123 +1,132 @@
 .search-results-page {
-  background-color: #F8F6F2;
-  font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
-  color: #1A0A2E;
+    background-color: #F8F6F2;
+    font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+    color: #1A0A2E;
 }
 
 .results-header-section .results-title {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #1A0A2E;
-  margin-bottom: 0.25rem;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1A0A2E;
+    margin-bottom: 0.25rem;
 }
+
 .results-header-section .results-subtitle {
-  font-size: 0.95rem;
-  color: #6B6476;
+    font-size: 0.95rem;
+    color: #6B6476;
 }
 
 .filter-panel-card {
-  background-color: #FFFFFF;
-  border-radius: 20px;
-  box-shadow: 0 12px 35px rgba(26, 10, 46, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-}
-.filter-panel-card .filter-panel-title {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.35rem;
-  color: #1A0A2E;
-  margin: 0;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(26, 10, 46, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.15);
 }
 
+    .filter-panel-card .filter-panel-title {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 1.35rem;
+        color: #1A0A2E;
+        margin: 0;
+    }
+
 .filter-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #6B6476;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.5rem;
-  display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6B6476;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
 .filter-select, .filter-input {
-  height: 48px;
-  border: 1px solid #D0CCD5;
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  color: #1A0A2E;
-  background-color: #FFFFFF;
-  transition: all 0.3s ease;
+    height: 48px;
+    border: 1px solid #D0CCD5;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    color: #1A0A2E;
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
 }
-.filter-select:focus, .filter-input:focus {
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-}
+
+    .filter-select:focus, .filter-input:focus {
+        border-color: #D4AF37;
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
 
 .date-input-group .filter-input {
-  width: 45%;
-  font-size: 0.85rem;
-  padding: 0.5rem 0.5rem;
+    width: 45%;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.5rem;
 }
-.date-input-group .filter-input::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-}
+
+    .date-input-group .filter-input::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+    }
 
 .filter-checkbox {
-  width: 18px;
-  height: 18px;
-  border: 1px solid #D0CCD5;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.filter-checkbox:checked {
-  background-color: #D4AF37;
-  border-color: #D4AF37;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #D0CCD5;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
+    .filter-checkbox:checked {
+        background-color: #D4AF37;
+        border-color: #D4AF37;
+    }
+
 .check-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #1A0A2E;
-  cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1A0A2E;
+    cursor: pointer;
 }
 
 .btn-apply-filters {
-  background-color: #1A0A2E;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-}
-.btn-apply-filters:hover {
-  background-color: #2E1560;
-  color: #FFFFFF;
+    background-color: #1A0A2E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
 }
 
+    .btn-apply-filters:hover {
+        background-color: #2E1560;
+        color: #FFFFFF;
+    }
+
 .decor-diamond {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background-color: #D4AF37;
-  transform: rotate(45deg);
-  position: relative;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #D4AF37;
+    transform: rotate(45deg);
+    position: relative;
 }
-.decor-diamond::before, .decor-diamond::after {
-  content: "";
-  position: absolute;
-  width: 40px;
-  height: 1px;
-  background-color: rgba(212, 175, 55, 0.3);
-  top: 3px;
-}
-.decor-diamond::before {
-  right: 15px;
-}
-.decor-diamond::after {
-  left: 15px;
-}
+
+    .decor-diamond::before, .decor-diamond::after {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 1px;
+        background-color: rgba(212, 175, 55, 0.3);
+        top: 3px;
+    }
+
+    .decor-diamond::before {
+        right: 15px;
+    }
+
+    .decor-diamond::after {
+        left: 15px;
+    }
 
 .hotel-card {
   background-color: #FFFFFF;
@@ -126,100 +135,124 @@
   box-shadow: 0 10px 30px rgba(26, 10, 46, 0.04);
   border: 1px solid rgba(226, 228, 232, 0.6);
   transition: all 0.3s ease;
-  height: 220px;
+  min-height: 270px;
+}
+.hotel-card .row {
+  min-height: 270px;
 }
 .hotel-card .hotel-img-wrapper {
   width: 100%;
   height: 100%;
+  min-height: 270px;
+  overflow: hidden;
 }
 .hotel-card .hotel-img-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.hotel-card .hotel-icon-badge {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-}
-.hotel-card .hotel-title {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: #1A0A2E;
-}
-.hotel-card .hotel-rooms-sub {
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
-.hotel-card .price-container .price-label {
-  font-size: 0.75rem;
-  color: #6B6476;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  display: block;
-}
-.hotel-card .price-container .price-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1A0A2E;
-  font-family: "Playfair Display", Georgia, serif;
-}
-.hotel-card .price-container .price-value span {
-  font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #6B6476;
-}
-.hotel-card .btn-view-details {
-  background-color: #1A0A2E;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.25rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-.hotel-card .btn-view-details:hover {
-  background-color: #2E1560;
-  color: #FFFFFF;
-}
-.hotel-card .wishlist-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: none;
-  background-color: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.hotel-card .wishlist-btn:hover {
-  background-color: #D4AF37;
-  color: #FFFFFF;
-}
-.hotel-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(26, 10, 46, 0.08);
-}
+
+    .hotel-card .hotel-icon-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: rgba(212, 175, 55, 0.1);
+        color: #D4AF37;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .hotel-card .hotel-title {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: #1A0A2E;
+    }
+
+    .hotel-card .hotel-rooms-sub {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .hotel-card .price-container .price-label {
+        font-size: 0.75rem;
+        color: #6B6476;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+
+    .hotel-card .price-container .price-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1A0A2E;
+        font-family: "Playfair Display", Georgia, serif;
+    }
+
+        .hotel-card .price-container .price-value span {
+            font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6B6476;
+        }
+
+    .hotel-card .btn-view-details {
+        background-color: #1A0A2E;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .hotel-card .btn-view-details:hover {
+            background-color: #2E1560;
+            color: #FFFFFF;
+        }
+
+    .hotel-card .wishlist-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background-color: rgba(212, 175, 55, 0.1);
+        color: #D4AF37;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .hotel-card .wishlist-btn:hover {
+            background-color: #D4AF37;
+            color: #FFFFFF;
+        }
+
+    .hotel-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(26, 10, 46, 0.08);
+    }
+
+    .hotel-card .col-md-7 > div:last-child {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-bottom: 0.5rem;
+    }
 
 @media (max-width: 767.98px) {
-  .hotel-card {
-    height: auto;
-  }
-  .hotel-card .hotel-img-wrapper {
-    height: 180px;
-  }
+    .hotel-card {
+        height: auto;
+    }
+
+        .hotel-card .hotel-img-wrapper {
+            height: 180px;
+        }
 }

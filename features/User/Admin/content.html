@@ -15,60 +15,59 @@
 </head>
 <body class="admin-body">
 
-  <!-- TOP NAVIGATION -->
-  <nav class="navbar navbar-expand-md manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
-    <div class="container-fluid d-flex flex-column align-items-stretch p-0">
+    <!-- TOP NAVIGATION -->
+  <nav class="navbar navbar-expand-xl manager-top-nav sticky-top" style="background-color: #1A0A2E !important;">
+    <div class="container-fluid px-3 px-md-4">
       
-      <!-- ROW 1 -->
-      <div class="admin-nav-row1">
-        <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
-          <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
-          <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
-        </a>
+      <!-- Brand Logo & Name -->
+      <a class="navbar-brand d-flex align-items-center gap-2 p-0 m-0" href="dashboard.html" style="flex-shrink: 0;">
+        <img src="../../../assets/images/logo.png" alt="Elegant Enclave Hotel Logo" style="height: 48px; width: 48px; object-fit: contain; border-radius: 50%; border: 1.5px solid #D4AF37; margin-right: 12px;" onerror="this.outerHTML='<span class=\'gold-crown-icon\' style=\'color: #D4AF37; font-size: 1.5rem; margin-right: 12px;\'><i class=\'bi bi-award-fill\'></i></span>'">
+        <span class="brand-text text-white font-serif fw-bold" style="font-size: 1.35rem !important; letter-spacing: 0.5px;">Elegant<span style="color: #D4AF37;">Enclave</span></span>
+      </a>
 
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
-          
-          <li class="nav-item"><a class="nav-link active" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-warning text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Collapsible Menu -->
+      <div class="collapse navbar-collapse" id="adminNavbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 gap-1 gap-xl-2">
+          <li class="nav-item"><a class="nav-link text-white nav-dashboard" href="dashboard.html"><i class="bi bi-grid-fill me-1"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-users" href="users.html"><i class="bi bi-people-fill me-1"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-hotels" href="hotels.html"><i class="bi bi-building-fill me-1"></i> Hotels</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-content active" href="content.html"><i class="bi bi-file-text me-1"></i> Content</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-backup" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-monitoring" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link text-white nav-reports" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
         </ul>
 
-        <div class="dropdown">
-          <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
-            <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
-            <div class="lh-sm text-start text-white">
-              <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
-              <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
-            </div>
-            <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
-            <li><a class="dropdown-item py-2 px-3 text-white small" href="../../../Features/User/Candidate/profile.html">View Profile</a></li>
-            
-            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
-            <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- ROW 2 -->
-      <div class="admin-nav-row2">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="backup.html"><i class="bi bi-database-fill-gear me-1"></i> Backup & Recovery</a></li>
-          <li class="nav-item"><a class="nav-link" href="booking_monitoring.html"><i class="bi bi-calendar-check-fill me-1"></i> Booking Monitoring</a></li>
-          <li class="nav-item"><a class="nav-link" href="audit_logs.html"><i class="bi bi-shield-fill-check me-1"></i> Audit Logs</a></li>
-          <li class="nav-item"><a class="nav-link" href="reports.html"><i class="bi bi-bar-chart-line-fill me-1"></i> Reports</a></li>
-        </ul>
-
-        <div class="d-flex align-items-center">
-          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
+        <!-- Right Side: Notifications & Profile -->
+        <div class="d-flex align-items-center gap-4 mt-3 mt-xl-0">
+          <!-- Notification Bell -->
+          <a href="notifications.html" class="btn notification-bell-btn position-relative text-white p-0 nav-notifications" id="navNotificationBell" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Notifications">
             <i class="bi bi-bell-fill text-warning" style="font-size: 1.2rem;"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(50%, -50%) !important;">3</span>
           </a>
+
+          <!-- User Profile Dropdown -->
+          <div class="dropdown">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+              <div class="profile-avatar-circle" style="width: 40px; height: 40px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1);">SK</div>
+              <div class="lh-sm text-start text-white">
+                <strong class="d-block" style="font-size: 0.75rem !important; line-height: 1.2;">Sridhar Kumar</strong>
+                <span class="text-white-50 d-block" style="font-size: 0.6rem !important; line-height: 1.1;">System Administrator</span>
+              </div>
+              <i class="bi bi-chevron-down text-white-50" style="font-size: 0.65rem !important; margin-left: 4px;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning" style="background-color: #1A0A2E;">
+              <li><a class="dropdown-item py-2 px-3 text-white small nav-profile" href="../../../features/User/Candidate/profile.html">View Profile</a></li>
+              <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
+              <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-
     </div>
   </nav>
 
@@ -228,8 +227,63 @@
     <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/state.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const userId = localStorage.getItem('userId');
+      const userRole = localStorage.getItem('userRole');
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn || userRole !== 'Admin') {
+        window.location.href = '../../../features/Auth/login.html';
+      }
+
+      if (!window.HotelState) return;
+
+      const c = HotelState.content || {};
+
+      // 1. Hero Preview
+      const heroPreview = document.querySelector('.col-md-6:nth-child(1) .p-3');
+      if (heroPreview && c.hero) {
+        heroPreview.innerHTML = `
+          <div><strong>Heading:</strong> ${c.hero.tagline || ''}</div>
+          <div><strong>Subheading:</strong> ${c.hero.subtitle || ''}</div>
+        `;
+      }
+
+      // 5. About Preview
+      const aboutPreview = document.querySelector('.col-md-6:nth-child(5) .card');
+      if (aboutPreview && c.about) {
+        // Find or create preview block
+        let previewBlock = aboutPreview.querySelector('.p-3');
+        if (!previewBlock) {
+          previewBlock = document.createElement('div');
+          previewBlock.className = 'p-3 bg-light rounded mb-3 small';
+          aboutPreview.insertBefore(previewBlock, aboutPreview.querySelector('button'));
+        }
+        previewBlock.innerHTML = `
+          <div><strong>Heading:</strong> ${c.about.heading || ''}</div>
+          <div><strong>Vision/Body:</strong> ${c.about.body ? c.about.body.substring(0, 60) + '...' : ''}</div>
+        `;
+      }
+
+      // 6. Contact Preview
+      const contactPreview = document.querySelector('.col-md-6:nth-child(6) .card');
+      if (contactPreview && c.contact) {
+        let previewBlock = contactPreview.querySelector('.p-3');
+        if (!previewBlock) {
+          previewBlock = document.createElement('div');
+          previewBlock.className = 'p-3 bg-light rounded mb-3 small';
+          contactPreview.insertBefore(previewBlock, contactPreview.querySelector('button'));
+        }
+        previewBlock.innerHTML = `
+          <div><strong>Phone:</strong> ${c.contact.phone || ''}</div>
+          <div><strong>Email:</strong> ${c.contact.email || ''}</div>
+        </div>
+        `;
+      }
+    });
+
     function showComingSoonToast() {
       const toastEl = document.getElementById('statusToast');
       const toastMessage = document.getElementById('toastMessage');
@@ -239,6 +293,5 @@
       toast.show();
     }
   </script>
-  <script src="../../../Shared/UtilityClass/session.js"></script>
 </body>
 </html>

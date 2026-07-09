@@ -1,11 +1,24 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = localStorage.getItem('userRole');
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  let roomTypes = [
-    { id: 'RT-001', name: 'Standard Room', maxCapacity: 2, basePrice: 3500, totalUnits: 30, propertiesCount: 3, status: 'Active' },
-    { id: 'RT-002', name: 'Executive Studio', maxCapacity: 3, basePrice: 5500, totalUnits: 18, propertiesCount: 3, status: 'Active' },
-    { id: 'RT-003', name: 'Deluxe Suite', maxCapacity: 4, basePrice: 8000, totalUnits: 24, propertiesCount: 3, status: 'Active' },
-    { id: 'RT-004', name: 'Penthouse Suite', maxCapacity: 6, basePrice: 18000, totalUnits: 12, propertiesCount: 3, status: 'Active' },
-    { id: 'RT-005', name: 'Family Room', maxCapacity: 6, basePrice: 6500, totalUnits: 0, propertiesCount: 0, status: 'Disabled' }
-  ];
+  let roomTypes = HotelState.roomTypes || [];
+  if (roomTypes.length === 0) {
+    roomTypes = [
+      { id: 'RT-001', name: 'Standard Room', maxCapacity: 2, basePrice: 3500, totalUnits: 30, propertiesCount: 3, status: 'Active' },
+      { id: 'RT-002', name: 'Executive Studio', maxCapacity: 3, basePrice: 5500, totalUnits: 18, propertiesCount: 3, status: 'Active' },
+      { id: 'RT-003', name: 'Deluxe Suite', maxCapacity: 4, basePrice: 8000, totalUnits: 24, propertiesCount: 3, status: 'Active' },
+      { id: 'RT-004', name: 'Penthouse Suite', maxCapacity: 6, basePrice: 18000, totalUnits: 12, propertiesCount: 3, status: 'Active' },
+      { id: 'RT-005', name: 'Family Room', maxCapacity: 6, basePrice: 6500, totalUnits: 0, propertiesCount: 0, status: 'Disabled' }
+    ];
+    HotelState.roomTypes = roomTypes;
+  }
 
   const tblBody = document.querySelector('#tblRoomTypes tbody');
   const typeSearch = document.getElementById('typeSearch');
@@ -16,13 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
-    toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
+    if (toastEl) {
+      toastEl.className = `toast align-items-center text-white border-0 shadow ${isSuccess ? 'bg-success' : 'bg-danger'}`;
+      toastMessage.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
   }
 
   function renderTable() {
+    roomTypes = HotelState.roomTypes || [];
+    
     tblBody.innerHTML = '';
     const q = typeSearch.value.toLowerCase().trim();
     const statusVal = statusFilter.value;
@@ -57,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let unitLabel = rt.totalUnits > 0 ? `${rt.totalUnits} (Across ${rt.propertiesCount} properties)` : '0 (Inactive)';
 
       let actions = `
-        <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="location.href='view_room_type.html?id=${rt.id}'"><i class="bi bi-eye-fill me-1"></i>View</button>
         <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="loadRoomTypeForEdit('${rt.id}')"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
       `;
 
@@ -88,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('This room type is currently assigned to hotel rooms. It can only be disabled.');
       }
       rt.status = newStatus;
+      HotelState.roomTypes = roomTypes;
+
       showToast(`Room type ${newStatus === 'Active' ? 'Activated' : 'Disabled'} Successfully.`, true);
       renderTable();
     }
@@ -135,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset validations
     modalForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
 
-    // Required fields check
     const required = [nameInput, capacityInput, adultsInput, childrenInput, basePriceInput, bedsInput];
     required.forEach(f => {
       if (!f.value.trim()) {
@@ -148,10 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adults = parseInt(adultsInput.value) || 0;
     const children = parseInt(childrenInput.value) || 0;
     const base = parseFloat(basePriceInput.value) || 0;
-    const weekend = parseFloat(weekendPriceInput.value) || 0;
-    const holiday = parseFloat(holidayPriceInput.value) || 0;
 
-    // Numerical limits validation
     if (cap < 1 || cap > 20) {
       capacityInput.classList.add('is-invalid');
       isValid = false;
@@ -165,16 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
       basePriceInput.classList.add('is-invalid');
       isValid = false;
     }
-    if (weekendPriceInput.value && weekend < base) {
-      weekendPriceInput.classList.add('is-invalid');
-      isValid = false;
-    }
-    if (holidayPriceInput.value && holiday < base) {
-      holidayPriceInput.classList.add('is-invalid');
-      isValid = false;
-    }
 
-    // Name unique check
     const nameExists = roomTypes.some(x => x.name.toLowerCase() === nameInput.value.toLowerCase().trim());
     if (nameExists) {
       alert('A room type with this name already exists.');
@@ -183,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isValid) {
-      // Disable buttons to mock load saving spinner
       const submitBtn = document.getElementById('btnModalSubmit');
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creating...';
@@ -199,12 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
           propertiesCount: 0,
           status: document.getElementById('modalStatus').value
         });
+        HotelState.roomTypes = roomTypes;
 
         // Hide Modal
         const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addRoomTypeModal'));
         modalInstance.hide();
 
-        // Reset elements
         modalForm.reset();
         document.querySelectorAll('.select-amenity.bg-primary').forEach(c => {
           c.classList.remove('bg-primary', 'text-white');
@@ -219,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Load existing room type information for Editing
   const editModal = new bootstrap.Modal(document.getElementById('editRoomTypeModal'));
   const editForm = document.getElementById('modalEditRoomTypeForm');
   const priceWarning = document.getElementById('priceWarningBanner');
@@ -244,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     originalPrice = rt.basePrice;
     priceWarning.classList.add('d-none');
 
-    // Show selected amenities
     document.querySelectorAll('.select-edit-amenity').forEach(chip => {
       chip.classList.remove('bg-primary', 'text-white');
     });
@@ -258,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     editModal.show();
   };
 
-  // Selectable Edit amenity chips
   document.querySelectorAll('.select-edit-amenity').forEach(chip => {
     chip.addEventListener('click', () => {
       chip.classList.toggle('bg-primary');
@@ -271,7 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Watch price changes for warning banner
   document.getElementById('editBasePrice').addEventListener('input', (e) => {
     const val = parseFloat(e.target.value) || 0;
     if (val !== originalPrice) {
@@ -281,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Save changes handler
   editForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -309,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
           rt.basePrice = base;
           rt.status = document.getElementById('editStatus').value;
         }
+        HotelState.roomTypes = roomTypes;
 
         editModal.hide();
         submitBtn.disabled = false;
@@ -320,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Disable button handler
   document.getElementById('btnDisableType').addEventListener('click', () => {
     const rtId = document.getElementById('editRoomTypeId').value;
     const rt = roomTypes.find(x => x.id === rtId);
@@ -331,6 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirm('Are you sure you want to disable this room type?')) {
       if (rt) {
         rt.status = 'Disabled';
+        HotelState.roomTypes = roomTypes;
+
         editModal.hide();
         showToast('Room Type disabled successfully.', true);
         renderTable();
