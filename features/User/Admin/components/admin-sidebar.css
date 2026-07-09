@@ -187,3 +187,8 @@
     opacity: 1;
   }
 }
+
+/* Fix for sticky position */
+body.admin-body {
+  overflow-x: visible !important;
+}
