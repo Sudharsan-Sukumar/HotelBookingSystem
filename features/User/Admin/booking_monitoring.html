@@ -56,16 +56,16 @@
 
           <!-- User Profile Dropdown -->
           <div class="dropdown d-flex align-items-center">
-            <button class="btn dropdown-toggle d-flex align-items-center gap-3 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-3 p-0 text-white border-0" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent; box-shadow: none;">
               <div class="profile-avatar-circle" style="width: 44px; height: 44px; border: 2px solid #D4AF37; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background-color: rgba(255,255,255,0.1); font-size: 1.1rem; flex-shrink: 0;">SK</div>
-              <div class="lh-sm text-start text-white d-none d-sm-flex flex-column justify-content-center">
-                <strong class="d-block mb-1 text-nowrap" style="font-size: 0.85rem !important; line-height: 1;">Sridhar Kumar</strong>
-                <span class="text-white-50 d-block text-nowrap" style="font-size: 0.7rem !important; line-height: 1;">System Administrator</span>
+              <div class="lh-sm text-start text-white d-flex flex-column justify-content-center">
+                <strong class="d-block mb-1 text-nowrap" style="font-size: 0.9rem !important; line-height: 1;">Sridhar Kumar</strong>
+                <span class="text-white-50 d-block text-nowrap" style="font-size: 0.75rem !important; line-height: 1;">System Administrator</span>
               </div>
-              <span class="ms-2 text-warning" style="font-size: 0.9rem;">&#9660;</span>
+              <span class="ms-1 text-warning" style="font-size: 0.8rem;">&#9660;</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning mt-3" style="background-color: #1A0A2E;">
-              <li><a class="dropdown-item py-2 px-3 text-white small nav-profile" href="../../../features/User/Candidate/profile.html">View Profile</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border border-warning mt-3" style="background-color: #1A0A2E; min-width: 160px; animation: fadeIn 0.2s ease-in-out;">
+              <li><a class="dropdown-item py-2 px-3 text-white small nav-profile" href="profile.html">View Profile</a></li>
               <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
               <li><a class="dropdown-item py-2 px-3 text-danger small" href="#" onclick="triggerConfirmLogout(event)">Logout</a></li>
             </ul>
@@ -75,6 +75,7 @@
       </div>
     </div>
   </nav>
+
 
 
 
