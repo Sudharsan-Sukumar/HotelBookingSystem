@@ -458,4 +458,55 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 50);
     });
   }
+  
+  // --- CMS Sync Logic ---
+  function applyCmsData(cmsData) {
+    if (!cmsData) return;
+    
+    // Hero Section
+    if (cmsData.hero) {
+      const heroSec = document.getElementById('customerHeroSection');
+      if (heroSec && cmsData.hero.image) heroSec.style.backgroundImage = `url('${cmsData.hero.image}')`;
+      const heroTitle = document.getElementById('customerHeroTitle');
+      if (heroTitle && cmsData.hero.heading) heroTitle.innerHTML = cmsData.hero.heading.replace(/\n/g, '<br>');
+      const heroSub = document.getElementById('customerHeroSubtitle');
+      if (heroSub && cmsData.hero.subheading) heroSub.textContent = cmsData.hero.subheading;
+    }
+    
+    // About Section (Why Choose Us)
+    if (cmsData.about) {
+      const aboutTitle = document.getElementById('customerAboutTitle');
+      if (aboutTitle && cmsData.about.heading) aboutTitle.textContent = cmsData.about.heading;
+      const aboutSub = document.getElementById('customerAboutSubtitle');
+      if (aboutSub && cmsData.about.subheading) aboutSub.textContent = cmsData.about.subheading;
+      
+      const footerAboutTitle = document.getElementById('customerFooterAboutTitle');
+      if (footerAboutTitle && cmsData.about.heading) footerAboutTitle.textContent = cmsData.about.heading;
+      const footerAboutDesc = document.getElementById('customerFooterAboutDesc');
+      if (footerAboutDesc && cmsData.about.history) footerAboutDesc.textContent = cmsData.about.history;
+    }
+    
+    // Footer Section
+    if (cmsData.footer) {
+      const footerPhone = document.getElementById('customerFooterPhone');
+      if (footerPhone && cmsData.footer.phone) footerPhone.innerHTML = `<i class="bi bi-telephone text-warning"></i> ${cmsData.footer.phone}`;
+      const footerEmail = document.getElementById('customerFooterEmail');
+      if (footerEmail && cmsData.footer.email) footerEmail.innerHTML = `<i class="bi bi-envelope text-warning"></i> ${cmsData.footer.email}`;
+      const footerBranches = document.getElementById('customerFooterBranches');
+      if (footerBranches && cmsData.footer.address) footerBranches.innerHTML = `<i class="bi bi-geo-alt text-warning"></i> ${cmsData.footer.address}`;
+    }
+  }
+
+  // Initial load
+  if (window.HotelState && HotelState.content) {
+    applyCmsData(HotelState.content);
+  }
+
+  // Listen for real-time updates from CMS iframe parent
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'CMS_UPDATE') {
+      applyCmsData(event.data.payload);
+    }
+  });
+
 });

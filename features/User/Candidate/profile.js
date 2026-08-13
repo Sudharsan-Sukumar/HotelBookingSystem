@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         HotelState.users = users;
       }
 
-      HotelState.addAuditLog(userId, user.firstName + ' ' + user.lastName, 'Customer', 'PASSWORD_UPDATED', 'Profile', 'Customer updated their password.');
+      
 
       let alertBox = document.getElementById('pwdAlertBox');
       if (!alertBox) {
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     HotelState.currentUser = user;
     localStorage.setItem('userName', updatedName);
 
-    HotelState.addAuditLog(userId, updatedName, 'Customer', 'PROFILE_UPDATED', 'Profile', 'Customer updated their profile.');
+    
 
     let inlineAlert = document.getElementById('profileSuccessAlert');
     if (!inlineAlert) {

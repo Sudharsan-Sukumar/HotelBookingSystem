@@ -16,11 +16,6 @@
 </head>
 <body class="admin-body">
 
-    
-
-
-
-
   <!-- Main Layout Wrapper -->
 <div class="d-flex" style="min-height: 100vh;">
     <!-- Sidebar Container -->
@@ -42,9 +37,7 @@
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(-30%, -10%); border: 2px solid #ffffff;">3</span>
                 </a>
             </div>
-        </header>
-
-        <div class="container-fluid px-4 py-4">
+        </header>        <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
@@ -64,34 +57,41 @@
     <!-- EDIT HOTEL FORM -->
     <div class="card border bg-white p-4 shadow-sm text-start mx-auto" style="border-radius: 16px; max-width: 900px;">
       <form id="editHotelForm" novalidate>
+        <div class="mb-3 text-danger small">* denotes that the field is mandatory</div>
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label small fw-semibold">Hotel ID (Read Only)</label>
             <input type="text" class="form-control form-control-sm bg-light" value="HBS-HTL-01" readonly>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">Hotel Name *</label>
+            <label class="form-label small fw-semibold">Hotel Name <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="hotelName" value="ElegantEnclave Salem" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">Branch Name *</label>
+            <label class="form-label small fw-semibold">Branch Name <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="branchName" value="Main Branch" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">City *</label>
+            <label class="form-label small fw-semibold">City <span class="text-danger">*</span></label>
             <select class="form-select form-select-sm" id="city" required>
               <option value="Salem" selected>Salem</option>
               <option value="Coimbatore">Coimbatore</option>
               <option value="Chennai">Chennai</option>
+              <option value="Others">Others</option>
             </select>
+            <div id="otherCityContainer" class="mt-2 d-none">
+              <input type="text" class="form-control form-control-sm" id="otherCity" placeholder="Specify district name">
+            </div>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">Contact Number *</label>
+            <label class="form-label small fw-semibold">Contact Number <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="contact" value="+91 427 2448888" required>
+            <div class="invalid-feedback">Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">Email Address *</label>
+            <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
             <input type="email" class="form-control form-control-sm" id="email" value="salem@elegantenclave.com" required>
+            <div class="invalid-feedback">Please enter a valid email address.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold">Manager Assignment</label>
@@ -101,14 +101,14 @@
             </select>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-semibold">Operating Status *</label>
+            <label class="form-label small fw-semibold">Operating Status <span class="text-danger">*</span></label>
             <select class="form-select form-select-sm" id="status" required>
               <option value="Active" selected>Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
           <div class="col-md-12">
-            <label class="form-label small fw-semibold">Address *</label>
+            <label class="form-label small fw-semibold">Address <span class="text-danger">*</span></label>
             <textarea class="form-control small" id="address" rows="2" required>12/A, Omalur Main Road, Salem - 636004</textarea>
           </div>
         </div>
@@ -173,7 +173,32 @@
       // Populate form
       document.getElementById('hotelName').value = h.name || '';
       document.getElementById('branchName').value = h.branch || '';
-      document.getElementById('city').value = h.city || 'Salem';
+
+      const citySelect = document.getElementById('city');
+      const otherCityContainer = document.getElementById('otherCityContainer');
+      const otherCityInput = document.getElementById('otherCity');
+      
+      if (['Salem', 'Coimbatore', 'Chennai'].includes(h.city)) {
+        citySelect.value = h.city;
+      } else if (h.city) {
+        citySelect.value = 'Others';
+        otherCityContainer.classList.remove('d-none');
+        otherCityInput.value = h.city;
+        otherCityInput.setAttribute('required', 'required');
+      }
+      
+      citySelect.addEventListener('change', () => {
+        if (citySelect.value === 'Others') {
+          otherCityContainer.classList.remove('d-none');
+          otherCityInput.setAttribute('required', 'required');
+        } else {
+          otherCityContainer.classList.add('d-none');
+          otherCityInput.removeAttribute('required');
+          otherCityInput.value = '';
+          otherCityInput.classList.remove('is-invalid');
+        }
+      });
+
       document.getElementById('contact').value = h.contact || '';
       document.getElementById('email').value = h.email || '';
       if (mgrSelect) mgrSelect.value = h.managerId || '';
@@ -192,20 +217,72 @@
         cancelBtn.setAttribute('onclick', `sessionStorage.setItem('adminViewHotelId', h.id); location.href='view_hotel.html'`);
       }
 
+      const contactInput = document.getElementById('contact');
+      const emailInput = document.getElementById('email');
+      const contactRegex = /^[6-9]\d{9}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (contactInput) {
+        contactInput.addEventListener('input', () => {
+          if (contactInput.value.length > 0) {
+            if (contactRegex.test(contactInput.value)) {
+              contactInput.classList.remove('is-invalid');
+              contactInput.classList.add('is-valid');
+            } else {
+              contactInput.classList.remove('is-valid');
+              contactInput.classList.add('is-invalid');
+            }
+          } else {
+            contactInput.classList.remove('is-invalid', 'is-valid');
+          }
+        });
+      }
+
+      if (emailInput) {
+        emailInput.addEventListener('input', () => {
+          if (emailInput.value.length > 0) {
+            if (emailRegex.test(emailInput.value)) {
+              emailInput.classList.remove('is-invalid');
+              emailInput.classList.add('is-valid');
+            } else {
+              emailInput.classList.remove('is-valid');
+              emailInput.classList.add('is-invalid');
+            }
+          } else {
+            emailInput.classList.remove('is-invalid', 'is-valid');
+          }
+        });
+      }
+
       document.getElementById('editHotelForm').addEventListener('submit', (e) => {
         e.preventDefault();
         let isValid = true;
         const requiredFields = e.target.querySelectorAll('[required]');
         requiredFields.forEach(f => {
+          if (f.id === 'otherCity' && otherCityContainer.classList.contains('d-none')) {
+            return;
+          }
           if (!f.value.trim()) {
             f.classList.add('is-invalid');
             isValid = false;
           } else {
-            f.classList.remove('is-invalid');
+            if (f.id !== 'contact' && f.id !== 'email') {
+              f.classList.remove('is-invalid');
+            }
           }
         });
 
+        if (contactInput && !contactRegex.test(contactInput.value)) {
+          contactInput.classList.add('is-invalid');
+          isValid = false;
+        }
+        if (emailInput && !emailRegex.test(emailInput.value)) {
+          emailInput.classList.add('is-invalid');
+          isValid = false;
+        }
+
         if (isValid) {
+          const newHotelCity = citySelect.value === 'Others' ? otherCityInput.value.trim() : citySelect.value;
           const name = document.getElementById('hotelName').value;
           const branch = document.getElementById('branchName').value;
           const managerId = document.getElementById('manager').value;
@@ -213,7 +290,7 @@
 
           h.name = name;
           h.branch = branch;
-          h.city = document.getElementById('city').value;
+          h.city = newHotelCity;
           h.contact = document.getElementById('contact').value;
           h.email = document.getElementById('email').value;
           h.managerId = managerId || null;

@@ -1,0 +1,355 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HotelBooking.API</name>
+    </assembly>
+    <members>
+        <member name="T:HotelBooking.API.Authorization.Filters.ForcePasswordChangeFilter">
+            <summary>
+            Blocks access to all authenticated endpoints except Auth and Profile (change-password/view)
+            while a user's ForcePasswordChange flag is set, per FR-2.4.
+            </summary>
+        </member>
+        <member name="T:HotelBooking.API.Migrations.InitialHotelDb">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.InitialHotelDb.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.InitialHotelDb.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.InitialHotelDb.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddRevocationTokens">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRevocationTokens.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRevocationTokens.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRevocationTokens.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddSavedCardsAndPromotions">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSavedCardsAndPromotions.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSavedCardsAndPromotions.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSavedCardsAndPromotions.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddDatabaseBackups">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddDatabaseBackups.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddDatabaseBackups.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddDatabaseBackups.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.SeedRoles">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.SeedRoles.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.SeedRoles.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.SeedRoles.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.CompletePhase1">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.CompletePhase1.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.CompletePhase1.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.CompletePhase1.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.Phase2SearchUpdates">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase2SearchUpdates.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase2SearchUpdates.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase2SearchUpdates.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.Phase3Bookings">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3Bookings.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3Bookings.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3Bookings.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddModule2Features">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddModule2Features.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddModule2Features.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddModule2Features.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.Phase3_AdminFinancials">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3_AdminFinancials.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3_AdminFinancials.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase3_AdminFinancials.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddRowVersionForConcurrency">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRowVersionForConcurrency.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRowVersionForConcurrency.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRowVersionForConcurrency.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddAdminEdgeCases">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddAdminEdgeCases.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddAdminEdgeCases.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddAdminEdgeCases.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.Phase5_EdgeCases_Migrations">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase5_EdgeCases_Migrations.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase5_EdgeCases_Migrations.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.Phase5_EdgeCases_Migrations.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddHotelAverageRating">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddHotelAverageRating.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddHotelAverageRating.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddHotelAverageRating.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddNewFeaturesPhase4">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddNewFeaturesPhase4.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddNewFeaturesPhase4.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddNewFeaturesPhase4.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddRazorpayPayments">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRazorpayPayments.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRazorpayPayments.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddRazorpayPayments.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddPaymentSessionAndMaintenanceMode">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentSessionAndMaintenanceMode.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentSessionAndMaintenanceMode.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentSessionAndMaintenanceMode.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddContentManagementSystem">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddContentManagementSystem.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddContentManagementSystem.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddContentManagementSystem.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddPaymentLinkSupport">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentLinkSupport.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentLinkSupport.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddPaymentLinkSupport.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddSearchOptimizationIndexes">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSearchOptimizationIndexes.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSearchOptimizationIndexes.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddSearchOptimizationIndexes.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.RemoveAdminFolderPayoutAndSupportTicketTables">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.RemoveAdminFolderPayoutAndSupportTicketTables.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.RemoveAdminFolderPayoutAndSupportTicketTables.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.RemoveAdminFolderPayoutAndSupportTicketTables.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.DenormalizeHotelImagesAmenitiesManagersHousekeeping">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeHotelImagesAmenitiesManagersHousekeeping.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeHotelImagesAmenitiesManagersHousekeeping.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeHotelImagesAmenitiesManagersHousekeeping.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.DenormalizeSavedCardsIntoUsers">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeSavedCardsIntoUsers.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeSavedCardsIntoUsers.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.DenormalizeSavedCardsIntoUsers.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddUserProfilePhotoUrl">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddUserProfilePhotoUrl.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddUserProfilePhotoUrl.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddUserProfilePhotoUrl.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.ConsolidateToRazorpayPaymentLinksOnly">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.ConsolidateToRazorpayPaymentLinksOnly.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.ConsolidateToRazorpayPaymentLinksOnly.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.ConsolidateToRazorpayPaymentLinksOnly.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddBookingIDProofAndRazorpayBookingIdRemoveGuests">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddBookingIDProofAndRazorpayBookingIdRemoveGuests.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddBookingIDProofAndRazorpayBookingIdRemoveGuests.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddBookingIDProofAndRazorpayBookingIdRemoveGuests.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddProfilePhotoBinaryStorage">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddProfilePhotoBinaryStorage.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddProfilePhotoBinaryStorage.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddProfilePhotoBinaryStorage.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HotelBooking.API.Migrations.AddCancellationPolicySnapshotToBooking">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddCancellationPolicySnapshotToBooking.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddCancellationPolicySnapshotToBooking.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HotelBooking.API.Migrations.AddCancellationPolicySnapshotToBooking.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>

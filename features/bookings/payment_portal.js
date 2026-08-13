@@ -1,3 +1,5 @@
+const HBS_API_BASE = 'http://localhost:5031';
+
 document.addEventListener('DOMContentLoaded', () => {
   // Determine if this is a modification payment or a fresh booking payment
   const isModification = sessionStorage.getItem('isModification') === 'true';
@@ -73,63 +75,155 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Track selected method for completeBooking() ────────────────────────────
   let selectedMethod = 'Razorpay';
 
-  // ── Razorpay checkout ─────────────────────────────────────────────────────
-  const btnPayRazorpay = document.getElementById('btnPayRazorpay');
-  const btnPayText     = document.getElementById('btnPayRazorpayText');
+  // ── Razorpay checkout (real order, phone capture, opens in a new tab) ─────
+  const btnPayRazorpay   = document.getElementById('btnPayRazorpay');
+  const btnPayText       = document.getElementById('btnPayRazorpayText');
+  const phoneModalEl     = document.getElementById('phoneNumberModal');
+  const phoneModal       = phoneModalEl ? new bootstrap.Modal(phoneModalEl) : null;
+  const phoneForm        = document.getElementById('phoneNumberForm');
+  const inputPhoneNumber = document.getElementById('inputPhoneNumber');
+  const phoneNumberError = document.getElementById('phoneNumberError');
+  const btnPhoneContinue = document.getElementById('btnPhoneContinue');
 
-  if (btnPayRazorpay) {
+  let rzpPollTimer = null;
+  let rzpPaymentReference = null;
+
+  function resetPayButton() {
+    if (btnPayRazorpay) btnPayRazorpay.disabled = false;
+    if (btnPayText) btnPayText.textContent = 'Pay Securely with Razorpay';
+  }
+
+  function showPaymentFailure(reason) {
+    resetPayButton();
+    const failModal = new bootstrap.Modal(document.getElementById('paymentFailedModal'));
+    const failReason = document.getElementById('lblFailReason');
+    if (failReason) failReason.textContent = reason || 'Payment was declined. Please try again.';
+    failModal.show();
+  }
+
+  function stopPollingForResult() {
+    if (rzpPollTimer) { clearInterval(rzpPollTimer); rzpPollTimer = null; }
+    window.removeEventListener('storage', onStorageResult);
+  }
+
+  function handleRazorpayResult(result) {
+    if (!result) return;
+    stopPollingForResult();
+
+    if (result.status === 'paid') {
+      selectedMethod = 'Razorpay';
+      const overlay = document.getElementById('paymentProgressOverlay');
+      if (overlay) overlay.classList.remove('d-none');
+      setTimeout(() => completeBooking(), 1200);
+    } else if (result.status === 'failed') {
+      showPaymentFailure(result.reason);
+    } else if (result.status === 'cancelled') {
+      resetPayButton();
+    }
+  }
+
+  function onStorageResult(e) {
+    if (!rzpPaymentReference || e.key !== `hbs_rzp_result_${rzpPaymentReference}`) return;
+    try { handleRazorpayResult(JSON.parse(e.newValue)); } catch (_) {}
+  }
+
+  function beginPollingForResult(reference) {
+    rzpPaymentReference = reference;
+    window.addEventListener('storage', onStorageResult);
+    // Poll too, in case the storage event doesn't fire (e.g. same-tab quirks / browser differences)
+    rzpPollTimer = setInterval(() => {
+      const raw = localStorage.getItem(`hbs_rzp_result_${reference}`);
+      if (raw) {
+        try { handleRazorpayResult(JSON.parse(raw)); } catch (_) {}
+      }
+    }, 1500);
+  }
+
+  if (btnPayRazorpay && phoneModal) {
     btnPayRazorpay.addEventListener('click', () => {
-      // Disable button while Razorpay is open
-      btnPayRazorpay.disabled = true;
-      if (btnPayText) btnPayText.textContent = 'Opening Razorpay…';
+      if (phoneNumberError) phoneNumberError.style.setProperty('display', 'none', 'important');
+      if (inputPhoneNumber) inputPhoneNumber.value = currentUser.phone || currentUser.mobile || '';
+      phoneModal.show();
+    });
+  }
 
-      const rzpOptions = {
-        key: 'rzp_test_T8UtZpyMedZBY8',          // Razorpay test key
-        amount: Math.round(amountToPay * 100),    // amount in paise
-        currency: 'INR',
-        name: 'Elegant Enclave',
-        description: isModification
-          ? `Booking Modification – ${sessionStorage.getItem('modify_bookingId') || localStorage.getItem('selectedBookingId') || ''}`
-          : `Room Booking – ${hotel.name} · ${room.type}`,
-        image: '../../assets/images/logo.png',
-        handler: function (response) {
-          // Payment successful — show processing overlay then finalize
-          selectedMethod = 'Razorpay';
-          const overlay = document.getElementById('paymentProgressOverlay');
-          if (overlay) overlay.classList.remove('d-none');
-          setTimeout(() => completeBooking(), 1800);
-        },
-        prefill: {
-          name:    displayName,
-          email:   displayEmail,
-          contact: currentUser.phone || currentUser.mobile || ''
-        },
-        notes: {
-          booking_type: isModification ? 'modification' : 'new',
-          hotel:        hotel.name,
-          room:         room.type
-        },
-        theme: { color: '#1A0A2E' },
-        modal: {
-          ondismiss: function () {
-            // User closed Razorpay without paying — re-enable button
-            btnPayRazorpay.disabled = false;
-            if (btnPayText) btnPayText.textContent = 'Pay Securely with Razorpay';
-          }
+  if (phoneForm) {
+    phoneForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const phone = (inputPhoneNumber?.value || '').trim();
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        if (phoneNumberError) {
+          phoneNumberError.textContent = 'Enter a valid 10-digit mobile number.';
+          phoneNumberError.style.setProperty('display', 'block', 'important');
         }
-      };
+        return;
+      }
 
-      const rzp = new Razorpay(rzpOptions);
-      rzp.on('payment.failed', function (response) {
-        btnPayRazorpay.disabled = false;
-        if (btnPayText) btnPayText.textContent = 'Pay Securely with Razorpay';
-        const failModal = new bootstrap.Modal(document.getElementById('paymentFailedModal'));
-        const failReason = document.getElementById('lblFailReason');
-        if (failReason) failReason.textContent = response.error?.description || 'Payment was declined. Please try again.';
-        failModal.show();
-      });
+      btnPhoneContinue.disabled = true;
+      btnPhoneContinue.textContent = 'Creating order…';
 
-      rzp.open();
+      const reference = `RZP-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+      // Open the tab synchronously, still inside the user-gesture call stack, so real
+      // browsers don't treat it as a blocked popup once we `await` the order-creation call below.
+      const checkoutTab = window.open('about:blank', '_blank');
+      if (!checkoutTab) {
+        btnPhoneContinue.disabled = false;
+        btnPhoneContinue.textContent = 'Continue to Razorpay';
+        showPaymentFailure('Your browser blocked the new tab. Please allow pop-ups for this site and try again.');
+        return;
+      }
+
+      try {
+        const orderResp = await fetch(`${HBS_API_BASE}/api/razorpay/order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reference, phoneNumber: phone, amount: amountToPay })
+        });
+
+        if (!orderResp.ok) {
+          const err = await orderResp.json().catch(() => ({}));
+          throw new Error(err.message || 'Could not create Razorpay order.');
+        }
+
+        const order = await orderResp.json();
+
+        // Hand the checkout page everything it needs via localStorage (shared across tabs on this origin)
+        localStorage.setItem(`hbs_rzp_order_${reference}`, JSON.stringify({
+          orderId: order.orderId,
+          amountPaise: order.amountPaise,
+          currency: order.currency,
+          keyId: order.keyId,
+          name: 'Elegant Enclave',
+          description: isModification
+            ? `Booking Modification – ${sessionStorage.getItem('modify_bookingId') || localStorage.getItem('selectedBookingId') || ''}`
+            : `Room Booking – ${hotel.name} · ${room.type}`,
+          prefillName: displayName,
+          prefillEmail: displayEmail,
+          prefillContact: phone,
+          apiBase: HBS_API_BASE
+        }));
+
+        phoneModal.hide();
+        btnPayRazorpay.disabled = true;
+        if (btnPayText) btnPayText.textContent = 'Waiting for payment in the new tab…';
+
+        // Requirement: Razorpay Checkout opens in a NEW browser tab, not this one.
+        // The tab was already opened synchronously (see above) to avoid popup-blocker issues;
+        // now that the order exists, point it at the checkout page.
+        const checkoutUrl = new URL('razorpay_checkout.html', window.location.href);
+        checkoutUrl.searchParams.set('ref', reference);
+        checkoutTab.location.href = checkoutUrl.toString();
+
+        beginPollingForResult(reference);
+      } catch (err) {
+        checkoutTab.close();
+        showPaymentFailure(err.message);
+      } finally {
+        btnPhoneContinue.disabled = false;
+        btnPhoneContinue.textContent = 'Continue to Razorpay';
+      }
     });
   }
 
@@ -211,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bList[bIdx] = oldB;
         HotelState.bookings = bList;
 
-        HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings', `${actionMsg} for booking ${targetId}. Amount Difference: ₹${diffAmount.toLocaleString('en-IN')}`);
+        
         
         const mockNotifs = HotelState.notifications;
         mockNotifs.unshift({
@@ -307,10 +401,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     HotelState.notifications = mockNotifs;
 
-    // 4. Add audit log
+    
     const userObj = HotelState.getUserById(userId);
     const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-    HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_CREATED', 'Bookings', `Created booking ${bookingId} via ${selectedMethod}`);
+    
 
     // 5. Navigate
     sessionStorage.setItem('hbs_last_booking_id', bookingId);

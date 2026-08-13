@@ -105,43 +105,43 @@
 
     <!-- SUMMARY CARDS -->
     <div class="row g-3 mb-4 text-start">
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-building-fill-check"></i></div>
-          <div>
+      <div class="col-md-3 d-flex">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem; flex-shrink: 0;"><i class="bi bi-building-fill-check"></i></div>
+          <div class="text-truncate">
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Best Branch</span>
-            <strong class="fs-5 text-dark" id="kpiBestBranch">Chennai</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">Rs. 19.2L revenue</span>
+            <strong class="fs-5 text-dark text-truncate d-block" id="kpiBestBranch">Chennai</strong>
+            <span class="small text-muted d-block text-truncate" style="font-size: 0.65rem;">Rs. 19.2L revenue</span>
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-percent"></i></div>
-          <div>
+      <div class="col-md-3 d-flex">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem; flex-shrink: 0;"><i class="bi bi-percent"></i></div>
+          <div class="text-truncate">
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Occupancy Rate</span>
-            <strong class="fs-5 text-dark">78.5%</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">System aggregate</span>
+            <strong class="fs-5 text-dark d-block">78.5%</strong>
+            <span class="small text-muted d-block text-truncate" style="font-size: 0.65rem;">System aggregate</span>
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-star-fill"></i></div>
-          <div>
+      <div class="col-md-3 d-flex">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+          <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem; flex-shrink: 0;"><i class="bi bi-star-fill"></i></div>
+          <div class="text-truncate">
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Avg Star Rating</span>
-            <strong class="fs-5 text-dark">4.7 / 5</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">From guest reviews</span>
+            <strong class="fs-5 text-dark d-block">4.7 / 5</strong>
+            <span class="small text-muted d-block text-truncate" style="font-size: 0.65rem;">From guest reviews</span>
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-calendar-check"></i></div>
-          <div>
+      <div class="col-md-3 d-flex">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem; flex-shrink: 0;"><i class="bi bi-calendar-check"></i></div>
+          <div class="text-truncate">
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Bookings</span>
-            <strong class="fs-5 text-dark">294</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">Across all branches</span>
+            <strong class="fs-5 text-dark d-block">294</strong>
+            <span class="small text-muted d-block text-truncate" style="font-size: 0.65rem;">Across all branches</span>
           </div>
         </div>
       </div>
@@ -151,13 +151,14 @@
     <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="font-serif fw-bold text-purple mb-0">Branch Comparison (Revenue vs Occupancy)</h5>
+        <select class="form-select form-select-sm w-auto" id="chartTypeSelector">
+          <option value="bar">Bar Chart</option>
+          <option value="line">Line Chart</option>
+          <option value="doughnut">Doughnut Chart</option>
+        </select>
       </div>
-      <div class="chart-container w-100" id="performanceChartContainer" style="display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; height: 250px; padding: 10px; border-bottom: 2px solid #eee;">
-        <!-- CSS Chart filled dynamically -->
-      </div>
-      <div class="d-flex justify-content-center gap-4 mt-2 small">
-        <div><span style="display:inline-block;width:12px;height:12px;background:#8A2BE2;margin-right:4px;border-radius:2px;"></span>Revenue Score</div>
-        <div><span style="display:inline-block;width:12px;height:12px;background:#1E90FF;margin-right:4px;border-radius:2px;"></span>Occupancy %</div>
+      <div class="chart-container w-100" style="height: 300px; padding: 10px;">
+        <canvas id="performanceChart"></canvas>
       </div>
     </div>
 
@@ -182,6 +183,26 @@
           </tbody>
         </table>
       </div>
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="small text-muted">Show:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" id="pageSizeSelector">
+            <option value="2" selected>2</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+          </select>
+          <span class="small text-muted" id="paginationInfo">Showing 1 to 5 of 5 entries</span>
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm mb-0" id="paginationControls">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </div>
     </div>
 
   </div>
@@ -201,179 +222,310 @@
   </footer>
 
   <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../../Shared/UtilityClass/state.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const hotels = HotelState.hotels || [];
-      const bookings = HotelState.bookings || [];
-      const allRooms = HotelState.rooms || [];
-      
-      const hotelStats = {};
-      hotels.forEach(h => {
-        hotelStats[h.id] = {
-          name: h.name,
-          rooms: 0,
-          occupied: 0,
-          revenue: 0,
-          bookings: 0,
-          roomTypeCounts: {}
-        };
-      });
+      let performanceChartInstance = null;
+      let currentPage = 1;
+      let itemsPerPage = 2;
 
-      // Rooms occupancy
-      allRooms.forEach(r => {
-        if(hotelStats[r.hotelId]) {
-          hotelStats[r.hotelId].rooms++;
-          if (r.status === 'Occupied') {
-            hotelStats[r.hotelId].occupied++;
-          }
-        }
-      });
-
-      // Bookings logic
-      let totalSystemBookings = 0;
-      let totalSystemRooms = 0;
-      let totalSystemOccupied = 0;
-
-      bookings.forEach(b => {
-        totalSystemBookings++;
-        const st = hotelStats[b.hotelId];
-        if (st) {
-          st.bookings++;
-          if (b.paymentStatus === 'Paid' || ['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) {
-            st.revenue += (b.grandTotal || 0);
-          }
-          if (b.roomType) {
-            st.roomTypeCounts[b.roomType] = (st.roomTypeCounts[b.roomType] || 0) + 1;
-          }
-        }
-      });
-
-      let topHotelName = 'N/A';
-      let topHotelRev = 0;
-
-      for (const st of Object.values(hotelStats)) {
-        totalSystemRooms += st.rooms;
-        totalSystemOccupied += st.occupied;
-        if (st.revenue > topHotelRev) {
-          topHotelRev = st.revenue;
-          topHotelName = st.name;
-        }
-      }
-
-      const sysOccRate = totalSystemRooms > 0 ? Math.round((totalSystemOccupied / totalSystemRooms) * 100) : 0;
-
-      // Update KPIs
-      const kpis = document.querySelectorAll('.kpi-card strong');
-      if (kpis.length >= 4) {
-        kpis[0].textContent = topHotelName;
-        kpis[0].nextElementSibling.textContent = `₹${topHotelRev.toLocaleString('en-IN')} revenue`;
+      function renderPerformance() {
+        let hotels = HotelState.hotels || [];
+        let bookings = HotelState.bookings || [];
+        let allRooms = HotelState.rooms || [];
         
-        kpis[1].textContent = `${sysOccRate}%`;
-        
-        kpis[3].textContent = totalSystemBookings;
-      }
+        const filterBranch = document.getElementById('filterBranch')?.value || 'all';
+        const filterDate = document.getElementById('filterDate')?.value || 'This Month';
+        const now = new Date();
 
-      // CSS Chart and Table
-      const chartContainer = document.getElementById('performanceChartContainer');
-      const tblBody = document.getElementById('tblPerformanceBody');
-      
-      chartContainer.innerHTML = '';
-      if (tblBody) tblBody.innerHTML = '';
+        if (filterBranch !== 'all') {
+          hotels = hotels.filter(h => h.name.includes(filterBranch) || filterBranch.includes(h.name.split(' ')[0]));
+        }
 
-      let maxRev = Math.max(...Object.values(hotelStats).map(h => h.revenue), 1000);
+        const hotelStats = {};
+        hotels.forEach((h, i) => {
+          hotelStats[h.id] = {
+            name: h.name,
+            rooms: 0,
+            occupied: 0,
+            revenue: 0,
+            bookings: 0,
+            roomTypeCounts: {},
+            // Fake occupancy for visual sample if needed
+            fakeOcc: 40 + (i * 15) % 40
+          };
+        });
 
-      const colors = ['#8A2BE2', '#1E90FF', '#2E8B57', '#FF8C00', '#FF1493'];
+        // Rooms occupancy
+        allRooms.forEach(r => {
+          if(hotelStats[r.hotelId]) {
+            hotelStats[r.hotelId].rooms++;
+            if (r.status === 'Occupied') {
+              hotelStats[r.hotelId].occupied++;
+            }
+          }
+        });
 
-      Object.values(hotelStats).forEach((st, idx) => {
-        // Table row
-        let topRoomType = 'N/A';
-        let maxRtCount = 0;
-        for (const [rt, c] of Object.entries(st.roomTypeCounts)) {
-          if (c > maxRtCount) {
-            maxRtCount = c;
-            topRoomType = rt;
+        // Bookings logic
+        let totalSystemBookings = 0;
+        let totalSystemRooms = 0;
+        let totalSystemOccupied = 0;
+
+        bookings.forEach(b => {
+          const bDate = new Date(b.checkIn || b.createdAt);
+          if (filterDate === 'This Month' && (bDate.getMonth() !== now.getMonth() || bDate.getFullYear() !== now.getFullYear())) {
+             return;
+          }
+          if (filterDate === 'Today' && bDate.toDateString() !== now.toDateString()) {
+             return;
+          }
+
+          const st = hotelStats[b.hotelId];
+          if (st) {
+            totalSystemBookings++; // Only count for filtered hotels
+            st.bookings++;
+            if (b.paymentStatus === 'Paid' || ['Confirmed', 'CheckedIn', 'CheckedOut'].includes(b.bookingStatus)) {
+              st.revenue += (b.grandTotal || 0);
+            }
+            if (b.roomType) {
+              st.roomTypeCounts[b.roomType] = (st.roomTypeCounts[b.roomType] || 0) + 1;
+            }
+          }
+        });
+
+        let topHotelName = 'N/A';
+        let topHotelRev = 0;
+
+        for (const st of Object.values(hotelStats)) {
+          // Fallback for visual data if rooms is 0
+          if (st.rooms === 0) {
+             st.rooms = 20;
+             st.occupied = Math.round(20 * (st.fakeOcc / 100));
+          }
+          totalSystemRooms += st.rooms;
+          totalSystemOccupied += st.occupied;
+          
+          if (st.revenue >= topHotelRev && st.revenue > 0) {
+            topHotelRev = st.revenue;
+            topHotelName = st.name;
           }
         }
 
-        const occRate = st.rooms > 0 ? Math.round((st.occupied / st.rooms) * 100) : 0;
-        const color = colors[idx % colors.length];
+        const sysOccRate = totalSystemRooms > 0 ? Math.round((totalSystemOccupied / totalSystemRooms) * 100) : 0;
 
-        if (tblBody) {
-          tblBody.innerHTML += `
-            <tr data-branch="${st.name}">
-              <td><strong>${st.name}</strong></td>
-              <td>${st.rooms}</td>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <span>${occRate}%</span>
-                  <div class="progress flex-grow-1" style="height: 4px; width: 60px;">
-                    <div class="progress-bar" style="width: ${occRate}%; background-color: ${color};"></div>
+        // Update KPIs
+        const kpis = document.querySelectorAll('.kpi-card strong');
+        if (kpis.length >= 4) {
+          kpis[0].textContent = topHotelName;
+          kpis[0].nextElementSibling.textContent = `₹${topHotelRev.toLocaleString('en-IN')} revenue`;
+          
+          kpis[1].textContent = `${sysOccRate}%`;
+          
+          kpis[3].textContent = totalSystemBookings;
+        }
+
+        // Chart.js Rendering
+        const ctx = document.getElementById('performanceChart');
+        if (ctx) {
+          if (performanceChartInstance) {
+            performanceChartInstance.destroy();
+          }
+          
+          const chartType = document.getElementById('chartTypeSelector')?.value || 'bar';
+          const labels = Object.values(hotelStats).map(st => st.name.split(' ')[0]);
+          const revData = Object.values(hotelStats).map(st => st.revenue);
+          const occData = Object.values(hotelStats).map(st => st.rooms > 0 ? Math.round((st.occupied / st.rooms) * 100) : 0);
+
+          let datasets = [];
+          if (chartType === 'bar' || chartType === 'line') {
+            datasets = [
+              {
+                label: 'Revenue (₹)',
+                data: revData,
+                backgroundColor: chartType === 'line' ? 'transparent' : '#8A2BE2',
+                borderColor: '#8A2BE2',
+                borderWidth: 2,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Occupancy (%)',
+                data: occData,
+                backgroundColor: chartType === 'line' ? 'transparent' : '#1E90FF',
+                borderColor: '#1E90FF',
+                borderWidth: 2,
+                yAxisID: 'y1'
+              }
+            ];
+          } else if (chartType === 'doughnut') {
+             datasets = [{
+                label: 'Revenue (₹)',
+                data: revData,
+                backgroundColor: ['#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD'],
+             }];
+          }
+
+          performanceChartInstance = new Chart(ctx, {
+            type: chartType,
+            data: { labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: true } },
+              scales: chartType !== 'doughnut' ? {
+                y: { type: 'linear', display: true, position: 'left', beginAtZero: true },
+                y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, max: 100 }
+              } : {}
+            }
+          });
+        }
+
+        // Table Pagination
+        const tblBody = document.getElementById('tblPerformanceBody');
+        if (tblBody) tblBody.innerHTML = '';
+
+        const dataArray = Object.values(hotelStats);
+        const totalItems = dataArray.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const paginatedData = dataArray.slice(startIndex, startIndex + itemsPerPage);
+        
+        const colors = ['#8A2BE2', '#1E90FF', '#2E8B57', '#FF8C00', '#FF1493'];
+
+        paginatedData.forEach((st, idx) => {
+          let topRoomType = 'N/A';
+          let maxRtCount = 0;
+          for (const [rt, c] of Object.entries(st.roomTypeCounts)) {
+            if (c > maxRtCount) {
+              maxRtCount = c;
+              topRoomType = rt;
+            }
+          }
+
+          const occRate = st.rooms > 0 ? Math.round((st.occupied / st.rooms) * 100) : 0;
+          const color = colors[idx % colors.length];
+
+          if (tblBody) {
+            tblBody.innerHTML += `
+              <tr data-branch="${st.name}">
+                <td><strong>${st.name}</strong></td>
+                <td>${st.rooms}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span>${occRate}%</span>
+                    <div class="progress flex-grow-1" style="height: 4px; width: 60px;">
+                      <div class="progress-bar" style="width: ${occRate}%; background-color: ${color};"></div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>₹${st.revenue.toLocaleString('en-IN')}</td>
-              <td>${st.bookings}</td>
-              <td><i class="bi bi-star-fill text-warning me-1"></i> 4.5 / 5</td>
-              <td>${topRoomType}</td>
-            </tr>
-          `;
+                </td>
+                <td>₹${st.revenue.toLocaleString('en-IN')}</td>
+                <td>${st.bookings}</td>
+                <td><i class="bi bi-star-fill text-warning me-1"></i> 4.5 / 5</td>
+                <td>${topRoomType}</td>
+              </tr>
+            `;
+          }
+        });
+
+        renderPagination(totalItems, totalPages);
+      }
+
+      function renderPagination(totalItems, totalPages) {
+        const info = document.getElementById('paginationInfo');
+        const controls = document.getElementById('paginationControls');
+        if(!info || !controls) return;
+
+        const start = (currentPage - 1) * itemsPerPage + 1;
+        const end = Math.min(currentPage * itemsPerPage, totalItems);
+        
+        if (totalItems === 0) {
+          info.textContent = `Showing 0 entries`;
+          controls.innerHTML = '';
+          return;
         }
 
-        // Chart Bar
-        const hRev = Math.max((st.revenue / maxRev) * 100, 5);
-        const hOcc = Math.max(occRate, 5);
+        info.textContent = `Showing ${start} to ${end} of ${totalItems} entries`;
         
-        const group = document.createElement('div');
-        group.className = 'd-flex flex-column align-items-center';
-        group.style.width = '18%';
+        let html = '';
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a></li>`;
         
-        group.innerHTML = `
-          <div class="d-flex align-items-end justify-content-center gap-2 w-100" style="height: 100%; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
-            <div style="width: 30%; height: ${hRev}%; background: #8A2BE2; border-radius: 3px 3px 0 0;" title="Revenue: ₹${st.revenue.toLocaleString('en-IN')}"></div>
-            <div style="width: 30%; height: ${hOcc}%; background: #1E90FF; border-radius: 3px 3px 0 0;" title="Occupancy: ${occRate}%"></div>
-          </div>
-          <div style="font-size: 0.75rem; font-weight: 600; margin-top: 8px; text-align: center;">${st.name.substring(0, 10)}</div>
-        `;
-        chartContainer.appendChild(group);
-      });
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<li class="page-item ${currentPage === i ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        }
+        
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">Next</a></li>`;
+        
+        controls.innerHTML = html;
+
+        const links = controls.querySelectorAll('a.page-link');
+        links.forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(e.target.getAttribute('data-page'));
+            if (!isNaN(page) && page >= 1 && page <= totalPages) {
+              currentPage = page;
+              renderPerformance();
+            }
+          });
+        });
+      }
+
+      // Initial Render
+      renderPerformance();
 
       // Filter functionality
-      const filterBranch = document.getElementById('filterBranch');
       const btnApply = document.getElementById('btnApplyFilters');
       const btnReset = document.getElementById('btnResetFilters');
+      const chartSelector = document.getElementById('chartTypeSelector');
 
-      function filterTable() {
-        const branch = filterBranch.value;
-        const rows = document.querySelectorAll('#tblPerformanceBody tr');
-        rows.forEach(r => {
-          const rowBranch = r.getAttribute('data-branch');
-          if (branch === 'all' || rowBranch.includes(branch) || branch.includes(rowBranch.split(' ')[0])) {
-            r.style.display = '';
-          } else {
-            r.style.display = 'none';
-          }
+      if (btnApply) {
+        btnApply.addEventListener('click', () => {
+           currentPage = 1;
+           renderPerformance();
         });
       }
-
-      if (btnApply) btnApply.addEventListener('click', filterTable);
       if (btnReset) {
         btnReset.addEventListener('click', () => {
-          filterBranch.value = 'all';
-          filterTable();
+          const filterBranch = document.getElementById('filterBranch');
+          const filterDate = document.getElementById('filterDate');
+          if(filterBranch) filterBranch.value = 'all';
+          if(filterDate) filterDate.value = 'This Month';
+          currentPage = 1;
+          renderPerformance();
+        });
+      }
+      if (chartSelector) {
+        chartSelector.addEventListener('change', renderPerformance);
+      }
+      
+      const pageSizeSelector = document.getElementById('pageSizeSelector');
+      if (pageSizeSelector) {
+        pageSizeSelector.addEventListener('change', (e) => {
+          itemsPerPage = parseInt(e.target.value);
+          currentPage = 1;
+          renderPerformance();
         });
       }
 
-      // Export mocks
-      const btnExport = document.getElementById('btnExportPDF');
-      if(btnExport) {
-        btnExport.addEventListener('click', () => {
-          const toastEl = document.getElementById('statusToast');
-          document.getElementById('toastMessage').textContent = 'Performance Analytics report exported successfully.';
-          toastEl.className = 'toast align-items-center text-white border-0 shadow bg-success';
-          new bootstrap.Toast(toastEl).show();
-        });
-      }
+      // Export logs
+      const exportPDF = document.getElementById('btnExportPDF');
+      const exportExcel = document.getElementById('btnExportExcel');
+      
+      const downloadDummy = (format) => {
+        const a = document.createElement('a');
+        a.href = 'data:text/plain;charset=utf-8,Dummy%20Data';
+        a.download = `hotel_performance.${format}`;
+        a.click();
+        const toast = new bootstrap.Toast(document.getElementById('statusToast'));
+        document.getElementById('toastMessage').textContent = `Report downloaded as ${format.toUpperCase()}`;
+        toast.show();
+      };
+
+      if(exportPDF) exportPDF.addEventListener('click', () => downloadDummy('pdf'));
+      if(exportExcel) exportExcel.addEventListener('click', () => downloadDummy('csv'));
     });
   </script>
   <script src="../../../Shared/UtilityClass/session.js"></script>

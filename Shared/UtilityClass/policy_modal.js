@@ -172,7 +172,6 @@ class PolicyConfirmationModal {
         <strong class="text-dark d-block mb-1 small">PRICING</strong>
         <ul class="ps-3 mb-0">
           <li>Charges recalculated: Higher amount &rarr; Customer pays difference; Lower amount &rarr; Refund processed.</li>
-          <li>All modifications are recorded for audit purposes.</li>
         </ul>
       `;
     } else if (options.policyType === 'cancellation') {

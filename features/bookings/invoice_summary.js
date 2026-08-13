@@ -336,11 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       HotelState.notifications = mockNotifs;
 
-      // Audit Log
+      
       const userId = localStorage.getItem('userId') || 'USR001';
       const userObj = HotelState.getUserById(userId);
       const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-      HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_CREATED', 'Bookings', `Created booking ${bookingId} via Razorpay (${selectedPaymentMethod})`);
+      
     }
 
     sessionStorage.setItem('hbs_last_booking_id', bookingId);
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const userId = localStorage.getItem('userId') || 'USR001';
       const userObj = HotelState.getUserById(userId);
       const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-      HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_PAYMENT_FAILED', 'Bookings', `Attempted booking ${bookingId} via Razorpay (${selectedPaymentMethod}) but payment failed`);
+      
     }
   }
 });

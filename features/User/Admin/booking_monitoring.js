@@ -1,9 +1,10 @@
 // Admin Session Check
 const userId = localStorage.getItem('userId');
-const userRole = localStorage.getItem('userRole');
+const userRole = (localStorage.getItem('userRole') || '').trim();
 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
 if (!isLoggedIn || userRole !== 'Admin') {
+  console.warn('Session check failed:', { isLoggedIn, userRole });
   window.location.href = '../../../features/Auth/login.html';
 }
 
@@ -111,16 +112,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let currentPageAll = 1;
+  let currentPageHistory = 1;
+  let itemsPerPage = 8;
+
+  function renderPaginationControls(totalItems, currentPage, wrapperId, infoId, onPageChange) {
+    const wrapper = document.getElementById(wrapperId);
+    const info = document.getElementById(infoId);
+    if (!wrapper || !info) return;
+
+    wrapper.innerHTML = '';
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    if (totalItems === 0) {
+      info.textContent = 'Showing 0 items';
+      return;
+    }
+
+    const start = (currentPage - 1) * itemsPerPage + 1;
+    const end = Math.min(currentPage * itemsPerPage, totalItems);
+    info.innerHTML = `Showing <span class="fw-bold text-purple">${start}</span> to <span class="fw-bold text-purple">${end}</span> of <span class="fw-bold text-purple">${totalItems}</span> entries`;
+
+    if (totalPages > 1) {
+      const ul = document.createElement('ul');
+      ul.className = 'pagination pagination-sm mb-0 gap-2 align-items-center';
+
+      // Prev Button
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `<button class="page-link rounded-circle border-0 shadow-sm text-dark d-flex align-items-center justify-content-center" style="width:32px; height:32px;"><i class="bi bi-chevron-left"></i></button>`;
+      if (currentPage > 1) {
+        prevLi.querySelector('button').onclick = () => onPageChange(currentPage - 1);
+        prevLi.querySelector('button').onmouseenter = (e) => e.currentTarget.classList.add('bg-light');
+        prevLi.querySelector('button').onmouseleave = (e) => e.currentTarget.classList.remove('bg-light');
+      }
+      ul.appendChild(prevLi);
+
+      // Page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item`;
+        const btn = document.createElement('button');
+        
+        if (i === currentPage) {
+          btn.className = 'page-link rounded-circle border-0 shadow-sm text-white fw-bold d-flex align-items-center justify-content-center';
+          btn.style.backgroundColor = '#1A0A2E';
+        } else {
+          btn.className = 'page-link rounded-circle border-0 shadow-sm text-dark d-flex align-items-center justify-content-center';
+          btn.onmouseenter = () => btn.classList.add('bg-light');
+          btn.onmouseleave = () => btn.classList.remove('bg-light');
+          btn.onclick = () => onPageChange(i);
+        }
+        btn.style.width = '32px';
+        btn.style.height = '32px';
+        btn.textContent = i;
+        
+        li.appendChild(btn);
+        ul.appendChild(li);
+      }
+
+      // Next Button
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `<button class="page-link rounded-circle border-0 shadow-sm text-dark d-flex align-items-center justify-content-center" style="width:32px; height:32px;"><i class="bi bi-chevron-right"></i></button>`;
+      if (currentPage < totalPages) {
+        nextLi.querySelector('button').onclick = () => onPageChange(currentPage + 1);
+        nextLi.querySelector('button').onmouseenter = (e) => e.currentTarget.classList.add('bg-light');
+        nextLi.querySelector('button').onmouseleave = (e) => e.currentTarget.classList.remove('bg-light');
+      }
+      ul.appendChild(nextLi);
+
+      wrapper.appendChild(ul);
+    }
+  }
+
   function renderAllBookings() {
     tblBody.innerHTML = '';
     const filtered = filterData(allBookings, false);
 
     if (filtered.length === 0) {
       tblBody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">No active bookings found.</td></tr>`;
+      renderPaginationControls(0, 1, 'allBookingsPaginationWrapper', 'allBookingsPageInfo', () => {});
       return;
     }
 
-    filtered.forEach(b => {
+    const startIdx = (currentPageAll - 1) * itemsPerPage;
+    const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+    paginated.forEach(b => {
       const hotel = HotelState.getHotelById(b.hotelId);
       const hotelName = hotel ? hotel.name : b.hotelId;
       const guestName = getCustomerName(b);
@@ -128,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let actionButtons = `<button class="btn btn-sm btn-outline-purple py-0 px-2 me-1 btn-view-booking" data-id="${b.id}">View</button>`;
       if (b.bookingStatus === 'Confirmed') {
         actionButtons += `
-          <button class="btn btn-sm btn-outline-danger py-0 px-2 me-1 btn-cancel-booking" data-id="${b.id}">Cancel</button>
           <button class="btn btn-sm btn-outline-warning py-0 px-2 btn-noshow-booking" data-id="${b.id}">No-Show</button>
         `;
       }
@@ -149,6 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
       tblBody.appendChild(tr);
     });
 
+    renderPaginationControls(filtered.length, currentPageAll, 'allBookingsPaginationWrapper', 'allBookingsPageInfo', (page) => {
+      currentPageAll = page;
+      renderAllBookings();
+    });
+
     bindActionButtons();
   }
 
@@ -158,10 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (filtered.length === 0) {
       tblHistoryBody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">No booking history records found.</td></tr>`;
+      renderPaginationControls(0, 1, 'historyPaginationWrapper', 'historyPageInfo', () => {});
       return;
     }
 
-    filtered.forEach(b => {
+    const startIdx = (currentPageHistory - 1) * itemsPerPage;
+    const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+    paginated.forEach(b => {
       const hotel = HotelState.getHotelById(b.hotelId);
       const hotelName = hotel ? hotel.name : b.hotelId;
       const guestName = getCustomerName(b);
@@ -184,6 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
       tblHistoryBody.appendChild(tr);
     });
 
+    renderPaginationControls(filtered.length, currentPageHistory, 'historyPaginationWrapper', 'historyPageInfo', (page) => {
+      currentPageHistory = page;
+      renderHistory();
+    });
+
     document.querySelectorAll('.btn-view-invoice').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-id');
@@ -199,15 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = e.currentTarget.getAttribute('data-id');
         sessionStorage.setItem('adminViewBookingId', id);
         location.href = 'view_booking.html';
-      });
-    });
-
-    document.querySelectorAll('.btn-cancel-booking').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        if (confirm(`Are you sure you want to cancel booking ${id}?`)) {
-          cancelBookingAction(id, 'Cancelled');
-        }
       });
     });
 
@@ -235,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Free Room
     HotelState.updateRoomStatus(b.hotelId, b.roomId, 'Available');
 
-    // Audit Log
+    
 
     // Customer Notification
     HotelState.addNotification({
@@ -367,11 +450,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // INITIALIZATION AND FILTERS
   // ==========================================
   if (btnApplyFilters) {
-    btnApplyFilters.addEventListener('click', refreshAll);
+    btnApplyFilters.addEventListener('click', () => {
+      currentPageAll = 1;
+      currentPageHistory = 1;
+      refreshAll();
+    });
   }
 
   if (searchInput) {
-    searchInput.addEventListener('input', renderAllBookings);
+    searchInput.addEventListener('input', () => {
+      currentPageAll = 1;
+      renderAllBookings();
+    });
   }
 
   if (btnResetFilters) {
@@ -380,18 +470,204 @@ document.addEventListener('DOMContentLoaded', () => {
       if (filterStatus) filterStatus.value = 'all';
       if (filterDateRange) filterDateRange.value = 'This Month';
       searchInput.value = '';
+      currentPageAll = 1;
+      currentPageHistory = 1;
       refreshAll();
     });
   }
 
+  const allBookingsPageSizeSelector = document.getElementById('allBookingsPageSizeSelector');
+  const historyPageSizeSelector = document.getElementById('historyPageSizeSelector');
+
+  if (allBookingsPageSizeSelector) {
+    allBookingsPageSizeSelector.addEventListener('change', (e) => {
+      itemsPerPage = parseInt(e.target.value);
+      if (historyPageSizeSelector) historyPageSizeSelector.value = itemsPerPage;
+      currentPageAll = 1;
+      currentPageHistory = 1;
+      refreshAll();
+    });
+  }
+
+  if (historyPageSizeSelector) {
+    historyPageSizeSelector.addEventListener('change', (e) => {
+      itemsPerPage = parseInt(e.target.value);
+      if (allBookingsPageSizeSelector) allBookingsPageSizeSelector.value = itemsPerPage;
+      currentPageAll = 1;
+      currentPageHistory = 1;
+      refreshAll();
+    });
+  }
+
+  function updateKPIs(data) {
+    document.getElementById('kpiTotal').textContent = data.length.toLocaleString('en-IN');
+    const active = data.filter(b => !['CheckedOut', 'Cancelled'].includes(b.bookingStatus));
+    document.getElementById('kpiActive').textContent = active.length;
+    const confirmed = data.filter(b => b.bookingStatus === 'Confirmed').length;
+    document.getElementById('kpiConfirmed').textContent = confirmed;
+    const pending = data.filter(b => b.bookingStatus === 'Pending').length;
+    document.getElementById('kpiPending').textContent = pending;
+  }
+
+  let trendChartInstance = null;
+  let statusChartInstance = null;
+  let occupancyChartInstance = null;
+  let currentChartMode = 'daily';
+
+  window.setChartMode = function(mode) {
+    currentChartMode = mode;
+    document.querySelectorAll('#trendChartTimeRange .btn').forEach(btn => {
+      btn.classList.remove('active', 'btn-purple');
+      btn.classList.add('btn-outline-purple');
+      if(btn.textContent.toLowerCase() === mode) {
+        btn.classList.remove('btn-outline-purple');
+        btn.classList.add('active', 'btn-purple');
+      }
+    });
+    refreshAll();
+  };
+
+  const selectActiveChart = document.getElementById('selectActiveChart');
+  if (selectActiveChart) {
+    selectActiveChart.addEventListener('change', (e) => {
+      const val = e.target.value;
+      document.getElementById('containerTrendChart').classList.add('d-none');
+      document.getElementById('containerStatusChart').classList.add('d-none');
+      document.getElementById('containerOccupancyChart').classList.add('d-none');
+      document.getElementById('trendChartTimeRange').classList.add('d-none');
+      
+      if (val === 'trends') {
+        document.getElementById('containerTrendChart').classList.remove('d-none');
+        document.getElementById('trendChartTimeRange').classList.remove('d-none');
+      } else if (val === 'status') {
+        document.getElementById('containerStatusChart').classList.remove('d-none');
+      } else if (val === 'occupancy') {
+        document.getElementById('containerOccupancyChart').classList.remove('d-none');
+      }
+    });
+  }
+
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+  }
+
+  function renderCharts(data) {
+    // 1. Trend Chart
+    const ctxTrend = document.getElementById('trendChart');
+    if(ctxTrend) {
+      if(trendChartInstance) trendChartInstance.destroy();
+      const dateCounts = {};
+      data.forEach(b => {
+        let key = b.checkIn; // 'YYYY-MM-DD'
+        if (currentChartMode === 'weekly') {
+           const d = new Date(b.checkIn);
+           key = `Week ${getWeekNumber(d)}, ${d.getFullYear()}`;
+        } else if (currentChartMode === 'monthly') {
+           const d = new Date(b.checkIn);
+           const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+           key = `${mNames[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        if(!dateCounts[key]) dateCounts[key] = 0;
+        dateCounts[key]++;
+      });
+      const labels = Object.keys(dateCounts).sort();
+      const values = labels.map(l => dateCounts[l]);
+      
+      trendChartInstance = new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Bookings',
+            data: values,
+            borderColor: '#1A0A2E',
+            backgroundColor: 'rgba(26,10,46,0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    // 2. Status Chart (Pie)
+    const ctxStatus = document.getElementById('statusChart');
+    if(ctxStatus) {
+      if(statusChartInstance) statusChartInstance.destroy();
+      const stCounts = {};
+      data.forEach(b => {
+        const s = b.bookingStatus;
+        if(!stCounts[s]) stCounts[s] = 0;
+        stCounts[s]++;
+      });
+      
+      statusChartInstance = new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(stCounts),
+          datasets: [{
+            data: Object.values(stCounts),
+            backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#6B7280', '#EF4444']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    }
+
+    // 3. Occupancy Chart (Bar)
+    const ctxOcc = document.getElementById('branchRatioChart');
+    if(ctxOcc) {
+      if(occupancyChartInstance) occupancyChartInstance.destroy();
+      const brCounts = {};
+      data.forEach(b => {
+        const h = HotelState.getHotelById(b.hotelId);
+        const name = h ? h.name.replace('Elegant Enclave ', '') : b.hotelId;
+        if(!brCounts[name]) brCounts[name] = 0;
+        brCounts[name]++;
+      });
+
+      occupancyChartInstance = new Chart(ctxOcc, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(brCounts),
+          datasets: [{
+            label: 'Bookings per Branch',
+            data: Object.values(brCounts),
+            backgroundColor: '#1A0A2E'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+  }
+
   function refreshAll() {
     allBookings = HotelState.bookings || [];
+    const filtered = filterData(allBookings, false); // Active tab filter context for KPIs/Charts
+    updateKPIs(allBookings);
+    renderCharts(filtered);
     renderAllBookings();
     renderHistory();
     renderCalendar();
   }
 
-  // Export CSV
   window.exportReport = function(format) {
     if (format === 'CSV') {
       const filtered = filterData(allBookings, true);
@@ -399,19 +675,33 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.map(b => `"${b.id}","${getCustomerName(b)}","${HotelState.getHotelById(b.hotelId)?.name || b.hotelId}","${b.roomId}","${b.checkIn}","${b.checkOut}","${b.bookingStatus}",${b.grandTotal}`).join('\n');
       
       const blob = new Blob([csvString], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Booking_History_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      triggerDownload(blob, `Booking_History_${new Date().toISOString().slice(0, 10)}.csv`);
       showToast('CSV downloaded successfully.', true);
-    } else {
-      showToast(`${format} export is currently simulated. Use CSV option for raw download.`, true);
+    } else if (format === 'PDF') {
+      const b64 = "JVBERi0xLjEKJcOkw7zDtsOfCjEgMCBvYmoKPDwKL1R5cGUgL0NhdGFsb2cKL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjwwCi9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL01lZGlhQm94IFswIDAgMTAwIDEwMF0KL1Jlc291cmNlcyA8PAovRm9udCA8PAovRjEgPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KPj4KPj4KL0NvbnRlbnRzIDQgMCBSCj4+CmVuZG9iago0IDAgb2JqCjw8IC9MZW5ndGggNTUgPj4Kc3RyZWFtCkJUCi9GMSAxOCBUZgowIDUwIFRECihEdW1teSBQREYpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDUKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE4IDAwMDAwIG4gCjAwMDAwMDAwNzcgMDAwMDAgbiAKMDAwMDAwMDEzNCAwMDAwMCBuIAowMDAwMDAwMzAyIDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNQovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMzkzCiUlRU9GCg==";
+      const binStr = atob(b64);
+      const bytes = new Uint8Array(binStr.length);
+      for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      triggerDownload(blob, `Booking_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      showToast('Dummy PDF downloaded.', true);
+    } else if (format === 'Excel') {
+      const blob = new Blob(['Dummy Excel Content'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      triggerDownload(blob, `Booking_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast('Dummy Excel downloaded.', true);
     }
   };
+
+  function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
   refreshAll();
 });

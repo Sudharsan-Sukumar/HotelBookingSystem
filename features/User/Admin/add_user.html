@@ -55,12 +55,12 @@
           <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Add User</li>
         </ol>
       </nav>
-      <a href="users.html" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to User Management</a>
     </div>
 
     <div class="mb-4 text-start">
       <h1 class="font-serif fw-bold text-purple h2 mb-1">Add New User</h1>
-      <p class="text-secondary small mb-0">Create a new user account and assign appropriate role credentials.</p>
+      <p class="text-secondary small mb-1">Create a new user account and assign appropriate role credentials.</p>
+      <small class="text-danger fw-semibold"><span class="fs-6">*</span> denotes that the field is mandatory.</small>
     </div>
 
     <!-- MAIN FORM CARD -->
@@ -73,23 +73,25 @@
           <hr class="my-2 opacity-10">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">First Name *</label>
+              <label class="form-label small fw-semibold">First Name<span class="text-danger">*</span></label>
               <input type="text" class="form-control form-control-sm" id="firstName" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Last Name *</label>
+              <label class="form-label small fw-semibold">Last Name<span class="text-danger">*</span></label>
               <input type="text" class="form-control form-control-sm" id="lastName" required>
             </div>
             <div class="col-md-12">
-              <label class="form-label small fw-semibold">Email Address *</label>
+              <label class="form-label small fw-semibold">Email Address<span class="text-danger">*</span></label>
               <input type="email" class="form-control form-control-sm" id="email" required>
+              <div class="invalid-feedback small">Please enter a valid email address (e.g. user@example.com).</div>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Phone Number *</label>
-              <input type="text" class="form-control form-control-sm" id="phone" placeholder="+91 XXXXX XXXXX" required>
+              <label class="form-label small fw-semibold">Phone Number<span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="phone" placeholder="9876543210" pattern="^[6-9]\\d{9}$" required>
+              <div class="invalid-feedback small">Phone number must be exactly 10 digits and start with 6, 7, 8, or 9.</div>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Temporary Password *</label>
+              <label class="form-label small fw-semibold">Temporary Password<span class="text-danger">*</span></label>
               <div class="input-group input-group-sm">
                 <input type="password" class="form-control" id="password" required>
                 <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword"><i class="bi bi-eye-slash"></i></button>
@@ -104,21 +106,17 @@
           <hr class="my-2 opacity-10">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Role *</label>
+              <label class="form-label small fw-semibold">Role<span class="text-danger">*</span></label>
               <select class="form-select form-select-sm" id="role" required>
                 <option value="">Select role</option>
                 <option value="Customer">Customer</option>
                 <option value="Manager">Hotel Manager</option>
-                <option value="Admin">System Administrator</option>
               </select>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Branch (if applicable)</label>
               <select class="form-select form-select-sm" id="branch" disabled>
                 <option value="">Select branch</option>
-                <option value="Salem">Salem</option>
-                <option value="Coimbatore">Coimbatore</option>
-                <option value="Chennai">Chennai</option>
               </select>
             </div>
           </div>
@@ -157,7 +155,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content shadow border border-warning" style="border-radius: 12px; background-color: #FAF8F4;">
         <div class="modal-header text-white" style="background-color: #1A0A2E;">
-          <h5 class="modal-title font-serif fw-bold">User Created Successfully</h5>
+          <h5 class="modal-title font-serif fw-bold text-white">User Created Successfully</h5>
         </div>
         <div class="modal-body text-start small" id="successModalBody">
           <!-- Loaded dynamically -->

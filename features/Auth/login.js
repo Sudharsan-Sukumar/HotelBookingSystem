@@ -116,8 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
               // Update Centralized State
               HotelState.set('currentUser', user);
 
-              // Add Audit Log
-              HotelState.addAuditLog(user.id, user.firstName + ' ' + user.lastName, user.role, 'LOGIN_SUCCESS', 'Auth', 'User logged in successfully.');
+              
+              
 
               // Redirect based on role
               if (user.role === 'Customer') {

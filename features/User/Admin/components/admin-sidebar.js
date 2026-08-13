@@ -75,6 +75,49 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           });
         });
+
+        // 5. Tooltip Logic
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('#admin-sidebar-container [data-bs-toggle="tooltip"]'));
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl, {
+            placement: 'right',
+            trigger: 'hover',
+            boundary: document.body
+          });
+        });
+
+        function updateTooltips() {
+          const isCollapsed = container.classList.contains('collapsed');
+          const isMobileNow = window.innerWidth < 992;
+          
+          tooltipList.forEach(t => {
+            if (isCollapsed && !isMobileNow) {
+              t.enable();
+            } else {
+              t.disable();
+            }
+          });
+        }
+        
+        // Initial setup
+        updateTooltips();
+        
+        // Hook into toggle
+        const originalToggleSidebar = toggleSidebar;
+        toggleSidebar = function() {
+           originalToggleSidebar();
+           updateTooltips();
+        };
+
+        if (toggleBtn) {
+          toggleBtn.removeEventListener('click', originalToggleSidebar);
+          toggleBtn.addEventListener('click', toggleSidebar);
+        }
+        if (overlay) {
+          overlay.removeEventListener('click', originalToggleSidebar);
+          overlay.addEventListener('click', toggleSidebar);
+        }
+
       }
     })
     .catch(error => console.error('Error loading Admin Sidebar:', error));

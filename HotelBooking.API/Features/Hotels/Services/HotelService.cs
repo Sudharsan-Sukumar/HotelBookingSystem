@@ -2,6 +2,7 @@ using System.Linq;
 using HotelBooking.API.Data;
 using HotelBooking.API.Features.Hotels.DTOs;
 using HotelBooking.API.Features.Hotels.Models;
+using HotelBooking.API.Users.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -11,12 +12,15 @@ public class HotelService : IHotelService
 {
     private readonly ApplicationDbContext _context;
     private readonly IMemoryCache _cache;
+    private readonly IAuditLogService _auditLogService;
     private const string HotelCacheKey = "HotelsCacheKey";
+    private static string HotelByIdCacheKey(int id) => $"Hotel_{id}";
 
-    public HotelService(ApplicationDbContext context, IMemoryCache cache)
+    public HotelService(ApplicationDbContext context, IMemoryCache cache, IAuditLogService auditLogService)
     {
         _context = context;
         _cache = cache;
+        _auditLogService = auditLogService;
     }
 
     public async Task<IEnumerable<HotelResponseDto>> GetAllHotelsAsync()
@@ -24,6 +28,7 @@ public class HotelService : IHotelService
         if (!_cache.TryGetValue(HotelCacheKey, out IEnumerable<HotelResponseDto>? hotels))
         {
             hotels = await _context.Hotels
+                .AsNoTracking()
                 .Select(h => MapToDto(h))
                 .ToListAsync();
 
@@ -38,15 +43,26 @@ public class HotelService : IHotelService
 
     public async Task<HotelResponseDto?> GetHotelByIdAsync(int id)
     {
+        var cacheKey = HotelByIdCacheKey(id);
+        if (_cache.TryGetValue(cacheKey, out HotelResponseDto? cached))
+            return cached;
+
         var hotel = await _context.Hotels.FindAsync(id);
         if (hotel == null) return null;
-        return MapToDto(hotel);
+
+        var dto = MapToDto(hotel);
+        _cache.Set(cacheKey, dto, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(10)));
+        return dto;
     }
 
     public async Task<HotelResponseDto> CreateHotelAsync(HotelRequestDto request)
     {
+        // Case-insensitive without ToLower(): SQL Server's default collation (…_CI_AS) already
+        // compares '=' case-insensitively, so a plain equality check gets the same semantics while
+        // staying sargable — LOWER()/ToLower() on both sides wraps the indexed column in a scalar
+        // function, which defeats the (Name, City) index and forces a full scan.
         bool exists = await _context.Hotels
-            .AnyAsync(h => h.Name.ToLower() == request.Name.ToLower() && h.City.ToLower() == request.City.ToLower());
+            .AnyAsync(h => h.Name == request.Name && h.City == request.City);
 
         if (exists)
             throw new ArgumentException($"A hotel named '{request.Name}' already exists in '{request.City}'.");
@@ -76,6 +92,11 @@ public class HotelService : IHotelService
         await _context.SaveChangesAsync();
         _cache.Remove(HotelCacheKey);
 
+        await _auditLogService.LogActionAsync(
+            "Hotel", hotel.Id, "Create",
+            $"Hotel '{hotel.Name}' created in {hotel.City}.",
+            null);
+
         return await GetHotelByIdAsync(hotel.Id) ?? throw new Exception("Failed to create hotel.");
     }
 
@@ -94,6 +115,19 @@ public class HotelService : IHotelService
             var hasRoomTypes = await _context.RoomTypes.AnyAsync(rt => rt.HotelId == id && rt.BasePrice > 0);
             if (!hasRoomTypes)
                 throw new InvalidOperationException("Cannot activate a hotel without at least one room type with a valid price.");
+
+            // Admin Edge Case #10 (gap fix): the block above only fires when the request ALSO keeps
+            // IsActive false, so a reactivation request used to be able to "smuggle in" arbitrary
+            // other field edits in the same call. Reactivating must be its own, isolated action —
+            // no other field may change in the same request that flips IsActive false -> true.
+            bool onlyIsActiveChanged =
+                hotel.Name == hotelDto.Name && hotel.Description == hotelDto.Description &&
+                hotel.Location == hotelDto.Location && hotel.City == hotelDto.City &&
+                hotel.State == hotelDto.State && hotel.Country == hotelDto.Country &&
+                hotel.ZipCode == hotelDto.ZipCode && hotel.StarRating == hotelDto.StarRating;
+
+            if (!onlyIsActiveChanged)
+                throw new InvalidOperationException("Reactivating a hotel must be a standalone action — submit the reactivation first, then edit other fields separately.");
         }
 
         // Edge Case 1 & 14: Optimistic Concurrency
@@ -103,7 +137,7 @@ public class HotelService : IHotelService
         }
 
         bool exists = await _context.Hotels
-            .AnyAsync(h => h.Id != id && h.Name.ToLower() == hotelDto.Name.ToLower() && h.City.ToLower() == hotelDto.City.ToLower());
+            .AnyAsync(h => h.Id != id && h.Name == hotelDto.Name && h.City == hotelDto.City);
 
         if (exists)
             throw new ArgumentException($"Another hotel named '{hotelDto.Name}' already exists in '{hotelDto.City}'.");
@@ -128,6 +162,12 @@ public class HotelService : IHotelService
         }
         
         _cache.Remove(HotelCacheKey);
+        _cache.Remove(HotelByIdCacheKey(id));
+
+        await _auditLogService.LogActionAsync(
+            "Hotel", hotel.Id, "Update",
+            $"Hotel '{hotel.Name}' updated (city: {hotel.City}, starRating: {hotel.StarRating}, isActive: {hotel.IsActive}).",
+            null);
 
         return MapToDto(hotel);
     }
@@ -141,19 +181,38 @@ public class HotelService : IHotelService
         bool hasActiveBookings = await _context.Bookings
             .AnyAsync(b => b.HotelId == id && b.Status != "Cancelled" && b.CheckOutDate > DateTime.UtcNow);
 
+        bool softDeleted;
         if (hasActiveBookings)
         {
             // Soft delete
             hotel.IsActive = false;
+            softDeleted = true;
         }
         else
         {
             _context.Hotels.Remove(hotel);
+            softDeleted = false;
         }
 
         await _context.SaveChangesAsync();
         _cache.Remove(HotelCacheKey);
-        
+        _cache.Remove(HotelByIdCacheKey(id));
+
+        if (softDeleted)
+        {
+            await _auditLogService.LogActionAsync(
+                "Hotel", id, "StatusChange",
+                $"Hotel '{hotel.Name}' soft-deleted (deactivated) due to active bookings.",
+                null);
+        }
+        else
+        {
+            await _auditLogService.LogActionAsync(
+                "Hotel", id, "Delete",
+                $"Hotel '{hotel.Name}' permanently deleted.",
+                null);
+        }
+
         return true;
     }
 
@@ -169,9 +228,20 @@ public class HotelService : IHotelService
         if ((request.CheckInDate.Date - DateTime.UtcNow.Date).TotalDays > 365)
             throw new ArgumentException("Booking window cannot exceed 365 days.");
 
-        // Fetch active hotels in city with their active room types that can fit the guests
+        // FR-8.3: room types with a blocked date overlapping the requested range are unavailable
+        var blockedRoomTypeIds = await _context.BlockedDates
+            .Where(bd => bd.StartDate < request.CheckOutDate && bd.EndDate > request.CheckInDate)
+            .Select(bd => bd.RoomTypeId)
+            .Distinct()
+            .ToListAsync();
+
+        // Fetch active hotels in city with their active room types that can fit the guests.
+        // AsNoTracking: this is a read-only projection, so skip EF's change-tracking overhead.
+        // Plain '==' (not .ToLower()) keeps this sargable against the HasIndex(h => h.City) index —
+        // see the comment in CreateHotelAsync's duplicate check for why ToLower() was removed.
         var hotels = await _context.Hotels
-            .Where(h => h.IsActive && h.City.ToLower() == request.DestinationCity.ToLower())
+            .AsNoTracking()
+            .Where(h => h.IsActive && h.City == request.DestinationCity)
             .Select(h => new
             {
                 Hotel = h,
@@ -203,7 +273,7 @@ public class HotelService : IHotelService
                     rt.RoomType,
                     AvailableCount = rt.RoomType.TotalRooms - rt.BookedRoomsCount
                 })
-                .Where(rt => rt.AvailableCount > 0)
+                .Where(rt => rt.AvailableCount > 0 && !blockedRoomTypeIds.Contains(rt.RoomType.Id))
                 .ToList();
 
             if (availableRoomTypes.Any())
@@ -224,7 +294,11 @@ public class HotelService : IHotelService
             }
         }
 
-        return results;
+        // Pagination applied after availability filtering, since per-hotel availability depends
+        // on an in-memory aggregation that can't be pushed down as a single SQL Skip/Take.
+        return results
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
     }
 
     private static HotelResponseDto MapToDto(Hotel hotel)
@@ -256,16 +330,21 @@ public class HotelService : IHotelService
         var manager = await _context.Users.FirstOrDefaultAsync(u => u.Id == managerId && u.Role.Name == "Manager");
         if (manager == null) throw new ArgumentException("Invalid manager.");
 
-        var alreadyAssigned = await _context.HotelManagers.AnyAsync(hm => hm.HotelId == hotelId && hm.UserId == managerId);
-        if (alreadyAssigned) return true;
+        if (hotel.ManagerIds.Contains(managerId)) return true;
 
-        // Edge Case 9: Admin assigns a manager to a hotel but they already manage max (2) branches
-        var branchesManaged = await _context.HotelManagers.CountAsync(hm => hm.UserId == managerId);
-        if (branchesManaged >= 2)
-            throw new InvalidOperationException("This manager already manages the maximum allowed number of branches (2).");
+        // FR-2.5: a hotel may have at most 2 active managers assigned at any time.
+        if (hotel.ManagerIds.Count >= 2)
+            throw new InvalidOperationException("Maximum manager limit (2) reached for this hotel.");
 
-        _context.HotelManagers.Add(new HotelManager { HotelId = hotelId, UserId = managerId });
+        hotel.ManagerIds.Add(managerId);
         await _context.SaveChangesAsync();
+        _cache.Remove(HotelCacheKey);
+        _cache.Remove(HotelByIdCacheKey(hotelId));
+
+        await _auditLogService.LogActionAsync(
+            "Hotel", hotelId, "AssignManager",
+            $"Manager {managerId} assigned to hotel {hotelId}.",
+            null);
 
         return true;
     }

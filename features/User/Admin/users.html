@@ -71,15 +71,20 @@
       </ol>
     </nav>
 
-    <div class="mb-4 text-start">
-      <h1 class="font-serif fw-bold text-purple h2 mb-1">User Management</h1>
-      <p class="text-secondary small mb-0">View, manage and control system users and their access levels.</p>
+    <div class="mb-4 text-start d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <h1 class="font-serif fw-bold text-purple h2 mb-1">User Management</h1>
+        <p class="text-secondary small mb-0">View, manage and control system users and their access levels.</p>
+      </div>
+      <div>
+        <button class="btn btn-purple btn-sm" onclick="location.href='add_user.html'"><i class="bi bi-person-plus me-1"></i> Add User</button>
+      </div>
     </div>
 
     <!-- SUMMARY CARDS -->
     <div class="row g-3 mb-4 text-start">
       <div class="col-md">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
           <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-people-fill"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Users</span>
@@ -89,7 +94,7 @@
         </div>
       </div>
       <div class="col-md">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
           <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-person-fill"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Customers</span>
@@ -99,7 +104,7 @@
         </div>
       </div>
       <div class="col-md">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
           <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-person-badge-fill"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Managers</span>
@@ -109,7 +114,7 @@
         </div>
       </div>
       <div class="col-md">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
           <div class="rounded-circle p-2 bg-purple bg-opacity-10 text-purple" style="font-size: 1.25rem;"><i class="bi bi-shield-fill-check"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">System Admins</span>
@@ -119,7 +124,7 @@
         </div>
       </div>
       <div class="col-md">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
           <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Pending Approval</span>
@@ -130,17 +135,6 @@
       </div>
     </div>
 
-    <!-- TABS AND ADD USER ROW -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom mb-4">
-      <ul class="nav nav-tabs-premium text-start" id="userTabs" style="border: none;">
-        <li class="nav-item"><a class="nav-link active" href="#" data-tab="all">All Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-tab="Customer">Customers</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-tab="Manager">Managers</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-tab="Pending">Pending Approval</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-tab="Guests">Guest Records</a></li>
-      </ul>
-      <button class="btn btn-purple btn-sm" onclick="location.href='add_user.html'"><i class="bi bi-person-plus me-1"></i> Add User</button>
-    </div>
 
     <!-- ADVANCED FILTER BAR -->
     <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
@@ -205,29 +199,47 @@
           </tbody>
         </table>
       </div>
+      <!-- PAGINATION CONTROLS -->
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="small text-muted">Show:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" id="pageSizeSelector">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span class="small text-muted" id="paginationInfo"></span>
+        </div>
+        <ul class="pagination pagination-sm mb-0" id="paginationControls">
+          <!-- Loaded dynamically -->
+        </ul>
+      </div>
     </div>
   </div>
 
-  <!-- Delete User Reason Modal -->
-  <div class="modal fade" id="deleteUserReasonModal" tabindex="-1" aria-labelledby="deleteUserReasonModalLabel" aria-hidden="true">
+  <!-- Change Status Reason Modal -->
+  <div class="modal fade" id="statusUserReasonModal" tabindex="-1" aria-labelledby="statusUserReasonModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content border border-danger" style="border-radius: 12px; background-color: #FAF8F4;">
-        <div class="modal-header" style="background-color: #DC3545; color: white;">
-          <h5 class="modal-title font-serif fw-bold" id="deleteUserReasonModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-content border border-warning" style="border-radius: 12px; background-color: #FAF8F4;">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title font-serif fw-bold text-dark" id="statusUserReasonModalLabel"><i class="bi bi-info-circle-fill me-2"></i>Change User Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form id="deleteUserReasonForm">
+        <form id="statusUserReasonForm" novalidate>
           <div class="modal-body text-start">
-            <input type="hidden" id="deleteUserId">
-            <p class="small text-secondary mb-3">Are you sure you want to permanently delete this user credentials profile? This action cannot be undone.</p>
+            <input type="hidden" id="statusUserId">
+            <input type="hidden" id="statusUserNewVal">
+            <p class="small text-secondary mb-3">Please provide a reason for changing the status of this user.</p>
             <div class="mb-3">
-              <label for="deleteReasonInput" class="form-label fw-bold">Reason for Deletion <span class="text-danger">*</span></label>
-              <textarea class="form-control" id="deleteReasonInput" rows="3" placeholder="Please enter the reason (e.g. Inactive account, employee resignation)" required></textarea>
+              <label for="statusReasonInput" class="form-label fw-bold">Reason <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="statusReasonInput" rows="3" placeholder="Please enter the reason" required></textarea>
+              <div class="invalid-feedback">Please provide a reason.</div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
-            <button type="submit" class="btn btn-danger btn-sm" style="border-radius: 8px; font-weight: 600;">Confirm Delete</button>
+            <button type="submit" class="btn btn-warning btn-sm" style="border-radius: 8px; font-weight: 600;">Confirm Change</button>
           </div>
         </form>
       </div>

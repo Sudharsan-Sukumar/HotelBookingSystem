@@ -71,18 +71,20 @@ public class ReportService : IReportService
 
     public async Task<bool> IsManagerOfHotelAsync(int userId, int hotelId)
     {
-        return await _context.HotelManagers.AnyAsync(hm => hm.UserId == userId && hm.HotelId == hotelId);
+        var hotel = await _context.Hotels.FindAsync(hotelId);
+        return hotel != null && hotel.ManagerIds.Contains(userId);
     }
 
-    public async Task<HotelReservationsReportDto> GetHotelReservationsReportAsync(int hotelId, DateTime? startDate, DateTime? endDate, int? roomTypeId)
+    public async Task<HotelReservationsReportDto> GetHotelReservationsReportAsync(int hotelId, DateTime? startDate, DateTime? endDate, int? roomTypeId, int page = 1, int pageSize = 100)
     {
         var hotel = await _context.Hotels.FirstOrDefaultAsync(h => h.Id == hotelId);
         if (hotel == null)
             throw new KeyNotFoundException("Hotel not found.");
 
+        page = page < 1 ? 1 : page;
+        pageSize = pageSize < 1 ? 100 : Math.Min(pageSize, 500); // Admin Edge Case #16: hard cap per page
+
         var query = _context.Bookings
-            .Include(b => b.User)
-            .Include(b => b.RoomType)
             .Where(b => b.HotelId == hotelId);
 
         if (startDate.HasValue)
@@ -92,19 +94,30 @@ public class ReportService : IReportService
         if (roomTypeId.HasValue)
             query = query.Where(b => b.RoomTypeId == roomTypeId.Value);
 
-        var bookings = await query.ToListAsync();
+        // Admin Edge Case #16: aggregates are computed by SQL (SumAsync/CountAsync) over the full
+        // filtered set WITHOUT materializing every row into memory — this is what actually matters
+        // for a hotel/date range spanning millions of bookings, not just the detail-row pagination.
+        var totalBookings = await query.CountAsync();
+        var totalRevenue = await query.Where(b => b.Status != "Cancelled").SumAsync(b => b.TotalAmount);
 
-        var totalBookings = bookings.Count;
-        var totalRevenue = bookings.Where(b => b.Status != "Cancelled").Sum(b => b.TotalAmount);
-        
         // Simple mock occupancy rate based on currently active bookings vs total hotel capacity for the current day.
         var totalRooms = await _context.RoomTypes.Where(rt => rt.HotelId == hotelId).SumAsync(rt => rt.TotalRooms);
         double occupancyRate = 0;
         if (totalRooms > 0)
         {
-            var activeBookings = bookings.Where(b => b.Status != "Cancelled" && b.CheckInDate <= DateTime.UtcNow && b.CheckOutDate > DateTime.UtcNow).Sum(b => b.NumberOfRooms);
+            var activeBookings = await query
+                .Where(b => b.Status != "Cancelled" && b.CheckInDate <= DateTime.UtcNow && b.CheckOutDate > DateTime.UtcNow)
+                .SumAsync(b => b.NumberOfRooms);
             occupancyRate = (double)activeBookings / totalRooms * 100;
         }
+
+        var pageOfBookings = await query
+            .Include(b => b.User)
+            .Include(b => b.RoomType)
+            .OrderByDescending(b => b.CheckInDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
         return new HotelReservationsReportDto
         {
@@ -112,7 +125,9 @@ public class ReportService : IReportService
             TotalBookings = totalBookings,
             TotalRevenue = totalRevenue,
             OccupancyRatePercentage = occupancyRate,
-            Reservations = bookings.Select(b => new ReservationDetailDto
+            Page = page,
+            PageSize = pageSize,
+            Reservations = pageOfBookings.Select(b => new ReservationDetailDto
             {
                 BookingCustomId = b.BookingCustomId,
                 CustomerName = $"{b.User.FirstName} {b.User.LastName}",
@@ -127,9 +142,7 @@ public class ReportService : IReportService
 
     public async Task<SystemWideBookingsReportDto> GetSystemWideBookingsReportAsync(int? hotelId, DateTime? startDate, DateTime? endDate)
     {
-        var query = _context.Bookings
-            .Include(b => b.Hotel)
-            .AsQueryable();
+        var query = _context.Bookings.AsQueryable();
 
         if (hotelId.HasValue)
             query = query.Where(b => b.HotelId == hotelId.Value);
@@ -138,29 +151,63 @@ public class ReportService : IReportService
         if (endDate.HasValue)
             query = query.Where(b => b.CheckInDate <= endDate.Value);
 
-        var bookings = await query.ToListAsync();
-
-        var totalBookings = bookings.Count;
-        var totalRevenue = bookings.Where(b => b.Status != "Cancelled").Sum(b => b.TotalAmount);
-        var cancellations = bookings.Count(b => b.Status == "Cancelled");
+        // Admin Edge Case #16: every aggregate below is computed by SQL (CountAsync/SumAsync/GroupBy)
+        // over the filtered set — a system-wide report spanning millions of bookings never
+        // materializes the raw rows into memory to compute these numbers.
+        var totalBookings = await query.CountAsync();
+        var totalRevenue = await query.Where(b => b.Status != "Cancelled").SumAsync(b => b.TotalAmount);
+        var cancellations = await query.CountAsync(b => b.Status == "Cancelled");
         double systemCancelRate = totalBookings > 0 ? (double)cancellations / totalBookings * 100 : 0;
 
-        var hotels = await _context.Hotels.ToListAsync();
         var totalSystemRooms = await _context.RoomTypes.SumAsync(rt => rt.TotalRooms);
-        var activeRooms = bookings.Where(b => b.Status != "Cancelled" && b.CheckInDate <= DateTime.UtcNow && b.CheckOutDate > DateTime.UtcNow).Sum(b => b.NumberOfRooms);
+        var activeRooms = await query
+            .Where(b => b.Status != "Cancelled" && b.CheckInDate <= DateTime.UtcNow && b.CheckOutDate > DateTime.UtcNow)
+            .SumAsync(b => b.NumberOfRooms);
         double avgOccupancy = totalSystemRooms > 0 ? (double)activeRooms / totalSystemRooms * 100 : 0;
 
-        var hotelPerformances = bookings.GroupBy(b => b.Hotel)
-            .Select(g => new HotelPerformanceDto
+        // Per-hotel occupancy, same formula as the average above (active rooms / that hotel's total
+        // rooms), grouped by hotel so each entry in hotelPerformances gets its own real figure instead
+        // of the previous hardcoded 0.
+        var activeRoomsPerHotel = await query
+            .Where(b => b.Status != "Cancelled" && b.CheckInDate <= DateTime.UtcNow && b.CheckOutDate > DateTime.UtcNow)
+            .GroupBy(b => b.HotelId)
+            .Select(g => new { HotelId = g.Key, ActiveRooms = g.Sum(b => b.NumberOfRooms) })
+            .ToDictionaryAsync(x => x.HotelId, x => x.ActiveRooms);
+
+        var totalRoomsPerHotel = await _context.RoomTypes
+            .GroupBy(rt => rt.HotelId)
+            .Select(g => new { HotelId = g.Key, TotalRooms = g.Sum(rt => rt.TotalRooms) })
+            .ToDictionaryAsync(x => x.HotelId, x => x.TotalRooms);
+
+        // Group by HotelId (a scalar, SQL-translatable key) rather than the Hotel navigation object —
+        // grouping by an entity reference can't be pushed down to SQL and forces a full client-side
+        // materialization, exactly the OOM risk this fix is closing.
+        var perHotelStats = await query
+            .GroupBy(b => b.HotelId)
+            .Select(g => new
             {
-                HotelCustomId = g.Key.HotelCustomId,
-                HotelName = g.Key.Name,
+                HotelId = g.Key,
                 BookingsCount = g.Count(),
                 Revenue = g.Where(b => b.Status != "Cancelled").Sum(b => b.TotalAmount),
-                CancellationRate = g.Count() > 0 ? (double)g.Count(b => b.Status == "Cancelled") / g.Count() * 100 : 0,
-                // simplified occupancy
-                OccupancyRate = 0 
-            }).ToList();
+                Cancellations = g.Count(b => b.Status == "Cancelled")
+            })
+            .ToListAsync();
+
+        var hotelNames = await _context.Hotels
+            .Where(h => perHotelStats.Select(s => s.HotelId).Contains(h.Id))
+            .ToDictionaryAsync(h => h.Id, h => (h.HotelCustomId, h.Name));
+
+        var hotelPerformances = perHotelStats.Select(s => new HotelPerformanceDto
+        {
+            HotelCustomId = hotelNames.TryGetValue(s.HotelId, out var info) ? info.HotelCustomId : string.Empty,
+            HotelName = hotelNames.TryGetValue(s.HotelId, out var info2) ? info2.Name : string.Empty,
+            BookingsCount = s.BookingsCount,
+            Revenue = s.Revenue,
+            CancellationRate = s.BookingsCount > 0 ? (double)s.Cancellations / s.BookingsCount * 100 : 0,
+            OccupancyRate = totalRoomsPerHotel.TryGetValue(s.HotelId, out var hotelTotalRooms) && hotelTotalRooms > 0
+                ? (double)(activeRoomsPerHotel.TryGetValue(s.HotelId, out var hotelActiveRooms) ? hotelActiveRooms : 0) / hotelTotalRooms * 100
+                : 0
+        }).ToList();
 
         return new SystemWideBookingsReportDto
         {

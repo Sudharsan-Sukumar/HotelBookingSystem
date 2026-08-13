@@ -1,53 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using HotelBooking.API.Common.Services;
 using HotelBooking.API.Data;
 using HotelBooking.API.Features.Hotels.DTOs;
 using HotelBooking.API.Features.Hotels.Models;
-using Microsoft.AspNetCore.Hosting;
+using HotelBooking.API.Users.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 
 namespace HotelBooking.API.Features.Hotels.Services;
 
 public class GalleryService : IGalleryService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IFileUploadService _fileUploadService;
+    private readonly IImageCompressionService _imageCompressionService;
+    private readonly IAuditLogService _auditLogService;
 
-    public GalleryService(ApplicationDbContext context, IWebHostEnvironment environment)
+    public GalleryService(ApplicationDbContext context, IFileUploadService fileUploadService,
+        IImageCompressionService imageCompressionService, IAuditLogService auditLogService)
     {
         _context = context;
-        _environment = environment;
-    }
-
-    private async Task<string> SaveFileAsync(Microsoft.AspNetCore.Http.IFormFile file, int maxSizeMb = 5)
-    {
-        if (file == null || file.Length == 0)
-            throw new ArgumentException("File is empty.");
-
-        if (file.Length > maxSizeMb * 1024 * 1024)
-            throw new ArgumentException($"File size exceeds {maxSizeMb}MB limit.");
-
-        var ext = Path.GetExtension(file.FileName).ToLower();
-        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
-            throw new ArgumentException("Invalid file format. Only JPG, JPEG, and PNG are allowed.");
-
-        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images");
-        if (!Directory.Exists(uploadsFolder))
-            Directory.CreateDirectory(uploadsFolder);
-
-        var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-
-        return $"/images/{uniqueFileName}";
+        _fileUploadService = fileUploadService;
+        _imageCompressionService = imageCompressionService;
+        _auditLogService = auditLogService;
     }
 
     private string ComputeFileHash(Microsoft.AspNetCore.Http.IFormFile file)
@@ -58,48 +36,66 @@ public class GalleryService : IGalleryService
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
     }
 
-    public async Task<HotelImage> UploadHotelImageAsync(ImageUploadDto request)
+    public async Task<HotelImageInfo> UploadHotelImageAsync(ImageUploadDto request, int callerId, bool isAdmin)
     {
         var hotel = await _context.Hotels.FindAsync(request.EntityId);
         if (hotel == null)
             throw new ArgumentException("Hotel not found.");
 
-        var currentImagesCount = await _context.HotelImages.CountAsync(i => i.HotelId == request.EntityId);
+        if (!isAdmin && !hotel.ManagerIds.Contains(callerId))
+            throw new UnauthorizedAccessException("You can only manage images for your own hotel.");
+
+        var currentImagesCount = hotel.Images.Count;
         if (currentImagesCount >= 20)
             throw new InvalidOperationException("Maximum limit of 20 images reached for this hotel.");
 
         // Edge Case 7: Manager uploads identical image -> File Hash check
         string fileHash = ComputeFileHash(request.File);
-        bool duplicateExists = await _context.HotelImages.AnyAsync(i => i.HotelId == request.EntityId && i.FileHash == fileHash);
+        bool duplicateExists = hotel.Images.Any(i => i.FileHash == fileHash);
         if (duplicateExists)
             throw new InvalidOperationException("This image has already been uploaded for this hotel.");
+
+        // Validate + compress to <=500KB before anything touches disk or the DB — the original
+        // uncompressed upload is never persisted.
+        var (compressedData, contentType) = await _imageCompressionService.ValidateAndCompressAsync(request.File, maxSizeKb: 500);
 
         string? url = null;
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             // Edge Case 19: Database transaction and file cleanup
-            url = await SaveFileAsync(request.File);
+            url = await _fileUploadService.SaveImageBytesAsync(compressedData, request.File.FileName, "images");
 
-            var image = new HotelImage
+            // Image ids must stay unique across every hotel, not just this one, since the DELETE
+            // route only takes a bare image id (no hotelId) — mirrors the old table's IDENTITY column.
+            var allHotels = await _context.Hotels.ToListAsync();
+            int nextImageId = allHotels.SelectMany(h => h.Images).Select(i => i.Id).DefaultIfEmpty(0).Max() + 1;
+
+            var image = new HotelImageInfo
             {
-                HotelId = request.EntityId,
+                Id = nextImageId,
                 Url = url,
                 Caption = request.File.FileName,
                 FileHash = fileHash,
-                IsPrimary = request.IsPrimary || currentImagesCount == 0
+                IsPrimary = request.IsPrimary || currentImagesCount == 0,
+                ImageData = compressedData,
+                ContentType = contentType
             };
 
             if (image.IsPrimary)
             {
-                var existingPrimary = await _context.HotelImages.FirstOrDefaultAsync(i => i.HotelId == request.EntityId && i.IsPrimary);
-                if (existingPrimary != null)
+                foreach (var existingPrimary in hotel.Images.Where(i => i.IsPrimary))
                     existingPrimary.IsPrimary = false;
             }
 
-            _context.HotelImages.Add(image);
+            hotel.Images.Add(image);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            await _auditLogService.LogActionAsync(
+                "Hotel", hotel.Id, "ImageUpload",
+                $"Image '{image.Caption}' uploaded for hotel {hotel.Id} by user {callerId}.",
+                callerId);
 
             return image;
         }
@@ -107,40 +103,57 @@ public class GalleryService : IGalleryService
         {
             await transaction.RollbackAsync();
             if (url != null)
-            {
-                var filePath = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), url.TrimStart('/'));
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
-            }
+                _fileUploadService.DeleteImage(url);
             throw;
         }
     }
 
-    public async Task<IEnumerable<HotelImage>> GetHotelImagesAsync(int hotelId)
+    public async Task<IEnumerable<HotelImageInfo>> GetHotelImagesAsync(int hotelId)
     {
-        return await _context.HotelImages
-            .Where(i => i.HotelId == hotelId)
+        var hotel = await _context.Hotels.FindAsync(hotelId);
+        if (hotel == null) return Enumerable.Empty<HotelImageInfo>();
+
+        return hotel.Images
             .OrderByDescending(i => i.IsPrimary)
             .ThenByDescending(i => i.UploadedAt)
-            .ToListAsync();
+            .ToList();
     }
 
-    public async Task DeleteHotelImageAsync(int imageId)
+    public async Task<(byte[] Data, string ContentType)?> GetHotelImageContentAsync(int imageId)
     {
-        var image = await _context.HotelImages.FindAsync(imageId);
-        if (image != null)
+        var hotels = await _context.Hotels.ToListAsync();
+        var image = hotels.SelectMany(h => h.Images).FirstOrDefault(i => i.Id == imageId);
+
+        if (image?.ImageData == null || image.ImageData.Length == 0)
+            return null;
+
+        return (image.ImageData, image.ContentType ?? "image/jpeg");
+    }
+
+    public async Task DeleteHotelImageAsync(int imageId, int callerId, bool isAdmin)
+    {
+        var hotels = await _context.Hotels.ToListAsync();
+        var hotel = hotels.FirstOrDefault(h => h.Images.Any(i => i.Id == imageId));
+        var image = hotel?.Images.FirstOrDefault(i => i.Id == imageId);
+
+        if (hotel != null && image != null)
         {
-            var count = await _context.HotelImages.CountAsync(i => i.HotelId == image.HotelId);
+            if (!isAdmin && !hotel.ManagerIds.Contains(callerId))
+                throw new UnauthorizedAccessException("You can only manage images for your own hotel.");
+
             // Edge Case 22: Hotel deletes the last image -> Require minimum 1 image
-            if (count <= 1)
+            if (hotel.Images.Count <= 1)
                 throw new InvalidOperationException("Minimum of 1 image must be maintained for the hotel.");
 
-            var filePath = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), image.Url.TrimStart('/'));
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            _fileUploadService.DeleteImage(image.Url);
 
-            _context.HotelImages.Remove(image);
+            hotel.Images.Remove(image);
             await _context.SaveChangesAsync();
+
+            await _auditLogService.LogActionAsync(
+                "Hotel", hotel.Id, "ImageDelete",
+                $"Image {imageId} deleted from hotel {hotel.Id} by user {callerId}.",
+                callerId);
         }
     }
 
@@ -160,11 +173,16 @@ public class GalleryService : IGalleryService
         if (duplicateExists)
             throw new InvalidOperationException("This image has already been uploaded for this room type.");
 
+        // Customer Edge Case #17: this used to call FileUploadService.SaveImageAsync directly, which
+        // only checks the file extension string — a renamed .exe would pass. Route through the same
+        // decode-validating compression service the hotel-image path already uses.
+        var (compressedData, _) = await _imageCompressionService.ValidateAndCompressAsync(request.File, maxSizeKb: 500);
+
         string? url = null;
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            url = await SaveFileAsync(request.File, maxSizeMb: 3);
+            url = await _fileUploadService.SaveImageBytesAsync(compressedData, request.File.FileName, "images");
 
             var image = new RoomTypeImage
             {
@@ -177,17 +195,18 @@ public class GalleryService : IGalleryService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+            await _auditLogService.LogActionAsync(
+                "RoomType", request.EntityId, "ImageUpload",
+                $"Image uploaded for room type {request.EntityId}.",
+                null);
+
             return image;
         }
         catch
         {
             await transaction.RollbackAsync();
             if (url != null)
-            {
-                var filePath = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), url.TrimStart('/'));
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
-            }
+                _fileUploadService.DeleteImage(url);
             throw;
         }
     }
@@ -205,12 +224,22 @@ public class GalleryService : IGalleryService
         var image = await _context.RoomTypeImages.FindAsync(imageId);
         if (image != null)
         {
-            var filePath = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), image.Url.TrimStart('/'));
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            // Admin Edge Case #19: the hotel-image path already enforces "minimum 1 image" — this
+            // path had no equivalent, so a room type's gallery could be deleted down to zero.
+            var remainingCount = await _context.RoomTypeImages.CountAsync(i => i.RoomTypeId == image.RoomTypeId);
+            if (remainingCount <= 1)
+                throw new InvalidOperationException("Minimum of 1 image must be maintained for the room type.");
 
+            _fileUploadService.DeleteImage(image.Url);
+
+            var roomTypeId = image.RoomTypeId;
             _context.RoomTypeImages.Remove(image);
             await _context.SaveChangesAsync();
+
+            await _auditLogService.LogActionAsync(
+                "RoomType", roomTypeId, "ImageDelete",
+                $"Image {imageId} deleted from room type {roomTypeId}.",
+                null);
         }
     }
 }

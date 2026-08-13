@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "XEqHXGYQKbg=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Sudharsan S\\Downloads\\HotelBookingSystem_Phase2\\openapitest\\openapitest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\microsoft.openapi\\3.9.0\\microsoft.openapi.3.9.0.nupkg.sha512",
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\swashbuckle.aspnetcore\\10.2.3\\swashbuckle.aspnetcore.10.2.3.nupkg.sha512",
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.2.3\\swashbuckle.aspnetcore.swagger.10.2.3.nupkg.sha512",
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.2.3\\swashbuckle.aspnetcore.swaggergen.10.2.3.nupkg.sha512",
+    "C:\\Users\\Sudharsan S\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.2.3\\swashbuckle.aspnetcore.swaggerui.10.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}

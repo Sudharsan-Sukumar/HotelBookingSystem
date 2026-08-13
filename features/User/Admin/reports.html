@@ -113,7 +113,7 @@
     <!-- SUMMARY CARDS -->
     <div class="row g-3 mb-4 text-start">
       <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card h-100 p-3 d-flex align-items-center gap-3">
           <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-wallet2"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Revenue</span>
@@ -123,7 +123,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card h-100 p-3 d-flex align-items-center gap-3">
           <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-graph-up-arrow"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Monthly Average</span>
@@ -133,7 +133,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card h-100 p-3 d-flex align-items-center gap-3">
           <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-award-fill"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Best Month</span>
@@ -143,7 +143,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="kpi-card h-100 p-3 d-flex align-items-center gap-3">
           <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-arrow-up-right-circle-fill"></i></div>
           <div>
             <span class="text-secondary small d-block" style="font-size: 0.7rem;">Growth vs Q1</span>
@@ -158,9 +158,14 @@
     <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="font-serif fw-bold text-purple mb-0">Monthly Revenue Trend</h5>
+        <select id="chartTypeSelector" class="form-select form-select-sm w-auto">
+          <option value="bar">Bar Chart</option>
+          <option value="line">Line Chart</option>
+          <option value="doughnut">Doughnut Chart</option>
+        </select>
       </div>
-      <div class="chart-container w-100" id="revenueChartContainer" style="display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; height: 250px; padding: 10px; border-bottom: 2px solid #eee;">
-        <!-- CSS Chart filled dynamically -->
+      <div class="chart-container w-100" style="position: relative; height: 250px;">
+        <canvas id="revenueChart"></canvas>
       </div>
     </div>
 
@@ -180,40 +185,29 @@
             </tr>
           </thead>
           <tbody>
-            <tr data-branch="Salem">
-              <td><strong>Salem Main</strong></td>
-              <td>Rs. 14.2L</td>
-              <td>Rs. 16.8L</td>
-              <td>Rs. 4.8L</td>
-              <td>Rs. 35.8L</td>
-              <td><span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> 18%</span></td>
-            </tr>
-            <tr data-branch="Coimbatore">
-              <td><strong>Coimbatore</strong></td>
-              <td>Rs. 11.4L</td>
-              <td>Rs. 13.6L</td>
-              <td>Rs. 16.8L</td>
-              <td>Rs. 41.8L</td>
-              <td><span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> 22%</span></td>
-            </tr>
-            <tr data-branch="Chennai">
-              <td><strong>Chennai</strong></td>
-              <td>Rs. 12.8L</td>
-              <td>Rs. 15.2L</td>
-              <td>Rs. 19.2L</td>
-              <td>Rs. 47.2L</td>
-              <td><span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> 24%</span></td>
-            </tr>
-            <tr class="table-light" id="rowTotal">
-              <td><strong>All Branches</strong></td>
-              <td><strong>Rs. 38.4L</strong></td>
-              <td><strong>Rs. 45.6L</strong></td>
-              <td><strong>Rs. 48.6L</strong></td>
-              <td><strong>Rs. 1.46Cr</strong></td>
-              <td><span class="text-success fw-bold"><i class="bi bi-arrow-up-short"></i> 21%</span></td>
-            </tr>
+            <!-- Populated via JS -->
           </tbody>
         </table>
+      </div>
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="small text-muted">Show:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" id="pageSizeSelector">
+            <option value="2" selected>2</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+          </select>
+          <span class="small text-muted" id="paginationInfo">Showing 1 to 5 of 5 entries</span>
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm mb-0" id="paginationControls">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
       </div>
     </div>
 
@@ -234,149 +228,320 @@
   </footer>
 
   <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../../Shared/UtilityClass/state.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Data Load
-      const bookings = HotelState.bookings || [];
-      const hotels = HotelState.hotels || [];
+      let revenueChartInstance = null;
 
-      // Computations
-      let totalRevenue = 0;
-      let bookingsThisMonth = 0;
-      
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      let currentPage = 1;
+      let itemsPerPage = 2;
 
-      // Hotel counts for top hotel
-      const hotelCounts = {};
+      function renderReports() {
+        // Data Load
+        let bookings = HotelState.bookings || [];
+        let hotels = HotelState.hotels || [];
 
-      bookings.forEach(b => {
-        if (b.paymentStatus === 'Paid' || b.bookingStatus === 'CheckedOut' || b.bookingStatus === 'Confirmed' || b.bookingStatus === 'CheckedIn') {
-          totalRevenue += b.grandTotal || 0;
+        // Filter Logic
+        const fBranch = document.getElementById('filterBranch')?.value || 'all';
+        let filteredHotels = hotels;
+        if (fBranch !== 'all') {
+          const branchHotelIds = hotels.filter(h => h.name.includes(fBranch)).map(h => h.id);
+          bookings = bookings.filter(b => branchHotelIds.includes(b.hotelId));
+          filteredHotels = hotels.filter(h => h.name.includes(fBranch));
         }
 
-        const bDate = new Date(b.checkIn || b.createdAt);
-        if (bDate.getMonth() === currentMonth && bDate.getFullYear() === currentYear) {
-          bookingsThisMonth++;
-        }
+        // Computations
+        let totalRevenue = 0;
+        let bookingsThisMonth = 0;
+        
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        if (b.bookingStatus !== 'Cancelled') {
-          hotelCounts[b.hotelId] = (hotelCounts[b.hotelId] || 0) + 1;
-        }
-      });
+        // Hotel counts for top hotel
+        const hotelCounts = {};
 
-      // Top Hotel
-      let topHotelId = null;
-      let maxCount = 0;
-      for (const [hId, count] of Object.entries(hotelCounts)) {
-        if (count > maxCount) {
-          maxCount = count;
-          topHotelId = hId;
-        }
-      }
-      const topHotelName = topHotelId ? (HotelState.getHotelById(topHotelId)?.name || topHotelId) : 'N/A';
+        bookings.forEach(b => {
+          if (b.paymentStatus === 'Paid' || b.bookingStatus === 'CheckedOut' || b.bookingStatus === 'Confirmed' || b.bookingStatus === 'CheckedIn') {
+            totalRevenue += b.grandTotal || 0;
+          }
 
-      // Avg Occupancy (Naive assumption)
-      const totalRoomsSystem = HotelState.rooms?.length || 0;
-      let occupiedCount = HotelState.rooms?.filter(r => r.status === 'Occupied').length || 0;
-      let avgOcc = totalRoomsSystem > 0 ? Math.round((occupiedCount / totalRoomsSystem) * 100) : 0;
-
-      // Update KPI DOM
-      const kpiTotal = document.getElementById('kpiTotal');
-      if (kpiTotal) kpiTotal.textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
-
-      // We re-use KPI cards for dynamic stats:
-      // kpi[1]: Bookings This Month
-      const kpis = document.querySelectorAll('.kpi-card strong');
-      if (kpis.length >= 4) {
-        kpis[1].textContent = bookingsThisMonth;
-        kpis[1].nextElementSibling.textContent = 'Bookings this month';
-        kpis[1].previousElementSibling.textContent = 'Monthly Volume';
-
-        kpis[2].textContent = `${avgOcc}%`;
-        kpis[2].nextElementSibling.textContent = 'Current system wide';
-        kpis[2].previousElementSibling.textContent = 'Avg Occupancy';
-
-        kpis[3].textContent = topHotelName;
-        kpis[3].nextElementSibling.textContent = `${maxCount} total bookings`;
-        kpis[3].previousElementSibling.textContent = 'Top Hotel';
-      }
-
-      // CSS Chart: Monthly Revenue Trend (Last 6 Months)
-      const chartContainer = document.getElementById('revenueChartContainer');
-      const monthsData = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        monthsData.push({
-          label: d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear(),
-          month: d.getMonth(),
-          year: d.getFullYear(),
-          revenue: 0
-        });
-      }
-
-      bookings.forEach(b => {
-        if (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus)) {
           const bDate = new Date(b.checkIn || b.createdAt);
-          const mItem = monthsData.find(m => m.month === bDate.getMonth() && m.year === bDate.getFullYear());
-          if (mItem) mItem.revenue += (b.grandTotal || 0);
-        }
-      });
+          if (bDate.getMonth() === currentMonth && bDate.getFullYear() === currentYear) {
+            bookingsThisMonth++;
+          }
 
-      const maxRev = Math.max(...monthsData.map(m => m.revenue), 1000);
-      
-      chartContainer.innerHTML = '';
-      monthsData.forEach(m => {
-        const heightPct = Math.max((m.revenue / maxRev) * 100, 5); // min 5% height
-        const barGroup = document.createElement('div');
-        barGroup.className = 'd-flex flex-column align-items-center text-center';
-        barGroup.style.width = '12%';
-        
-        barGroup.innerHTML = `
-          <div style="font-size: 0.65rem; color: #666; margin-bottom: 4px;">₹${(m.revenue/1000).toFixed(1)}k</div>
-          <div class="chart-bar" style="height: ${heightPct}%; background: linear-gradient(to top, #4B0082, #8A2BE2); width: 100%; border-radius: 4px 4px 0 0; min-height: 20px;" title="₹${m.revenue.toLocaleString('en-IN')}"></div>
-          <div style="font-size: 0.75rem; font-weight: 600; margin-top: 8px;">${m.label.split(' ')[0]}</div>
-        `;
-        chartContainer.appendChild(barGroup);
-      });
-
-      // Populate Revenue Summary Table dynamically
-      const tblBody = document.querySelector('#tblRevenue tbody');
-      if (tblBody) {
-        tblBody.innerHTML = '';
-        let sysTotal = 0;
-        
-        hotels.forEach(h => {
-          let hTotal = 0;
-          bookings.forEach(b => {
-            if (b.hotelId === h.id && (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus))) {
-              hTotal += (b.grandTotal || 0);
-            }
-          });
-          sysTotal += hTotal;
-          if (hTotal > 0) {
-            tblBody.innerHTML += `
-              <tr data-branch="${h.name}">
-                <td><strong>${h.name}</strong></td>
-                <td colspan="3" class="text-muted small">Dynamic Monthly Breakdown Hidden</td>
-                <td><strong>₹${hTotal.toLocaleString('en-IN')}</strong></td>
-                <td>-</td>
-              </tr>
-            `;
+          if (b.bookingStatus !== 'Cancelled') {
+            hotelCounts[b.hotelId] = (hotelCounts[b.hotelId] || 0) + 1;
           }
         });
 
-        tblBody.innerHTML += `
-          <tr class="table-light" id="rowTotal">
-            <td><strong>All Branches</strong></td>
-            <td colspan="3"></td>
-            <td><strong>₹${sysTotal.toLocaleString('en-IN')}</strong></td>
-            <td>-</td>
-          </tr>
-        `;
+        // Top Hotel
+        let topHotelId = null;
+        let maxCount = 0;
+        for (const [hId, count] of Object.entries(hotelCounts)) {
+          if (count > maxCount) {
+            maxCount = count;
+            topHotelId = hId;
+          }
+        }
+        const topHotelName = topHotelId ? (HotelState.getHotelById(topHotelId)?.name || topHotelId) : 'N/A';
+
+        // Avg Occupancy
+        const totalRoomsSystem = HotelState.rooms?.length || 0;
+        let occupiedCount = HotelState.rooms?.filter(r => r.status === 'Occupied').length || 0;
+        let avgOcc = totalRoomsSystem > 0 ? Math.round((occupiedCount / totalRoomsSystem) * 100) : 0;
+
+        // Update KPI DOM
+        const kpiTotal = document.getElementById('kpiTotal');
+        if (kpiTotal) kpiTotal.textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+
+        const kpis = document.querySelectorAll('.kpi-card strong');
+        if (kpis.length >= 4) {
+          kpis[1].textContent = bookingsThisMonth;
+          kpis[1].nextElementSibling.textContent = 'Bookings this month';
+          kpis[1].previousElementSibling.textContent = 'Monthly Volume';
+
+          kpis[2].textContent = `${avgOcc}%`;
+          kpis[2].nextElementSibling.textContent = 'Current system wide';
+          kpis[2].previousElementSibling.textContent = 'Avg Occupancy';
+
+          kpis[3].textContent = topHotelName;
+          kpis[3].nextElementSibling.textContent = `${maxCount} total bookings`;
+          kpis[3].previousElementSibling.textContent = 'Top Hotel';
+        }
+
+        // Chart.js Chart: Monthly Revenue Trend (Last 6 Months)
+        const monthsData = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          monthsData.push({
+            label: d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear(),
+            month: d.getMonth(),
+            year: d.getFullYear(),
+            revenue: 0
+          });
+        }
+
+        bookings.forEach(b => {
+          if (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus)) {
+            const bDate = new Date(b.checkIn || b.createdAt);
+            const mItem = monthsData.find(m => m.month === bDate.getMonth() && m.year === bDate.getFullYear());
+            if (mItem) mItem.revenue += (b.grandTotal || 0);
+          }
+        });
+
+        const ctx = document.getElementById('revenueChart');
+        if (ctx) {
+          if (revenueChartInstance) {
+            revenueChartInstance.destroy();
+          }
+          
+          const chartType = document.getElementById('chartTypeSelector')?.value || 'bar';
+          revenueChartInstance = new Chart(ctx, {
+            type: chartType,
+            data: {
+              labels: monthsData.map(m => m.label),
+              datasets: [{
+                label: 'Revenue (₹)',
+                data: monthsData.map(m => m.revenue),
+                backgroundColor: chartType === 'doughnut' ? ['#4B0082', '#8A2BE2', '#9370DB', '#BA55D3', '#DDA0DD', '#EE82EE'] : '#8A2BE2',
+                borderColor: chartType === 'line' ? '#4B0082' : undefined,
+                borderWidth: chartType === 'line' ? 2 : 0,
+                fill: chartType === 'line' ? false : true
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: chartType === 'doughnut' } },
+              scales: chartType !== 'doughnut' ? { y: { beginAtZero: true } } : {}
+            }
+          });
+        }
+
+        // Populate Revenue Summary Table dynamically with Real Monthly Breakdown
+        const tblBody = document.querySelector('#tblRevenue tbody');
+        if (tblBody) {
+          tblBody.innerHTML = '';
+          let sysTotal = 0;
+          let m1SysTotal = 0;
+          let m2SysTotal = 0;
+          let m3SysTotal = 0;
+          
+          const headers = document.querySelectorAll('#tblRevenue thead th');
+          if (headers.length >= 5) {
+             headers[1].textContent = monthsData[3].label + ' Rev';
+             headers[2].textContent = monthsData[4].label + ' Rev';
+             headers[3].textContent = monthsData[5].label + ' Rev';
+          }
+          
+          // Pre-calculate all totals for filtered hotels
+          const hotelRowData = [];
+          
+          filteredHotels.forEach(h => {
+            let hTotal = 0;
+            let m1Total = 0;
+            let m2Total = 0;
+            let m3Total = 0;
+            
+            bookings.forEach(b => {
+              if (b.hotelId === h.id && (b.paymentStatus === 'Paid' || ['CheckedOut', 'Confirmed', 'CheckedIn'].includes(b.bookingStatus))) {
+                const bDate = new Date(b.checkIn || b.createdAt);
+                hTotal += (b.grandTotal || 0);
+                
+                if (bDate.getMonth() === monthsData[3].month && bDate.getFullYear() === monthsData[3].year) m1Total += b.grandTotal;
+                if (bDate.getMonth() === monthsData[4].month && bDate.getFullYear() === monthsData[4].year) m2Total += b.grandTotal;
+                if (bDate.getMonth() === monthsData[5].month && bDate.getFullYear() === monthsData[5].year) m3Total += b.grandTotal;
+              }
+            });
+            sysTotal += hTotal;
+            m1SysTotal += m1Total;
+            m2SysTotal += m2Total;
+            m3SysTotal += m3Total;
+            
+            if (hTotal > 0 || fBranch !== 'all') {
+              hotelRowData.push({
+                name: h.name,
+                m1: m1Total,
+                m2: m2Total,
+                m3: m3Total,
+                total: hTotal
+              });
+            }
+          });
+
+          // Pagination Logic
+          const totalItems = hotelRowData.length;
+          const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+          if (currentPage > totalPages) currentPage = totalPages;
+          if (currentPage < 1) currentPage = 1;
+
+          const startIndex = (currentPage - 1) * itemsPerPage;
+          const paginatedData = hotelRowData.slice(startIndex, startIndex + itemsPerPage);
+
+          paginatedData.forEach(row => {
+            tblBody.innerHTML += `
+              <tr data-branch="${row.name}">
+                <td><strong>${row.name}</strong></td>
+                <td>₹${row.m1.toLocaleString('en-IN')}</td>
+                <td>₹${row.m2.toLocaleString('en-IN')}</td>
+                <td>₹${row.m3.toLocaleString('en-IN')}</td>
+                <td><strong>₹${row.total.toLocaleString('en-IN')}</strong></td>
+                <td>-</td>
+              </tr>
+            `;
+          });
+
+          tblBody.innerHTML += `
+            <tr class="table-light" id="rowTotal">
+              <td><strong>All Branches</strong></td>
+              <td><strong>₹${m1SysTotal.toLocaleString('en-IN')}</strong></td>
+              <td><strong>₹${m2SysTotal.toLocaleString('en-IN')}</strong></td>
+              <td><strong>₹${m3SysTotal.toLocaleString('en-IN')}</strong></td>
+              <td><strong>₹${sysTotal.toLocaleString('en-IN')}</strong></td>
+              <td>-</td>
+            </tr>
+          `;
+
+          renderPagination(totalItems, totalPages);
+        }
       }
+
+      function renderPagination(totalItems, totalPages) {
+        const info = document.getElementById('paginationInfo');
+        const controls = document.getElementById('paginationControls');
+        if(!info || !controls) return;
+
+        const start = (currentPage - 1) * itemsPerPage + 1;
+        const end = Math.min(currentPage * itemsPerPage, totalItems);
+        
+        if (totalItems === 0) {
+          info.textContent = `Showing 0 entries`;
+          controls.innerHTML = '';
+          return;
+        }
+
+        info.textContent = `Showing ${start} to ${end} of ${totalItems} entries`;
+        
+        let html = '';
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a></li>`;
+        
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<li class="page-item ${currentPage === i ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        }
+        
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">Next</a></li>`;
+        
+        controls.innerHTML = html;
+
+        // Add event listeners to newly created buttons
+        const links = controls.querySelectorAll('a.page-link');
+        links.forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(e.target.getAttribute('data-page'));
+            if (!isNaN(page) && page >= 1 && page <= totalPages) {
+              currentPage = page;
+              renderReports();
+            }
+          });
+        });
+      }
+
+      // Initial Render
+      renderReports();
+
+      // Filter Event Listeners
+      const btnApply = document.getElementById('btnApplyFilters');
+      const btnReset = document.getElementById('btnResetFilters');
+      const chartSelector = document.getElementById('chartTypeSelector');
+
+      if (btnApply) {
+        btnApply.addEventListener('click', () => {
+          currentPage = 1;
+          renderReports();
+        });
+      }
+      if (btnReset) {
+        btnReset.addEventListener('click', () => {
+          if(document.getElementById('filterBranch')) document.getElementById('filterBranch').value = 'all';
+          if(document.getElementById('filterDate')) document.getElementById('filterDate').value = 'This Quarter';
+          if(document.getElementById('filterCategory')) document.getElementById('filterCategory').value = 'all';
+          currentPage = 1;
+          renderReports();
+        });
+      }
+      if (chartSelector) {
+        chartSelector.addEventListener('change', renderReports);
+      }
+      
+      const pageSizeSelector = document.getElementById('pageSizeSelector');
+      if (pageSizeSelector) {
+        pageSizeSelector.addEventListener('change', (e) => {
+          itemsPerPage = parseInt(e.target.value);
+          currentPage = 1;
+          renderReports();
+        });
+      }
+
+      // Export Handlers
+      const exportPDF = document.getElementById('btnExportPDF');
+      const exportExcel = document.getElementById('btnExportExcel');
+      
+      const downloadDummy = (format) => {
+        const a = document.createElement('a');
+        a.href = 'data:text/plain;charset=utf-8,Dummy%20Data';
+        a.download = `revenue_report.${format}`;
+        a.click();
+        const toast = new bootstrap.Toast(document.getElementById('statusToast'));
+        document.getElementById('toastMessage').textContent = `Report downloaded as ${format.toUpperCase()}`;
+        toast.show();
+      };
+
+      if(exportPDF) exportPDF.addEventListener('click', () => downloadDummy('pdf'));
+      if(exportExcel) exportExcel.addEventListener('click', () => downloadDummy('csv'));
     });
   </script>
   <script src="../../../Shared/UtilityClass/session.js"></script>

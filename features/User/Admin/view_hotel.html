@@ -177,10 +177,19 @@
 
     <!-- ROOM TYPES OVERVIEW TABLE -->
     <div class="card border shadow-sm bg-white p-4 mb-4 text-start" style="border-radius: 16px;">
-      <h5 class="font-serif fw-bold text-purple mb-3"><i class="bi bi-door-open-fill me-2"></i> Room Type Overview</h5>
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-door-open-fill me-2"></i> Room Type Overview</h5>
+        <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" id="roomTypeRowsSelect" style="width: auto;">
+              <option value="5">5 rows</option>
+              <option value="10" selected>10 rows</option>
+              <option value="20">20 rows</option>
+            </select>
+        </div>
+      </div>
       <hr class="opacity-10 my-2">
       <div class="table-responsive">
-        <table class="table align-middle manager-premium-table small mb-0">
+        <table class="table align-middle manager-premium-table small mb-0" id="tblRoomTypes">
           <thead>
             <tr>
               <th>Room Type</th>
@@ -192,107 +201,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><strong>Standard Room</strong></td>
-              <td>10</td>
-              <td>7</td>
-              <td>3</td>
-              <td>Rs. 3,500</td>
-              <td><span class="badge bg-success">Active</span></td>
-            </tr>
-            <tr>
-              <td><strong>Executive Studio</strong></td>
-              <td>6</td>
-              <td>5</td>
-              <td>1</td>
-              <td>Rs. 5,500</td>
-              <td><span class="badge bg-success">Active</span></td>
-            </tr>
-            <tr>
-              <td><strong>Deluxe Suite</strong></td>
-              <td>8</td>
-              <td>6</td>
-              <td>2</td>
-              <td>Rs. 8,000</td>
-              <td><span class="badge bg-success">Active</span></td>
-            </tr>
-            <tr>
-              <td><strong>Penthouse</strong></td>
-              <td>4</td>
-              <td>2</td>
-              <td>2</td>
-              <td>Rs. 18,000</td>
-              <td><span class="badge bg-success">Active</span></td>
-            </tr>
           </tbody>
         </table>
       </div>
-    </div>
-
-    <!-- ROOMS INVENTORY REGISTER (ADMIN CRUD) -->
-    <div class="card border shadow-sm bg-white p-4 mb-4 text-start" style="border-radius: 16px;">
-      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-building me-2"></i> Room Inventory Register</h5>
-        <button class="btn btn-purple btn-sm" id="btnOpenAddRoomModal"><i class="bi bi-plus-lg me-1"></i> Add Room</button>
-      </div>
-      <hr class="opacity-10 my-2">
-      <div class="table-responsive">
-        <table class="table align-middle manager-premium-table small mb-0" id="tblHotelRooms">
-          <thead>
-            <tr>
-              <th>Room No</th>
-              <th>Type</th>
-              <th>Floor</th>
-              <th>Bed Type</th>
-              <th>Price/Night</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Loaded dynamically -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add/Edit Room Modal -->
-  <div class="modal fade" id="roomCrudModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content border-warning" style="border-radius: 14px;">
-        <div class="modal-header bg-purple text-white">
-          <h5 class="modal-title font-serif fw-bold text-white" id="roomModalTitle">Add New Room</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body text-start small">
-          <form id="roomCrudForm">
-            <input type="hidden" id="crudRoomId">
-            <div class="mb-3">
-              <label class="form-label fw-bold">Room Number *</label>
-              <input type="text" class="form-control form-control-sm" id="roomNo" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Room Type *</label>
-              <select class="form-select form-select-sm" id="roomTypeSelect" required>
-                <!-- Filled dynamically from roomTypes -->
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Floor *</label>
-              <input type="number" class="form-control form-control-sm" id="roomFloor" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Bed Type *</label>
-              <input type="text" class="form-control form-control-sm" id="roomBed" placeholder="e.g. King, Queen, Twin" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Price per Night (INR) *</label>
-              <input type="number" class="form-control form-control-sm" id="roomPrice" required>
-            </div>
-            <button type="submit" class="btn btn-purple btn-sm w-100" id="btnSubmitRoomForm">Save Room</button>
-          </form>
-        </div>
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <span class="small text-muted" id="roomTypePaginationInfo">Showing 0 entries</span>
+        <nav>
+          <ul class="pagination pagination-sm mb-0" id="roomTypePagination">
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -402,227 +320,84 @@
         // Rating remains static from layout as there's no ratings data in schema
       }
 
-      // Room Type Overview Table
-      const tbody = document.querySelector('.manager-premium-table tbody');
-      if (tbody) {
-        tbody.innerHTML = '';
-        const roomTypes = [...new Set(rooms.map(r => r.type))];
+      // Room Type Overview Table with Pagination
+      let currentTypePage = 1;
+      let typeRowsPerPage = 10;
+      
+      const typeSelect = document.getElementById('roomTypeRowsSelect');
+      if (typeSelect) {
+          typeSelect.addEventListener('change', (e) => {
+              typeRowsPerPage = parseInt(e.target.value);
+              currentTypePage = 1;
+              renderRoomTypes();
+          });
+      }
 
-        if (roomTypes.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No rooms configured for this hotel.</td></tr>';
-        } else {
-          roomTypes.forEach(type => {
-            const typeRooms = rooms.filter(r => r.type === type);
-            const tTotal = typeRooms.length;
-            const tOccupied = typeRooms.filter(r => r.status === 'Occupied').length;
-            const tAvail = typeRooms.filter(r => r.status === 'Available').length;
+      function renderRoomTypes() {
+          const tbody = document.querySelector('#tblRoomTypes tbody');
+          if (!tbody) return;
+          tbody.innerHTML = '';
+          const roomTypes = [...new Set(rooms.map(r => r.type))];
+
+          if (roomTypes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No rooms configured for this hotel.</td></tr>';
+            const pInfo = document.getElementById('roomTypePaginationInfo');
+            if (pInfo) pInfo.textContent = 'Showing 0 entries';
+            const pNav = document.getElementById('roomTypePagination');
+            if (pNav) pNav.innerHTML = '';
+          } else {
+            const totalTypesCount = roomTypes.length;
+            const totalPages = Math.ceil(totalTypesCount / typeRowsPerPage);
+            if (currentTypePage > totalPages) currentTypePage = totalPages;
             
-            tbody.innerHTML += `
-              <tr>
-                <td><strong>${type}</strong></td>
-                <td>${tTotal}</td>
-                <td>${tOccupied}</td>
-                <td>${tAvail}</td>
-                <td>₹${type === 'Standard Room' ? '3,500' : type === 'Executive Studio' ? '5,500' : type === 'Deluxe Suite' ? '8,000' : '18,000'}</td>
-                <td><span class="badge bg-success">Active</span></td>
-              </tr>
-            `;
-          });
-        }
-      }
+            const startIdx = (currentTypePage - 1) * typeRowsPerPage;
+            const endIdx = Math.min(startIdx + typeRowsPerPage, totalTypesCount);
+            const currentTypes = roomTypes.slice(startIdx, endIdx);
 
-      // ==========================================
-      // ROOM CRUD INVENTORY REGISTER
-      // ==========================================
-      const roomTypesCatalog = HotelState.get('roomTypes') || [
-        { name: 'Standard Room', basePrice: 3500 },
-        { name: 'Executive Studio', basePrice: 5500 },
-        { name: 'Deluxe Suite', basePrice: 8000 },
-        { name: 'Presidential Suite', basePrice: 18000 }
-      ];
-
-      // Populate room type dropdown in modal
-      const roomTypeSelect = document.getElementById('roomTypeSelect');
-      if (roomTypeSelect) {
-        roomTypeSelect.innerHTML = '<option value="">Select Category</option>';
-        roomTypesCatalog.forEach(rt => {
-          const opt = document.createElement('option');
-          opt.value = rt.name;
-          opt.textContent = `${rt.name} (Base: ₹${rt.basePrice})`;
-          roomTypeSelect.appendChild(opt);
-        });
-      }
-
-      function renderRoomsList() {
-        const rTbody = document.querySelector('#tblHotelRooms tbody');
-        if (!rTbody) return;
-        rTbody.innerHTML = '';
-
-        const hRooms = HotelState.getRoomsByHotel(h.id) || [];
-        if (hRooms.length === 0) {
-          rTbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No rooms configured in this branch.</td></tr>`;
-          return;
-        }
-
-        hRooms.forEach(room => {
-          let statusBadge = '';
-          if (room.status === 'Available') statusBadge = '<span class="badge bg-success">Available</span>';
-          else if (room.status === 'Occupied') statusBadge = '<span class="badge bg-danger">Occupied</span>';
-          else if (room.status === 'Housekeeping') statusBadge = '<span class="badge bg-warning text-dark">Housekeeping</span>';
-          else statusBadge = '<span class="badge bg-secondary">Maintenance</span>';
-
-          const shortNo = room.id.split('_')[1] || room.id;
-
-          rTbody.innerHTML += `
-            <tr>
-              <td><strong>${shortNo}</strong></td>
-              <td>${room.type}</td>
-              <td>Floor ${room.floor || 1}</td>
-              <td>${room.bedType || 'King'}</td>
-              <td>₹${room.price.toLocaleString('en-IN')}</td>
-              <td>${statusBadge}</td>
-              <td class="text-end text-nowrap">
-                <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1 btn-edit-room" data-id="${room.id}">Edit</button>
-                <button class="btn btn-sm btn-outline-warning py-0 px-2 me-1 btn-toggle-room-status" data-id="${room.id}">${room.status === 'Maintenance' ? 'Set Available' : 'Set Maintenance'}</button>
-                <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-delete-room" data-id="${room.id}">Delete</button>
-              </td>
-            </tr>
-          `;
-        });
-
-        bindRoomActions();
-      }
-
-      const modalEl = document.getElementById('roomCrudModal');
-      const roomModal = new bootstrap.Modal(modalEl);
-
-      document.getElementById('btnOpenAddRoomModal').addEventListener('click', () => {
-        document.getElementById('roomModalTitle').textContent = 'Add New Room';
-        document.getElementById('crudRoomId').value = '';
-        document.getElementById('roomNo').value = '';
-        document.getElementById('roomNo').disabled = false;
-        document.getElementById('roomFloor').value = '1';
-        document.getElementById('roomBed').value = 'King';
-        document.getElementById('roomPrice').value = '3500';
-        document.getElementById('roomTypeSelect').value = '';
-        roomModal.show();
-      });
-
-      function bindRoomActions() {
-        document.querySelectorAll('.btn-edit-room').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const rId = e.target.getAttribute('data-id');
-            const room = HotelState.rooms.find(r => r.id === rId);
-            if (!room) return;
-
-            document.getElementById('roomModalTitle').textContent = 'Edit Room Details';
-            document.getElementById('crudRoomId').value = room.id;
-            document.getElementById('roomNo').value = room.id.split('_')[1] || room.id;
-            document.getElementById('roomNo').disabled = true; // No room no edits
-            document.getElementById('roomFloor').value = room.floor || 1;
-            document.getElementById('roomBed').value = room.bedType || 'King';
-            document.getElementById('roomPrice').value = room.price || 3500;
-            document.getElementById('roomTypeSelect').value = room.type;
-
-            roomModal.show();
-          });
-        });
-
-        document.querySelectorAll('.btn-toggle-room-status').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const rId = e.target.getAttribute('data-id');
-            const roomsList = HotelState.rooms;
-            const rIdx = roomsList.findIndex(r => r.id === rId);
-            if (rIdx === -1) return;
-
-            const room = roomsList[rIdx];
-            const originalStatus = room.status;
+            currentTypes.forEach(type => {
+              const typeRooms = rooms.filter(r => r.type === type);
+              const tTotal = typeRooms.length;
+              const tOccupied = typeRooms.filter(r => r.status === 'Occupied').length;
+              const tAvail = typeRooms.filter(r => r.status === 'Available').length;
+              
+              tbody.innerHTML += `
+                <tr>
+                  <td><strong>${type}</strong></td>
+                  <td>${tTotal}</td>
+                  <td>${tOccupied}</td>
+                  <td>${tAvail}</td>
+                  <td>₹${type === 'Standard Room' ? '3,500' : type === 'Executive Studio' ? '5,500' : type === 'Deluxe Suite' ? '8,000' : '18,000'}</td>
+                  <td><span class="badge bg-success">Active</span></td>
+                </tr>
+              `;
+            });
             
-            // Toggle
-            room.status = (originalStatus === 'Maintenance') ? 'Available' : 'Maintenance';
-            roomsList[rIdx] = room;
-            HotelState.rooms = roomsList;
-
-            // Audit
-
-            renderRoomsList();
-          });
-        });
-
-        document.querySelectorAll('.btn-delete-room').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const rId = e.target.getAttribute('data-id');
-            const roomsList = HotelState.rooms;
-            const rIdx = roomsList.findIndex(r => r.id === rId);
-            if (rIdx === -1) return;
-
-            const room = roomsList[rIdx];
-            if (room.status === 'Occupied') {
-              alert("Cannot delete room while it is occupied!");
-              return;
+            const pInfo = document.getElementById('roomTypePaginationInfo');
+            if (pInfo) pInfo.textContent = `Showing ${startIdx + 1} to ${endIdx} of ${totalTypesCount} entries`;
+            let paginationHTML = '';
+            paginationHTML += `<li class="page-item ${currentTypePage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentTypePage - 1}">Previous</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+               paginationHTML += `<li class="page-item ${currentTypePage === i ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
             }
-
-            if (confirm(`Are you sure you want to delete room ${room.id.split('_')[1]}?`)) {
-              roomsList.splice(rIdx, 1);
-              HotelState.rooms = roomsList;
-
-              renderRoomsList();
+            paginationHTML += `<li class="page-item ${currentTypePage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentTypePage + 1}">Next</a></li>`;
+            
+            const pNav = document.getElementById('roomTypePagination');
+            if (pNav) {
+                pNav.innerHTML = paginationHTML;
+                pNav.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = parseInt(e.target.getAttribute('data-page'));
+                        if (page > 0 && page <= totalPages && page !== currentTypePage) {
+                            currentTypePage = page;
+                            renderRoomTypes();
+                        }
+                    });
+                });
             }
-          });
-        });
+          }
       }
-
-      document.getElementById('roomCrudForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const rId = document.getElementById('crudRoomId').value;
-        const no = document.getElementById('roomNo').value.trim();
-        const floor = parseInt(document.getElementById('roomFloor').value);
-        const bed = document.getElementById('roomBed').value.trim();
-        const price = parseFloat(document.getElementById('roomPrice').value);
-        const type = document.getElementById('roomTypeSelect').value;
-
-        const roomsList = HotelState.rooms || [];
-
-        if (!rId) {
-          // Add new
-          const generatedId = `${h.id}_${no}`;
-          
-          // Check collision
-          if (roomsList.some(r => r.id === generatedId)) {
-            alert("Room number already exists!");
-            return;
-          }
-
-          const newRoom = {
-            id: generatedId,
-            hotelId: h.id,
-            type: type,
-            floor: floor,
-            bedType: bed,
-            price: price,
-            status: 'Available'
-          };
-
-          roomsList.push(newRoom);
-          HotelState.rooms = roomsList;
-
-        } else {
-          // Edit existing
-          const rIdx = roomsList.findIndex(r => r.id === rId);
-          if (rIdx !== -1) {
-            roomsList[rIdx].floor = floor;
-            roomsList[rIdx].bedType = bed;
-            roomsList[rIdx].price = price;
-            roomsList[rIdx].type = type;
-            HotelState.rooms = roomsList;
-          }
-        }
-
-        roomModal.hide();
-        renderRoomsList();
-      });
-
-      renderRoomsList();
+      renderRoomTypes();
     });
   </script>
   <script src="components/admin-sidebar.js"></script>

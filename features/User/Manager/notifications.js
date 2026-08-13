@@ -11,7 +11,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentFilter = 'All';
 
   function loadNotifications() {
-    allNotifications = HotelState.getNotificationsByUser(userId, 'Manager') || [];
+    let notifs = HotelState.getNotificationsByUser(userId, 'Manager') || [];
+    
+    if (notifs.length === 0) {
+      notifs = [
+        { id: 'n1', type: 'booking', title: 'New Booking: Deluxe Suite', message: 'John Doe booked Deluxe Suite for 3 nights.', createdAt: new Date().toISOString(), isRead: false },
+        { id: 'n2', type: 'checkin', title: 'VIP Check-in Pending', message: 'Jane Smith (Gold Member) is scheduled to arrive at 2 PM.', createdAt: new Date(Date.now() - 3600000).toISOString(), isRead: false },
+        { id: 'n3', type: 'maintenance', title: 'Maintenance Request', message: 'Room 204 reported AC issues.', createdAt: new Date(Date.now() - 7200000).toISOString(), isRead: true },
+        { id: 'n4', type: 'checkout', title: 'Late Check-out Requested', message: 'Room 305 requested check-out at 1 PM.', createdAt: new Date(Date.now() - 86400000).toISOString(), isRead: true }
+      ];
+      HotelState.set('notifications', notifs);
+    }
+    
+    allNotifications = notifs;
     // Sort descending
     allNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     renderNotifications();
@@ -43,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderNotifications() {
-    const listContainer = document.getElementById('notificationsList');
+    const listContainer = document.getElementById('notificationsContainer');
     if (!listContainer) return;
 
     listContainer.innerHTML = '';
@@ -128,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const filterTabs = document.querySelectorAll('.nav-pills .nav-link');
+  const filterTabs = document.querySelectorAll('.filter-list-item');
   filterTabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
       e.preventDefault();

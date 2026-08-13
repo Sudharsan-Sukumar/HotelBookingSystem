@@ -173,8 +173,9 @@
             <option value="Salem">Elegant Enclave Salem</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <button class="btn btn-purple btn-sm w-100" id="btnApplyCheckinFilters">Apply Filters</button>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm w-50" id="btnResetCheckinFilters">Reset</button>
+          <button class="btn btn-purple btn-sm w-50" id="btnApplyCheckinFilters">Apply Filters</button>
         </div>
       </div>
     </div>
@@ -195,10 +196,21 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Rendered dynamically -->
           </tbody>
         </table>
       </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <span class="text-secondary small" id="paginationInfo">Showing 1 to 3 of 3 entries</span>
+      <nav aria-label="Table pagination">
+        <ul class="pagination pagination-sm mb-0" id="paginationControls">
+          <li class="page-item disabled"><a class="page-link" href="#" id="btnPrevPage">Previous</a></li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item disabled"><a class="page-link" href="#" id="btnNextPage">Next</a></li>
+        </ul>
+      </nav>
     </div>
   </div>
 

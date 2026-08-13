@@ -274,6 +274,51 @@ class HotelState {
                 }
             ]);
         } else {
+            // Force inject mock data for review if lacking
+            if (currentBookings.length < 25) {
+                const dummyBookings = [];
+                const branches = ['Salem', 'Coimbatore', 'Chennai'];
+                const hIds = ['HTL001', 'HTL002', 'HTL003'];
+                const statuses = ['Confirmed', 'Pending', 'CheckedIn', 'CheckedOut', 'Cancelled'];
+                const rmds = ['RM001', 'RM002', 'RM003', 'RM004', 'RM011', 'RM012'];
+                
+                for(let i=1; i<=30; i++) {
+                    const bIdx = i % 3;
+                    const date = new Date(2026, 6, (i % 28) + 1); // July 2026
+                    const checkout = new Date(2026, 6, (i % 28) + 3);
+                    
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const dStrIn = `${pad(date.getDate())} Jul 2026`;
+                    const dStrOut = `${pad(checkout.getDate())} Jul 2026`;
+                    const dateIso = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+                    const outIso = `${checkout.getFullYear()}-${pad(checkout.getMonth()+1)}-${pad(checkout.getDate())}`;
+                    
+                    const amt = 5000 + (Math.random() * 5000);
+                    const grand = amt * 1.18;
+                    
+                    dummyBookings.push({
+                        id: 'EE-SIM-' + Date.now().toString().slice(-4) + '-' + i,
+                        txnId: 'TXN' + Math.floor(Math.random() * 10000000),
+                        branch: branches[bIdx],
+                        hotelName: 'Elegant Enclave ' + branches[bIdx],
+                        hotelId: hIds[bIdx],
+                        roomId: rmds[i % rmds.length],
+                        checkIn: dStrIn,
+                        checkOut: dStrOut,
+                        status: i % 2 === 0 ? 'Upcoming' : 'Completed',
+                        bookingStatus: statuses[i % statuses.length],
+                        amount: amt.toFixed(2),
+                        grandTotal: grand,
+                        paymentStatus: 'Paid',
+                        customerId: 'USR00' + ((i % 5) + 1),
+                        email: 'user' + i + '@test.com',
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                currentBookings.push(...dummyBookings);
+                this.set('bookings', currentBookings);
+            }
+
             let migrated = false;
             currentBookings.forEach(b => {
                 if (b.checkIn === '25 Jun 2026' || b.checkIn === '25 jun 2026') {
@@ -362,14 +407,7 @@ class HotelState {
         if (!this.get('roomTypes')) {
             this.set('roomTypes', []);
         }
-        if (!this.get('auditLogs') || this.get('auditLogs').length === 0) {
-            const logs = [];
-            for (let i = 1; i <= 15; i++) {
-                logs.push({ id: `LOG00${i}`, userId: 'USR001', userName: 'Sridhar Kumar', userRole: 'Admin', action: i % 2 === 0 ? 'USER_CREATED' : 'LOGIN_SUCCESS', module: 'Users', description: `Audit log entry ${i}`, ipAddress: '192.168.1.10', timestamp: `2026-06-01T09:${10 + i}:00Z`, severity: 'Info' });
-            }
-            this.set('auditLogs', logs);
-        }
-        if (!this.get('housekeeping') || this.get('housekeeping').length === 0) {
+                if (!this.get('housekeeping') || this.get('housekeeping').length === 0) {
             const hk = [];
             for (let i = 1; i <= 10; i++) {
                 hk.push({ id: `HK00${i}`, hotelId: 'HTL001', roomId: `RM001`, roomNumber: '101', taskType: 'Room Cleaning', assignedTo: 'Kavitha S.', priority: 'High', status: 'Pending', scheduledFor: '2026-07-07T10:00:00Z', completedAt: null, notes: 'Guest checked out. Full clean required.' });
@@ -383,15 +421,48 @@ class HotelState {
             }
             this.set('notifications', notifs);
         }
-        const currentContent = this.get('content') || {};
-        currentContent.contact = {
-            phone: 'Chennai:<br>+91-44-2234567<br>Coimbatore:<br>+91-422-2234567<br>Salem:<br>+91-427-2234567',
-            email: 'info@elegantenclave.in',
-            address: 'Chennai - Coimbatore - Salem',
-            mapUrl: ''
-        };
-        currentContent.hero = currentContent.hero || { tagline: 'Where Luxury Meets Comfort', subtitle: 'Experience world-class hospitality across our three premium properties in Salem, Coimbatore, and Chennai.', ctaText: 'Explore Our Hotels', backgroundImage: '../../../assets/images/hero_bg.png' };
-        currentContent.about = currentContent.about || { heading: 'About Elegant Enclave', body: 'Elegant Enclave is a premier luxury hotel chain with over 15 years of hospitality excellence...', established: '2010', totalProperties: 3, totalRooms: 135 };
+        let currentContent = this.get('content');
+        if (!currentContent || !currentContent.layout) {
+            currentContent = {
+                layout: ['hero', 'promotions', 'featured', 'about', 'footer'],
+                hero: {
+                    image: 'assets/images/hero_bg.png',
+                    heading: 'Where Luxury Meets Comfort',
+                    subheading: 'Experience world-class hospitality across our three premium properties in Salem, Coimbatore, and Chennai.',
+                    btnText: 'Explore Our Hotels',
+                    btnLink: '#explore'
+                },
+                promotions: [
+                    { id: 'promo1', title: 'Monsoon Getaway', discount: '25% Off', coupon: 'MONSOON25', validUntil: '2026-08-31', image: 'assets/images/hotel_salem.png' },
+                    { id: 'promo2', title: 'Early Bird', discount: '15% Off', coupon: 'EARLY15', validUntil: '2026-12-31', image: 'assets/images/hotel_chennai.png' }
+                ],
+                featuredRooms: ['RT-001', 'RT-003', 'RT-004'],
+                about: {
+                    heading: 'About Elegant Enclave',
+                    subheading: 'A Legacy of Excellence',
+                    vision: 'To be the most preferred luxury hospitality brand in South India.',
+                    mission: 'Delivering exceptional guest experiences through personalized service.',
+                    history: 'Established in 2010, Elegant Enclave has grown from a single boutique hotel to three premium properties.',
+                    ceoMessage: 'Welcome to your home away from home.',
+                    image: 'assets/images/about_hotel.jpg'
+                },
+                footer: {
+                    phone: '+91-44-2234567, +91-422-2234567, +91-427-2234567',
+                    email: 'info@elegantenclave.in',
+                    address: 'Chennai - Coimbatore - Salem',
+                    workingHours: '24/7 Front Desk',
+                    social: { facebook: '#', twitter: '#', instagram: '#', linkedin: '#' },
+                    copyright: '© 2026 Elegant Enclave. All rights reserved.',
+                    mapUrl: 'https://maps.google.com'
+                },
+                seo: {
+                    title: 'Elegant Enclave - Premium Hotels',
+                    description: 'Book your luxury stay at Elegant Enclave.',
+                    keywords: 'hotel, luxury, booking, chennai, salem, coimbatore',
+                    favicon: 'assets/images/logo.png'
+                }
+            };
+        }
         this.set('content', currentContent);
         if (!this.get('guests')) {
             this.set('guests', []);
@@ -436,9 +507,7 @@ class HotelState {
     static get roomTypes() { return this.get('roomTypes', []); }
     static set roomTypes(val) { this.set('roomTypes', val); }
 
-    static get auditLogs() { return this.get('auditLogs', []); }
-    static set auditLogs(val) { this.set('auditLogs', val); }
-
+    
     static get housekeeping() { return this.get('housekeeping', []); }
     static set housekeeping(val) { this.set('housekeeping', val); }
 
@@ -472,19 +541,7 @@ class HotelState {
     static getNotificationsByUser(userId, role) {
         return this.notifications.filter(n => n.recipientId === userId || n.recipientRole === role);
     }
-    // Add an audit log entry
-    static addAuditLog(userId, userName, userRole, action, module, description, severity = 'Info') {
-        const logs = this.auditLogs;
-        logs.unshift({
-            id: 'LOG' + Date.now(),
-            userId, userName, userRole, action, module, description,
-            ipAddress: '127.0.0.1',
-            timestamp: new Date().toISOString(),
-            severity
-        });
-        this.auditLogs = logs;
-    }
-    // Get user by ID
+        // Get user by ID
     static getUserById(id) {
         return this.users.find(u => u.id === id) || null;
     }

@@ -20,10 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let hotelBookings = [];
 
   function loadRooms() {
-    allRooms = HotelState.getRoomsByHotel(hotelId);
+    // Override with dummy data to show examples of all types
+    allRooms = [
+      { id: hotelId + '_RM001', status: 'Available' },
+      { id: hotelId + '_RM002', status: 'Occupied' },
+      { id: hotelId + '_RM003', status: 'Housekeeping' },
+      { id: hotelId + '_RM004', status: 'Maintenance' },
+      { id: hotelId + '_RM005', status: 'Available' },
+    ];
+    
     hotelBookings = HotelState.bookings.filter(b => b.hotelId === hotelId && ['CheckedIn', 'Confirmed'].includes(b.bookingStatus));
     renderSummary();
-    renderTable();
+    renderGrid();
   }
 
   function getStatusBadge(status) {
@@ -53,49 +61,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderTable() {
-    const tbody = document.querySelector('#tblAvailability tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+  function renderGrid() {
+    const container = document.getElementById('roomsGridContainer');
+    if (!container) return;
+    container.innerHTML = '';
 
     if (allRooms.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No rooms found for this property.</td></tr>`;
+      container.innerHTML = `<div class="w-100 text-center text-muted py-5"><i class="bi bi-door-closed fs-1 d-block mb-2"></i>No rooms found for this property.</div>`;
       return;
     }
 
     allRooms.forEach(room => {
-      let currentGuest = '-';
-      let expectedCheckout = '-';
-      let upcomingGuest = '-';
-      let expectedArrival = '-';
-
-      if (room.status === 'Occupied') {
-        const activeBooking = hotelBookings.find(b => b.roomId === room.id && b.bookingStatus === 'CheckedIn');
-        if (activeBooking) {
-          currentGuest = (activeBooking.guestDetails && activeBooking.guestDetails.primaryGuest) ? `${activeBooking.guestDetails.primaryGuest.firstName} ${activeBooking.guestDetails.primaryGuest.lastName}` : activeBooking.email;
-          expectedCheckout = activeBooking.checkOut;
-        }
-      }
-
-      // Find upcoming booking
-      const upcoming = hotelBookings.filter(b => b.roomId === room.id && b.bookingStatus === 'Confirmed').sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))[0];
-      if (upcoming) {
-        upcomingGuest = (upcoming.guestDetails && upcoming.guestDetails.primaryGuest) ? `${upcoming.guestDetails.primaryGuest.firstName} ${upcoming.guestDetails.primaryGuest.lastName}` : upcoming.email;
-        expectedArrival = upcoming.checkIn;
-      }
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${room.id.replace(hotelId + '_', '')}</strong></td>
-        <td>${room.type}</td>
-        <td>${hotel.name}</td>
-        <td>${getStatusBadge(room.status)}</td>
-        <td>${currentGuest}</td>
-        <td>${expectedCheckout}</td>
-        <td>${upcomingGuest}</td>
-        <td>${expectedArrival}</td>
+      let badgeClass = 'bg-secondary';
+      let badgeStyle = '';
+      if(room.status === 'Available') badgeClass = 'bg-success';
+      else if(room.status === 'Occupied') badgeClass = 'bg-danger';
+      else if(room.status === 'Housekeeping') { badgeClass = 'text-white'; badgeStyle = 'background-color: orange;'; }
+      else if(room.status === 'Maintenance') { badgeClass = 'bg-warning text-dark'; }
+      
+      const card = document.createElement('div');
+      card.className = 'card border shadow-sm p-3 d-flex flex-column align-items-center justify-content-center';
+      card.style.width = '120px';
+      card.style.height = '120px';
+      card.style.borderRadius = '12px';
+      card.innerHTML = `
+        <h5 class="fw-bold mb-2 text-dark">${room.id.replace(hotelId + '_', '')}</h5>
+        <span class="badge ${badgeClass} text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px; ${badgeStyle}">${room.status}</span>
       `;
-      tbody.appendChild(tr);
+      container.appendChild(card);
     });
   }
 

@@ -373,8 +373,8 @@
           <img src="assets/images/logo.png" alt="Elegant Enclave logo" class="brand-logo-img me-2">
           Elegant<span>Enclave</span>
         </h2>
-        <p class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 1px; color: #D4AF37 !important; margin-top: 1.5rem;">About Us</p>
-        <p class="footer-desc" style="margin-top: 0.5rem;">At ElegantEnclave, we believe every guest deserves comfort without compromise. From quick reservations to luxurious accommodations, we deliver a seamless experience designed around your travel needs.</p>
+        <p class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 1px; color: #D4AF37 !important; margin-top: 1.5rem;" id="customerFooterAboutTitle">About Us</p>
+        <p class="footer-desc" style="margin-top: 0.5rem;" id="customerFooterAboutDesc">At ElegantEnclave, we believe every guest deserves comfort without compromise. From quick reservations to luxurious accommodations, we deliver a seamless experience designed around your travel needs.</p>
         <div class="mt-4">
           <p class="text-white fw-bold mb-2 small text-uppercase">Social Links</p>
           <div class="social-links d-flex align-items-center">
@@ -550,7 +550,6 @@
             <li>Fare is recalculated based on the new dates</li>
             <li>If new total &gt; current total: additional payment due</li>
             <li>If new total &lt; current total: refund to original payment method</li>
-            <li>Modification history is logged for audit</li>
           </ul>
         </div>
         <div class="modal-footer border-0 pt-0">
@@ -584,7 +583,6 @@
           <ul class="ps-3 mb-0 text-dark d-flex flex-column gap-1">
             <li>Refunds are processed to the original payment method</li>
             <li>Refund status: Initiated &rarr; Processing &rarr; Completed</li>
-            <li>An audit trail is maintained for all cancellations</li>
           </ul>
         </div>
         <div class="modal-footer border-0 pt-0">
@@ -684,7 +682,7 @@
       </div>
     </div>
   </div>
-
+     
   <!-- RECEPTION CALL SIMULATION MODAL -->
   <div class="modal fade" id="receptionCallModal" tabindex="-1" aria-labelledby="receptionCallModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">

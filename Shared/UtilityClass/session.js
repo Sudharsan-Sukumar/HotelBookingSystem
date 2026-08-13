@@ -71,9 +71,6 @@ class HotelState_Local {
     if (!this.get('roomTypes')) {
       this.set('roomTypes', []);
     }
-    if (!this.get('auditLogs')) {
-      this.set('auditLogs', []);
-    }
     if (!this.get('housekeeping')) {
       this.set('housekeeping', []);
     }
@@ -118,9 +115,6 @@ class HotelState_Local {
   static get roomTypes() { return this.get('roomTypes', []); }
   static set roomTypes(val) { this.set('roomTypes', val); }
 
-  static get auditLogs() { return this.get('auditLogs', []); }
-  static set auditLogs(val) { this.set('auditLogs', val); }
-
   static get housekeeping() { return this.get('housekeeping', []); }
   static set housekeeping(val) { this.set('housekeeping', val); }
 
@@ -158,17 +152,6 @@ class HotelState_Local {
   }
   static getNotificationsByUser(userId, role) {
     return this.notifications.filter(n => n.recipientId === userId || n.recipientRole === role);
-  }
-  static addAuditLog(userId, userName, userRole, action, module, description, severity = 'Info') {
-    const logs = this.auditLogs;
-    logs.unshift({
-      id: 'LOG' + Date.now(),
-      userId, userName, userRole, action, module, description,
-      ipAddress: '127.0.0.1',
-      timestamp: new Date().toISOString(),
-      severity
-    });
-    this.auditLogs = logs;
   }
   static updateBooking(bookingId, updates) {
     const bookings = this.bookings;

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnResetPassword = document.getElementById('btnResetPassword');
 
   const emailError = document.getElementById('resetEmailError');
+  const otpCodeError = document.getElementById('otpCodeError');
   const newPasswordError = document.getElementById('newPasswordError');
   const confirmPasswordError = document.getElementById('confirmPasswordError');
   const statusAlert = document.getElementById('statusAlert');
@@ -80,27 +81,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resetUserEmail = emailValue;
-        showAlert(`A password reset link has been sent to ${emailValue}. Please check your inbox.`, 'success');
+        showAlert('OTP sent successfully. Demo OTP: 123456', 'success');
         
-        btnSendOTP.textContent = 'Set New Password';
+        btnSendOTP.textContent = 'Verify OTP';
         step = 2;
         emailInput.setAttribute('disabled', 'true');
+        if(otpInput) otpInput.removeAttribute('disabled');
       } 
       else if (step === 2) {
-        // Hide OTP input section completely since we are skipping it for simulation
-        if(otpInput) {
-          const otpContainer = otpInput.closest('.mb-3');
-          if(otpContainer) otpContainer.style.display = 'none';
-        }
+        otpInput.classList.remove('is-invalid');
+        if(otpCodeError) otpCodeError.textContent = '';
         
-        // Hide Send button and reveal inputs
-        btnSendOTP.style.display = 'none';
+        const otpValue = otpInput.value.trim();
+        if (!otpValue || otpValue !== '123456') {
+          otpInput.classList.add('is-invalid');
+          if(otpCodeError) otpCodeError.textContent = 'Invalid OTP. Please try again.';
+          showAlert('Invalid OTP. Please try again.', 'danger');
+          return;
+        }
+
+        // Mark OTP as verified
+        otpInput.setAttribute('disabled', 'true');
         hideAlert();
+
+        // Hide Verify button and reveal reset inputs
+        btnSendOTP.style.display = 'none';
 
         newPasswordInput.removeAttribute('disabled');
         confirmPasswordInput.removeAttribute('disabled');
         if(showPasswordCheckbox) showPasswordCheckbox.removeAttribute('disabled');
         btnResetPassword.removeAttribute('disabled');
+        
+        step = 3;
       }
     });
   }
@@ -152,14 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
           users[userIndex].password = newPasswordInput.value;
           HotelState.users = users;
 
-          showAlert('Password reset successfully. <a href="login.html" class="alert-link fw-bold">Go to Login</a>', 'success', true);
+          showAlert('Password reset successfully. Redirecting to login...', 'success');
           
           newPasswordInput.setAttribute('disabled', 'true');
           confirmPasswordInput.setAttribute('disabled', 'true');
           btnResetPassword.setAttribute('disabled', 'true');
           if(showPasswordCheckbox) showPasswordCheckbox.setAttribute('disabled', 'true');
           
-          HotelState.addAuditLog(users[userIndex].id, users[userIndex].firstName + ' ' + users[userIndex].lastName, users[userIndex].role, 'PASSWORD_RESET', 'Auth', 'User reset their password via forgot password flow.');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 3000);
+          
         } else {
           showAlert('Error updating password. User not found.', 'danger');
         }

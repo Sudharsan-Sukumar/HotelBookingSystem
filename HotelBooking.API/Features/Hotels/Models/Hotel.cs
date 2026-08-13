@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using HotelBooking.API.Features.Users.Models;
+using HotelBooking.API.Users.Models;
 
 namespace HotelBooking.API.Features.Hotels.Models;
 
@@ -22,6 +22,18 @@ public class Hotel
     public string ThumbnailUrl { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Replaces the former HotelImages table (JSON column, owned collection).
+    public List<HotelImageInfo> Images { get; set; } = new();
+
+    // Replaces the former Amenities/HotelAmenities tables (JSON column of amenity names).
+    public List<string> Amenities { get; set; } = new();
+
+    // Replaces the former HotelManagers table (JSON column of User.Id values).
+    public List<int> ManagerIds { get; set; } = new();
+
+    // Replaces the former HousekeepingTasks table (JSON column, owned collection).
+    public List<HousekeepingTaskInfo> Housekeeping { get; set; } = new();
 
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;

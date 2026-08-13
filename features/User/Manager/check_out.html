@@ -153,6 +153,33 @@
       </div>
     </div>
 
+    <!-- Filters Section -->
+    <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
+      <div class="row g-2 align-items-end text-start">
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Search Guest/Booking</label>
+          <input type="text" class="form-control form-control-sm" id="checkoutSearch" placeholder="e.g. Sarah, EE-2026...">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Room Designation</label>
+          <input type="text" class="form-control form-control-sm" id="checkoutRoom" placeholder="e.g. 201">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-purple">Branch</label>
+          <select class="form-select form-select-sm" id="checkoutBranch">
+            <option value="all">All Branches</option>
+            <option value="Chennai">Elegant Enclave Chennai</option>
+            <option value="Coimbatore">Elegant Enclave Coimbatore</option>
+            <option value="Salem">Elegant Enclave Salem</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm w-50" id="btnResetCheckoutFilters">Reset</button>
+          <button class="btn btn-purple btn-sm w-50" id="btnApplyCheckoutFilters">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TABLE LIST -->
     <div class="card border shadow-sm bg-white p-3 mb-4" style="border-radius: 12px;">
       <div class="table-responsive text-start">
@@ -172,6 +199,18 @@
           </tbody>
         </table>
       </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <span class="text-secondary small" id="paginationInfo">Showing 1 to 2 of 2 entries</span>
+      <nav aria-label="Table pagination">
+        <ul class="pagination pagination-sm mb-0" id="paginationControls">
+          <li class="page-item disabled"><a class="page-link" href="#" id="btnPrevPage">Previous</a></li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item disabled"><a class="page-link" href="#" id="btnNextPage">Next</a></li>
+        </ul>
+      </nav>
     </div>
   </div>
 
@@ -197,13 +236,6 @@
               <label class="form-label small fw-semibold">Damage Charges</label>
               <input type="number" class="form-control form-control-sm" id="chargeDamage" value="0">
             </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Audit Status</label>
-            <select class="form-select" id="checkoutAuditStatus">
-              <option value="Cleaning">Send to Housekeeping (Cleaning)</option>
-              <option value="Available">Directly Available</option>
-            </select>
           </div>
         </div>
         <div class="modal-footer">

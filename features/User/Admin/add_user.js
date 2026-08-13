@@ -67,6 +67,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Inline Validation Logic
+  const emailInput = document.getElementById('email');
+  const phoneInput = document.getElementById('phone');
+  
+  const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailInput.value.trim() || !emailRegex.test(emailInput.value)) {
+      emailInput.classList.add('is-invalid');
+      return false;
+    }
+    emailInput.classList.remove('is-invalid');
+    return true;
+  };
+  
+  const validatePhone = () => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneInput.value.trim() || !phoneRegex.test(phoneInput.value)) {
+      phoneInput.classList.add('is-invalid');
+      return false;
+    }
+    phoneInput.classList.remove('is-invalid');
+    return true;
+  };
+
+  emailInput.addEventListener('input', validateEmail);
+  phoneInput.addEventListener('input', validatePhone);
+
   // Submit & Validation
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -79,9 +106,15 @@ document.addEventListener('DOMContentLoaded', () => {
         f.classList.add('is-invalid');
         isValid = false;
       } else {
-        f.classList.remove('is-invalid');
+        if (f.id !== 'email' && f.id !== 'phone') {
+          f.classList.remove('is-invalid');
+        }
       }
     });
+    
+    // Explicit inline validations
+    if (!validateEmail()) isValid = false;
+    if (!validatePhone()) isValid = false;
 
     // Password validation rule check
     const pw = passwordInput.value;
@@ -122,11 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
       successModalBody.innerHTML = `
         <p>The system credentials profile has been successfully configured.</p>
         <hr class="my-2">
-        <p class="mb-1"><strong>User ID:</strong> ${mockId}</p>
-        <p class="mb-1"><strong>User Name:</strong> ${firstName} ${lastName}</p>
-        <p class="mb-1"><strong>Role Access:</strong> ${roleSelect.value}</p>
-        <p class="mb-1"><strong>Branch Assignment:</strong> ${roleSelect.value === 'Manager' ? branchSelect.options[branchSelect.selectedIndex].text : 'N/A'}</p>
-        <p class="mb-1"><strong>Temporary Password:</strong> ${pw}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">User ID:</strong> ${mockId}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">User Name:</strong> ${firstName} ${lastName}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Role Access:</strong> ${roleSelect.value}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Branch Assignment:</strong> ${roleSelect.value === 'Manager' ? branchSelect.options[branchSelect.selectedIndex].text : 'N/A'}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Temporary Password:</strong> ${pw}</p>
       `;
 
       successModal.show();

@@ -164,10 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
           bList[bIdx] = oldB;
           HotelState.bookings = bList;
 
-          // Audit log
+          
           const userObj = HotelState.getUserById(userId);
           const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-          HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings', `${actionMsg} for booking ${bookingId}. Refund processed: ₹${Math.abs(priceDiff).toLocaleString('en-IN')}`);
+          
           
           // Notification
           const mockNotifs = HotelState.notifications;
@@ -241,10 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
           bList[bIdx] = oldB;
           HotelState.bookings = bList;
 
-          // Audit log
+          
           const userObj = HotelState.getUserById(userId);
           const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-          HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings', `${actionMsg} for booking ${bookingId}. No price difference.`);
+          
           
           // Notification
           const mockNotifs = HotelState.notifications;
@@ -407,11 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
       bList[bIdx] = oldB;
       HotelState.bookings = bList;
 
-      // Audit
+      
       const userObj  = HotelState.getUserById(userId);
       const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
-      HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_MODIFIED', 'Bookings',
-        `Upgrade payment of ₹${priceDiff.toLocaleString('en-IN')} via Razorpay (${selectedMethod}) for booking ${bookingId}.`);
+      
 
       // Notification
       const notifs = HotelState.notifications;

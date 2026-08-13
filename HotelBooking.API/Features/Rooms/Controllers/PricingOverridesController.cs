@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using HotelBooking.API.Common.Models;
 using HotelBooking.API.Features.Rooms.DTOs;
+using HotelBooking.API.Features.Rooms.Models;
 using HotelBooking.API.Features.Rooms.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,15 +28,15 @@ public class PricingOverridesController : ControllerBase
         try
         {
             var pricingOverride = await _pricingService.AddPricingOverrideAsync(request);
-            return Ok(pricingOverride);
+            return Ok(ApiResponse<PricingOverride>.SuccessResponse(pricingOverride, "Pricing override added successfully."));
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            return Conflict(new { message = ex.Message });
+            return Conflict(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
 
@@ -42,13 +44,13 @@ public class PricingOverridesController : ControllerBase
     public async Task<IActionResult> GetOverrides(int roomTypeId)
     {
         var overrides = await _pricingService.GetPricingOverridesAsync(roomTypeId);
-        return Ok(overrides);
+        return Ok(ApiResponse<IEnumerable<PricingOverride>>.SuccessResponse(overrides));
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteOverride(int id)
     {
         await _pricingService.DeletePricingOverrideAsync(id);
-        return NoContent();
+        return Ok(ApiResponse.SuccessResponse("Pricing override deleted successfully."));
     }
 }

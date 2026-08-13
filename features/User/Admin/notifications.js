@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  let notifications = HotelState.notifications;
+  let notifications = HotelState.adminNotifications || [];
   if (notifications.length === 0) {
     notifications = [
       { id: 'NTF-001', module: 'Hotels', title: 'New Hotel Registration', desc: 'Hotel "Elegant Enclave Chennai" is waiting for approval.', date: '24 Jun 2026, 10:30 AM', priority: 'High', status: 'Unread', actionText: 'Review', recommendation: 'Verify branch address details and approve hotel registration requests.' },
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'NTF-003', module: 'Bookings', title: 'Booking Modification Request', desc: 'Customer requested booking modification for Booking HBS-2026-002.', date: '23 Jun 2026, 04:12 PM', priority: 'Medium', status: 'Unread', actionText: 'Review Booking', recommendation: 'Check room type inventory constraints and modify booking dates.' },
       { id: 'NTF-004', module: 'Security', title: 'Multiple Failed Login Attempts', desc: '5 failed login attempts detected for Manager account.', date: '23 Jun 2026, 02:45 PM', priority: 'Critical', status: 'Unread', actionText: 'Investigate', recommendation: 'Temporarily lock account access and trigger password update request.' }
     ];
-    HotelState.notifications = notifications;
+    HotelState.adminNotifications = notifications;
   }
 
   const listContainer = document.getElementById('notifListContainer');
@@ -159,14 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Actions
   document.getElementById('btnMarkAllRead').addEventListener('click', () => {
     notifications.forEach(x => x.status = 'Read');
-    HotelState.notifications = notifications;
+    HotelState.adminNotifications = notifications;
     showToast('All notifications marked as read.', true);
     renderList();
   });
 
   document.getElementById('btnClearRead').addEventListener('click', () => {
     notifications = notifications.filter(x => x.status === 'Unread');
-    HotelState.notifications = notifications;
+    HotelState.adminNotifications = notifications;
     selectedNotif = null;
     detailsPlaceholder.classList.remove('d-none');
     detailsContent.classList.add('d-none');
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnDetRead').addEventListener('click', () => {
     if (selectedNotif) {
       selectedNotif.status = 'Read';
-      HotelState.notifications = notifications;
+      HotelState.adminNotifications = notifications;
       showToast('Notification marked as read.', true);
       viewDetails(selectedNotif.id);
       renderList();
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnDetDelete').addEventListener('click', () => {
     if (selectedNotif) {
       notifications = notifications.filter(x => x.id !== selectedNotif.id);
-      HotelState.notifications = notifications;
+      HotelState.adminNotifications = notifications;
       selectedNotif = null;
       detailsPlaceholder.classList.remove('d-none');
       detailsContent.classList.add('d-none');
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       actionText: 'Review Booking',
       recommendation: 'Check refund trigger logs and update room availability status.'
     });
-    HotelState.notifications = notifications;
+    HotelState.adminNotifications = notifications;
 
     showToast('New system notification received.', true);
     renderList();

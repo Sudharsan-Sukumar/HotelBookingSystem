@@ -1,15 +1,20 @@
-using HotelBooking.API.Features.Users.Models;
-using HotelBooking.API.Features.Auth.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using HotelBooking.API.Users.Models;
+using HotelBooking.API.Authentication.Models;
 using HotelBooking.API.Features.Hotels.Models;
 using HotelBooking.API.Features.Rooms.Models;
 using HotelBooking.API.Features.Bookings.Models;
 using HotelBooking.API.Features.Payments.Models;
-using HotelBooking.API.Features.Housekeeping.Models;
 using HotelBooking.API.Features.CMS.Models;
 using HotelBooking.API.Features.Reviews.Models;
 using Microsoft.EntityFrameworkCore;
-
-using HotelBooking.API.Features.Admin.Models;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace HotelBooking.API.Data;
 
@@ -28,34 +33,30 @@ public class ApplicationDbContext : DbContext
 
     // Hotels & Rooms
     public DbSet<Hotel> Hotels { get; set; } = null!;
-    public DbSet<HotelManager> HotelManagers { get; set; } = null!;
-    public DbSet<Amenity> Amenities { get; set; } = null!;
-    public DbSet<HotelAmenity> HotelAmenities { get; set; } = null!;
     public DbSet<RoomType> RoomTypes { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
-    public DbSet<HotelImage> HotelImages { get; set; } = null!;
     public DbSet<RoomTypeImage> RoomTypeImages { get; set; } = null!;
     public DbSet<PricingOverride> PricingOverrides { get; set; } = null!;
+    public DbSet<BlockedDate> BlockedDates { get; set; } = null!;
     public DbSet<Review> Reviews { get; set; } = null!;
 
     // Bookings & Payments
     public DbSet<Booking> Bookings { get; set; } = null!;
     public DbSet<BookingRoom> BookingRooms { get; set; } = null!;
-    public DbSet<Guest> Guests { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
-    public DbSet<SavedCard> SavedCards { get; set; } = null!;
+    public DbSet<Refund> Refunds { get; set; } = null!;
+    public DbSet<HotelBooking.API.Features.Payments.Models.RazorpayPayment> RazorpayPayments { get; set; } = null!;
 
     // Operations & CMS
-    public DbSet<HousekeepingTask> HousekeepingTasks { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<SystemSetting> SystemSettings { get; set; } = null!;
     public DbSet<Promotion> Promotions { get; set; } = null!;
+    public DbSet<HeroContent> HeroContents { get; set; } = null!;
+    public DbSet<AboutContent> AboutContents { get; set; } = null!;
+    public DbSet<ContactContent> ContactContents { get; set; } = null!;
+    public DbSet<HelpArticle> HelpArticles { get; set; } = null!;
     public DbSet<DatabaseBackup> DatabaseBackups { get; set; } = null!;
     
-    // Phase 3 Admin Models
-    public DbSet<SupportTicket> SupportTickets { get; set; } = null!;
-    public DbSet<Payout> Payouts { get; set; } = null!;
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -64,14 +65,18 @@ public class ApplicationDbContext : DbContext
         modelBuilder.HasDefaultSchema("hotel");
 
         // Composite Keys for Join Tables
-        modelBuilder.Entity<HotelAmenity>()
-            .HasKey(ha => new { ha.HotelId, ha.AmenityId });
-
-        modelBuilder.Entity<HotelManager>()
-            .HasKey(hm => new { hm.HotelId, hm.UserId });
-
         modelBuilder.Entity<BookingRoom>()
             .HasKey(br => new { br.BookingId, br.RoomId });
+
+        // Hotel.Images / Amenities / ManagerIds / Housekeeping are JSON columns replacing the
+        // former HotelImages, Amenities+HotelAmenities, HotelManagers, and HousekeepingTasks tables.
+        ConfigureJsonList<Hotel, HotelImageInfo>(modelBuilder, h => h.Images);
+        ConfigureJsonList<Hotel, string>(modelBuilder, h => h.Amenities);
+        ConfigureJsonList<Hotel, int>(modelBuilder, h => h.ManagerIds);
+        ConfigureJsonList<Hotel, HousekeepingTaskInfo>(modelBuilder, h => h.Housekeeping);
+
+        // User.SavedCards is a JSON column replacing the former standalone SavedCards table.
+        ConfigureJsonList<User, SavedCardInfo>(modelBuilder, u => u.SavedCards);
 
         // Concurrency Tokens
         modelBuilder.Entity<Payment>()
@@ -132,6 +137,14 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Booking>()
             .HasIndex(b => b.Status);
 
+        // Search optimization: covers the availability lookup in HotelService.SearchHotelsAsync
+        // (filter by hotel+roomtype+status, range-check the two date columns) without a table scan.
+        modelBuilder.Entity<Booking>()
+            .HasIndex(b => new { b.HotelId, b.RoomTypeId, b.Status, b.CheckInDate, b.CheckOutDate });
+
+        modelBuilder.Entity<RoomType>()
+            .HasIndex(rt => new { rt.HotelId, rt.IsActive });
+
         modelBuilder.Entity<Review>()
             .HasIndex(r => new { r.BookingId, r.CustomerId })
             .IsUnique();
@@ -149,24 +162,6 @@ public class ApplicationDbContext : DbContext
             .IsUnique();
 
         // Foreign Key Configurations
-        modelBuilder.Entity<HousekeepingTask>()
-            .HasOne(h => h.Assignee)
-            .WithMany()
-            .HasForeignKey(h => h.AssignedTo)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<HotelManager>()
-            .HasOne(hm => hm.Hotel)
-            .WithMany()
-            .HasForeignKey(hm => hm.HotelId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<HotelManager>()
-            .HasOne(hm => hm.User)
-            .WithMany()
-            .HasForeignKey(hm => hm.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-            
         modelBuilder.Entity<Booking>()
             .HasOne(b => b.Hotel)
             .WithMany()
@@ -198,6 +193,21 @@ public class ApplicationDbContext : DbContext
             new Role { Id = 2, Name = "Customer" },
             new Role { Id = 3, Name = "Manager" }
         );
+    }
+
+    // Maps a List<TItem> property to a single JSON text column, with a value comparer so EF's
+    // change tracker correctly detects in-place mutations (e.g. list.Add(...)) at SaveChanges time.
+    private static void ConfigureJsonList<TEntity, TItem>(ModelBuilder modelBuilder, Expression<Func<TEntity, List<TItem>>> propertyExpression)
+        where TEntity : class
+    {
+        modelBuilder.Entity<TEntity>().Property(propertyExpression)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<TItem>>(v, (JsonSerializerOptions?)null) ?? new List<TItem>())
+            .Metadata.SetValueComparer(new ValueComparer<List<TItem>>(
+                (a, b) => JsonSerializer.Serialize(a, (JsonSerializerOptions?)null) == JsonSerializer.Serialize(b, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null).GetHashCode(),
+                v => JsonSerializer.Deserialize<List<TItem>>(JsonSerializer.Serialize(v, (JsonSerializerOptions?)null), (JsonSerializerOptions?)null)!));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -42,6 +42,8 @@
             <!-- Mandatory Field helper instruction text -->
             <p class="mandatory-note text-start mb-3"><span class="mandatory-star">*</span> Indicates a mandatory field</p>
 
+            <div id="statusAlert" class="alert d-none mb-3 small py-2 px-3 text-start" role="alert"></div>
+
             <form id="registrationForm" novalidate>
               
               <!-- First Name & Last Name (Side by Side) -->
@@ -55,7 +57,13 @@
                   <label for="lastName" class="form-label">Last Name <span class="mandatory-star">*</span></label>
                   <input type="text" id="lastName" class="form-control" placeholder="Last Name" required aria-required="true">
                   <span class="invalid-feedback-msg" id="lastNameError" aria-live="assertive"></span>
-                </div>
+              </div>
+
+              <!-- Date of Birth -->
+              <div class="mb-3 text-start">
+                <label for="registerDob" class="form-label">Date of Birth <span class="mandatory-star">*</span></label>
+                <input type="date" id="registerDob" class="form-control" required aria-required="true">
+                <span class="invalid-feedback-msg" id="registerDobError" aria-live="assertive"></span>
               </div>
 
               <!-- Email Address -->
@@ -65,11 +73,22 @@
                 <span class="invalid-feedback-msg" id="registerEmailError" aria-live="assertive"></span>
               </div>
 
-              <!-- Phone Number -->
+              <!-- Phone Number and OTP -->
               <div class="mb-3 text-start">
                 <label for="registerPhone" class="form-label">Phone Number <span class="mandatory-star">*</span></label>
-                <input type="tel" id="registerPhone" class="form-control" placeholder="+91 XXXXX XXXXX" required aria-required="true">
-                <span class="invalid-feedback-msg" id="registerPhoneError" aria-live="assertive"></span>
+                <div class="input-group has-validation">
+                  <input type="tel" id="registerPhone" class="form-control" placeholder="+91 XXXXX XXXXX" required aria-required="true">
+                  <button type="button" class="btn" id="btnSendOtp" style="background-color: #F8F7F4; border: 1px solid #ced4da; border-left: none; color: #1A0A2E; font-weight: 500;">Send OTP</button>
+                  <span class="invalid-feedback-msg w-100" id="registerPhoneError" aria-live="assertive"></span>
+                </div>
+              </div>
+
+              <!-- OTP Verification -->
+              <div class="mb-3 text-start d-none" id="otpContainer">
+                <div id="localOtpAlert" class="alert alert-info py-2 px-3 small mb-2 d-none fw-bold" style="background-color: #e9f2ff; color: #0056b3; border-color: #b8daff;"></div>
+                <label for="registerOtp" class="form-label">Enter OTP <span class="mandatory-star">*</span></label>
+                <input type="text" id="registerOtp" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                <span class="invalid-feedback-msg" id="registerOtpError" aria-live="assertive"></span>
               </div>
 
               <!-- Password -->

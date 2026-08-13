@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnReset = document.getElementById('btnResetFilters');
   const btnApply = document.getElementById('btnApplyFilters');
 
+  let currentPage = 1;
+  let rowsPerPage = 10;
+
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
@@ -46,8 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cityVal = cityFilter.value;
     const statusVal = statusFilter.value;
 
-    let filtered = hotels.filter(h => {
-      if (q && !h.name.toLowerCase().includes(q) && !h.id.toLowerCase().includes(q) && !h.city.toLowerCase().includes(q) && !(h.manager || '').toLowerCase().includes(q)) return false;
+    let filtered = hotels.map(h => {
+      const cityName = h.city || (h.location ? h.location.split(',')[0].trim() : 'Unknown');
+      const branchName = h.branch || (h.name ? h.name.replace('Elegant Enclave ', '') + ' Branch' : 'Main');
+      return { ...h, city: cityName, branch: branchName };
+    }).filter(h => {
+      const managerText = h.manager || h.managerId || '';
+      if (q && !h.name.toLowerCase().includes(q) && !h.id.toLowerCase().includes(q) && !h.city.toLowerCase().includes(q) && !managerText.toLowerCase().includes(q)) return false;
       if (cityVal !== 'all' && h.city !== cityVal) return false;
       if (statusVal !== 'all' && h.status !== statusVal) return false;
       return true;
@@ -65,10 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (filtered.length === 0) {
       tblBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No hotels found.</td></tr>`;
+      renderPagination(0);
       return;
     }
 
-    filtered.forEach(h => {
+    const totalPages = Math.ceil(filtered.length / rowsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const pagedData = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+    pagedData.forEach(h => {
       let statusBadge = '';
       if (h.status === 'Active') statusBadge = '<span class="badge bg-success">Active</span>';
       else if (h.status === 'Pending') statusBadge = '<span class="badge bg-warning text-dark">Pending</span>';
@@ -107,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tr.innerHTML = `
         <td><strong>${h.id}</strong></td>
         <td>${h.name}</td>
-        <td>${h.branch || 'Main'}</td>
+        <td>${h.branch}</td>
         <td>${h.city}</td>
         <td>${managerName}</td>
         <td>${hRooms.length}</td>
@@ -115,6 +131,56 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="text-end text-nowrap">${actions}</td>
       `;
       tblBody.appendChild(tr);
+    });
+
+    renderPagination(filtered.length);
+  }
+
+  function renderPagination(totalItems) {
+    const controls = document.getElementById('paginationControls');
+    const info = document.getElementById('paginationInfo');
+    
+    if (!controls || !info) return;
+
+    if (totalItems === 0) {
+      controls.innerHTML = '';
+      info.textContent = 'Showing 0 entries';
+      return;
+    }
+
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+    const startIdx = (currentPage - 1) * rowsPerPage + 1;
+    const endIdx = Math.min(startIdx + rowsPerPage - 1, totalItems);
+
+    info.textContent = `Showing ${startIdx} to ${endIdx} of ${totalItems} entries`;
+
+    let html = '';
+    
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+               <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+             </li>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                 <a class="page-link" href="#" data-page="${i}">${i}</a>
+               </li>`;
+    }
+
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+               <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+             </li>`;
+
+    controls.innerHTML = html;
+
+    controls.querySelectorAll('.page-link').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const li = e.target.closest('.page-item');
+        if (li.classList.contains('disabled') || li.classList.contains('active')) return;
+        
+        currentPage = parseInt(e.target.getAttribute('data-page'));
+        renderTable();
+      });
     });
   }
 
@@ -179,15 +245,31 @@ document.addEventListener('DOMContentLoaded', () => {
     customConfirmModal.show();
   };
 
-  if (btnApply) btnApply.addEventListener('click', renderTable);
+  if (btnApply) btnApply.addEventListener('click', () => {
+    currentPage = 1;
+    renderTable();
+  });
   if (btnReset) btnReset.addEventListener('click', () => {
     hotelSearch.value = '';
     cityFilter.value = 'all';
     statusFilter.value = 'all';
+    currentPage = 1;
     renderTable();
   });
 
-  hotelSearch.addEventListener('input', renderTable);
+  hotelSearch.addEventListener('input', () => {
+    currentPage = 1;
+    renderTable();
+  });
+
+  const pageSizeSelector = document.getElementById('pageSizeSelector');
+  if (pageSizeSelector) {
+    pageSizeSelector.addEventListener('change', (e) => {
+      rowsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+    });
+  }
 
   renderTable();
 });

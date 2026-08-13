@@ -1,10 +1,36 @@
+// Admin Session Check
+const userId = localStorage.getItem('userId');
+const userRole = (localStorage.getItem('userRole') || '').trim();
+const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+if (!isLoggedIn || userRole !== 'Admin') {
+  console.warn('Session check failed:', { isLoggedIn, userRole });
+  window.location.href = '../../../features/Auth/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   let backups = HotelState.get('backupHistory') || [];
+  let currentPage = 1;
+  let rowsPerPage = 5;
   
   const tblBody = document.querySelector('#tblBackups tbody');
   const filterType = document.getElementById('filterType');
   const btnReset = document.getElementById('btnResetFilters');
   const btnApply = document.getElementById('btnApplyFilters');
+
+  const customConfirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+  const customConfirmModalTitle = document.getElementById('customConfirmModalTitle');
+  const customConfirmModalBody = document.getElementById('customConfirmModalBody');
+  const btnConfirmActionSubmit = document.getElementById('btnConfirmActionSubmit');
+  let activeConfirmAction = null;
+
+  btnConfirmActionSubmit.addEventListener('click', () => {
+    if (activeConfirmAction) {
+      activeConfirmAction();
+      activeConfirmAction = null;
+    }
+    customConfirmModal.hide();
+  });
 
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
@@ -29,17 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTable() {
     tblBody.innerHTML = '';
     const typeVal = filterType.value;
+    const filterDateStart = document.getElementById('filterDateStart').value;
+    const filterDateEnd = document.getElementById('filterDateEnd').value;
     
     // Sort descending
     backups.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
     
     let filtered = backups.filter(b => {
       if (typeVal !== 'all' && b.type !== typeVal) return false;
+      
+      if (filterDateStart || filterDateEnd) {
+        const bDate = new Date(b.timestamp);
+        if (filterDateStart && bDate < new Date(filterDateStart)) return false;
+        if (filterDateEnd) {
+          const endDate = new Date(filterDateEnd);
+          endDate.setHours(23, 59, 59, 999);
+          if (bDate > endDate) return false;
+        }
+      }
       return true;
     });
-    
-    // Keep only last 10 
-    filtered = filtered.slice(0, 10);
 
     // Update KPI metrics values
     document.getElementById('kpiTotalBackups').textContent = backups.length;
@@ -58,12 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
       kpiStorage.nextElementSibling.textContent = 'Estimated size';
     }
 
-    if (filtered.length === 0) {
+    const totalFiltered = filtered.length;
+    const totalPages = Math.ceil(totalFiltered / rowsPerPage);
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+    if (totalFiltered === 0) {
       tblBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No backup history available.</td></tr>`;
+      renderPagination(0);
       return;
     }
 
-    filtered.forEach(b => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const paginated = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+    paginated.forEach(b => {
       let statusBadge = '<span class="badge bg-success">Completed</span>';
       if (b.status === 'Failed') {
         statusBadge = '<span class="badge bg-danger">Failed</span>';
@@ -85,6 +128,58 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       tblBody.appendChild(tr);
     });
+    
+    renderPagination(totalFiltered);
+  }
+
+  window.changePage = function(page) {
+    currentPage = page;
+    renderTable();
+  };
+
+  function renderPagination(totalFiltered) {
+    const paginationControls = document.getElementById('paginationControls');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationList = document.getElementById('paginationList');
+    
+    if (totalFiltered === 0) {
+      paginationControls.style.setProperty('display', 'none', 'important');
+      return;
+    }
+    
+    paginationControls.style.setProperty('display', 'flex', 'important');
+    
+    const totalPages = Math.ceil(totalFiltered / rowsPerPage);
+    const startItem = (currentPage - 1) * rowsPerPage + 1;
+    const endItem = Math.min(currentPage * rowsPerPage, totalFiltered);
+    
+    paginationInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalFiltered} entries`;
+    
+    let html = '';
+    
+    // Prev
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+               <a class="page-link text-purple" href="#" onclick="changePage(${currentPage - 1}); return false;">Previous</a>
+             </li>`;
+             
+    for (let i = 1; i <= totalPages; i++) {
+      if (currentPage === i) {
+        html += `<li class="page-item active">
+                   <a class="page-link bg-purple border-purple text-white" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                 </li>`;
+      } else {
+        html += `<li class="page-item">
+                   <a class="page-link text-purple" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                 </li>`;
+      }
+    }
+    
+    // Next
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+               <a class="page-link text-purple" href="#" onclick="changePage(${currentPage + 1}); return false;">Next</a>
+             </li>`;
+             
+    paginationList.innerHTML = html;
   }
 
   // Create Backup Action
@@ -92,7 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const backupModal = new bootstrap.Modal(backupModalEl);
 
   document.getElementById('btnCreateBackupNow').addEventListener('click', () => {
-    if (confirm('Create a new system backup now?')) {
+    customConfirmModalTitle.textContent = 'Create Backup';
+    customConfirmModalBody.textContent = 'Create a new system backup now?';
+    activeConfirmAction = () => {
       backupModal.show();
 
       const progressCircle = document.getElementById('progressCircle');
@@ -138,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bookings: HotelState.bookings,
             notifications: HotelState.notifications,
             housekeeping: HotelState.housekeeping,
-            auditLogs: HotelState.auditLogs,
             content: HotelState.content,
             backupHistory: HotelState.get('backupHistory') || []
           };
@@ -168,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
 
-          // Audit log and history
+          // Save state and history
           const user = HotelState.currentUser || { id: 'SYS', role: 'Admin', name: 'System Admin' };
 
           const backupId = `BCK-${Date.now().toString().slice(-6)}`;
@@ -205,6 +301,76 @@ document.addEventListener('DOMContentLoaded', () => {
           stageDesc.textContent = currentStage.desc;
         }
       }, intervalTime);
+    };
+    customConfirmModal.show();
+  });
+
+  // Download Latest Functionality
+  const downloadFormatModal = new bootstrap.Modal(document.getElementById('downloadFormatModal'));
+  
+  function generateBackupData() {
+    return {
+      users: HotelState.users,
+      hotels: HotelState.hotels,
+      rooms: HotelState.rooms,
+      bookings: HotelState.bookings,
+      notifications: HotelState.notifications,
+      housekeeping: HotelState.housekeeping,
+      content: HotelState.content,
+      backupHistory: HotelState.get('backupHistory') || []
+    };
+  }
+
+  document.getElementById('btnDownloadLatest').addEventListener('click', () => {
+    downloadFormatModal.show();
+  });
+
+  document.getElementById('btnDownloadJson').addEventListener('click', () => {
+    downloadFormatModal.hide();
+    const payload = {
+      backupDate: new Date().toISOString(),
+      version: '1.0',
+      data: generateBackupData()
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hbs_backup_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('JSON backup downloaded successfully.');
+  });
+
+  document.getElementById('btnDownloadZip').addEventListener('click', () => {
+    downloadFormatModal.hide();
+    const payload = {
+      backupDate: new Date().toISOString(),
+      version: '1.0',
+      data: generateBackupData()
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    
+    if (typeof JSZip !== 'undefined') {
+      const zip = new JSZip();
+      zip.file(`hbs_backup_${Date.now()}.json`, jsonStr);
+      zip.file('readme.txt', 'This ZIP contains the system backup data in JSON format.');
+      zip.generateAsync({type:"blob"}).then(function(content) {
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hbs_backup_${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('ZIP backup downloaded successfully.');
+      });
+    } else {
+      showToast('Error: Failed to load ZIP library.', false);
     }
   });
 
@@ -264,7 +430,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const pass = txtPassword.value.trim();
     const consent = document.getElementById('chkRestoreConsent').checked;
     const errorMsg = document.getElementById('errAdminPassword');
+    const errConsent = document.getElementById('errRestoreConsent');
     errorMsg.style.display = 'none';
+    if(errConsent) errConsent.style.display = 'none';
 
     if (!pass) {
       errorMsg.textContent = 'Administrator password is required.';
@@ -278,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (!consent) {
-      alert('You must check the consent checkbox to continue.');
+      if(errConsent) errConsent.style.display = 'block';
       return;
     }
 
@@ -326,7 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(d.bookings) HotelState.set('bookings', d.bookings);
         if(d.notifications) HotelState.set('notifications', d.notifications);
         if(d.housekeeping) HotelState.set('housekeeping', d.housekeeping);
-        if(d.auditLogs) HotelState.set('auditLogs', d.auditLogs);
         if(d.content) HotelState.set('content', d.content);
         if(d.backupHistory) HotelState.set('backupHistory', d.backupHistory);
 
@@ -361,22 +528,111 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.deleteBackup = function(id) {
-    if (confirm('Delete backup history record?')) {
-      const idx = backups.findIndex(x => x.id === id);
-      if (idx !== -1) {
-        backups.splice(idx, 1);
-        HotelState.set('backupHistory', backups);
-        showToast('Backup record deleted.', true);
-        renderTable();
-      }
-    }
+    customConfirmModalTitle.textContent = 'Delete Backup';
+    customConfirmModalBody.textContent = 'Are you sure you want to delete this backup archive?';
+    activeConfirmAction = () => {
+      backups = backups.filter(b => b.id !== id);
+      HotelState.set('backupHistory', backups);
+      showToast('Backup deleted successfully.', true);
+      renderTable();
+    };
+    customConfirmModal.show();
   };
 
-  btnApply.addEventListener('click', renderTable);
-  btnReset.addEventListener('click', () => {
-    filterType.value = 'all';
+  // Add event listeners for filters
+  btnApply.addEventListener('click', () => {
+    currentPage = 1;
     renderTable();
   });
 
+  btnReset.addEventListener('click', () => {
+    filterType.value = 'all';
+    document.getElementById('filterDateStart').value = '';
+    document.getElementById('filterDateEnd').value = '';
+    currentPage = 1;
+    renderTable();
+  });
+
+  const pageSizeSelector = document.getElementById('pageSizeSelector');
+  if (pageSizeSelector) {
+    pageSizeSelector.addEventListener('change', (e) => {
+      rowsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+    });
+  }
+
+  // Auto-Backup Configuration
+  const autoBackupModal = new bootstrap.Modal(document.getElementById('autoBackupModal'));
+  const chkAutoBackupEnable = document.getElementById('chkAutoBackupEnable');
+  const autoBackupOptions = document.getElementById('autoBackupOptions');
+  const selAutoBackupFrequency = document.getElementById('selAutoBackupFrequency');
+
+  chkAutoBackupEnable.addEventListener('change', (e) => {
+    autoBackupOptions.style.display = e.target.checked ? 'block' : 'none';
+  });
+
+  document.getElementById('btnConfigureAutoBackup').addEventListener('click', () => {
+    const config = HotelState.get('autoBackupConfig') || { enabled: false, frequency: 'Daily' };
+    chkAutoBackupEnable.checked = config.enabled;
+    selAutoBackupFrequency.value = config.frequency || 'Daily';
+    autoBackupOptions.style.display = config.enabled ? 'block' : 'none';
+    autoBackupModal.show();
+  });
+
+  document.getElementById('btnSaveAutoBackup').addEventListener('click', () => {
+    const config = HotelState.get('autoBackupConfig') || {};
+    config.enabled = chkAutoBackupEnable.checked;
+    config.frequency = selAutoBackupFrequency.value;
+    // Don't reset lastRun if we're just updating
+    HotelState.set('autoBackupConfig', config);
+    
+    autoBackupModal.hide();
+    showToast('Auto-backup settings saved successfully.', true);
+  });
+
+  // Simulated Cron Job for Auto-Backup
+  function runScheduledBackupSilently() {
+    // Generate a backup record silently
+    const user = { id: 'SYS', role: 'System', name: 'Auto Scheduler' };
+    const backupId = `BCK-${Date.now().toString().slice(-6)}`;
+    const now = new Date();
+    
+    backups.unshift({
+      id: backupId,
+      type: 'Scheduled',
+      timestamp: now.toISOString(),
+      datetime: now.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+      size: '2.1 MB', // Placeholder size
+      status: 'Completed',
+      includes: 'Database, Files'
+    });
+    
+    HotelState.set('backupHistory', backups);
+    renderTable();
+    showToast('A scheduled auto-backup was successfully created in the background.', true);
+  }
+
+  setInterval(() => {
+    const config = HotelState.get('autoBackupConfig');
+    if (!config || !config.enabled) return;
+
+    const now = new Date().getTime();
+    const lastRun = config.lastRun || 0;
+    const msSinceLastRun = now - lastRun;
+
+    let threshold = 24 * 60 * 60 * 1000; // Daily
+    if (config.frequency === 'Weekly') threshold *= 7;
+    if (config.frequency === 'Monthly') threshold *= 30;
+    if (config.frequency === 'Minute') threshold = 60 * 1000;
+
+    if (msSinceLastRun >= threshold) {
+      config.lastRun = now;
+      HotelState.set('autoBackupConfig', config);
+      runScheduledBackupSilently();
+    }
+  }, 10000); // Check every 10 seconds
+
+  // Initial render
   renderTable();
 });

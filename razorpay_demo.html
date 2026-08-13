@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Razorpay Integration — Live Demo</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0f1117; color:#eee; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+  .card { background:#1a1d27; border-radius:16px; padding:2.5rem; width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  h1 { font-size:1.4rem; margin:0 0 0.25rem; }
+  p.sub { color:#9aa0ac; font-size:0.9rem; margin:0 0 1.5rem; }
+  label { display:block; font-size:0.85rem; margin-bottom:0.3rem; color:#c7cad1; }
+  input { width:100%; padding:0.65rem 0.8rem; border-radius:8px; border:1px solid #333846; background:#11141c; color:#fff; margin-bottom:1.1rem; font-size:0.95rem; box-sizing:border-box; }
+  input:focus { outline:none; border-color:#6c5ce7; }
+  button { width:100%; padding:0.8rem; border-radius:8px; border:none; background:#6c5ce7; color:#fff; font-weight:600; font-size:1rem; cursor:pointer; }
+  button:disabled { opacity:0.5; cursor:not-allowed; }
+  #status { margin-top:1.2rem; font-size:0.85rem; padding:0.8rem; border-radius:8px; display:none; white-space:pre-wrap; word-break:break-word; }
+  #status.ok { display:block; background:#0d3321; color:#4ade80; }
+  #status.err { display:block; background:#3a1414; color:#f87171; }
+  #status.pending { display:block; background:#2a2410; color:#facc15; }
+  .field-error { color:#f87171; font-size:0.78rem; margin:-0.9rem 0 0.9rem; display:none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔒 Razorpay Payment — Live Test</h1>
+    <p class="sub">Real order via Razorpay's Orders API → real Checkout widget → server-side signature verification.</p>
+
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" placeholder="9876543210" value="9876543210" maxlength="10">
+    <div class="field-error" id="phoneError">Enter a valid 10-digit mobile number.</div>
+
+    <label for="amount">Amount (₹)</label>
+    <input type="number" id="amount" placeholder="500" value="500" min="1" step="0.01">
+
+    <button id="btnPay">Pay with Razorpay</button>
+
+    <div id="status"></div>
+  </div>
+
+<script>
+  const API_BASE = 'http://localhost:5031';
+  const btnPay = document.getElementById('btnPay');
+  const statusEl = document.getElementById('status');
+  const phoneError = document.getElementById('phoneError');
+
+  function showStatus(cls, text) {
+    statusEl.className = cls;
+    statusEl.textContent = text;
+  }
+
+  btnPay.addEventListener('click', async () => {
+    const phone = document.getElementById('phone').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value);
+
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      phoneError.style.display = 'block';
+      return;
+    }
+    phoneError.style.display = 'none';
+
+    btnPay.disabled = true;
+    btnPay.textContent = 'Creating order…';
+    showStatus('pending', 'Calling POST /api/razorpay/order …');
+
+    const reference = `DEMO-${Date.now()}`;
+
+    try {
+      const orderResp = await fetch(`${API_BASE}/api/razorpay/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference, phoneNumber: phone, amount })
+      });
+
+      if (!orderResp.ok) {
+        const err = await orderResp.json().catch(() => ({}));
+        throw new Error(err.message || `Order creation failed (${orderResp.status})`);
+      }
+
+      const order = await orderResp.json();
+      showStatus('pending', `Order created: ${order.orderId}\nOpening Razorpay Checkout…`);
+      btnPay.textContent = 'Opening Razorpay…';
+
+      const rzp = new Razorpay({
+        key: order.keyId,
+        order_id: order.orderId,
+        amount: order.amountPaise,
+        currency: order.currency,
+        name: 'Elegant Enclave — Demo',
+        description: `Reference: ${reference}`,
+        prefill: { contact: phone },
+        theme: { color: '#6c5ce7' },
+        handler: async function (response) {
+          showStatus('pending', 'Payment captured by Razorpay. Verifying signature server-side…');
+          try {
+            const verifyResp = await fetch(`${API_BASE}/api/razorpay/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature
+              })
+            });
+            if (!verifyResp.ok) {
+              const err = await verifyResp.json().catch(() => ({}));
+              throw new Error(err.message || 'Verification failed');
+            }
+            const result = await verifyResp.json();
+            showStatus('ok', `✅ PAID & VERIFIED\nReference: ${result.reference}\nOrder: ${result.razorpayOrderId}\nPayment ID: ${result.razorpayPaymentId}\nStatus: ${result.status}\n\nNow check the RazorpayPayments table, or wait for the webhook to arrive if you triggered it via the Dashboard.`);
+          } catch (err) {
+            showStatus('err', `Verification error: ${err.message}`);
+          } finally {
+            btnPay.disabled = false;
+            btnPay.textContent = 'Pay with Razorpay';
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            showStatus('err', 'Checkout closed without completing payment.');
+            btnPay.disabled = false;
+            btnPay.textContent = 'Pay with Razorpay';
+          }
+        }
+      });
+
+      rzp.on('payment.failed', function (response) {
+        showStatus('err', `Payment failed: ${response.error?.description || 'Declined'}`);
+        btnPay.disabled = false;
+        btnPay.textContent = 'Pay with Razorpay';
+      });
+
+      rzp.open();
+    } catch (err) {
+      showStatus('err', err.message);
+      btnPay.disabled = false;
+      btnPay.textContent = 'Pay with Razorpay';
+    }
+  });
+</script>
+</body>
+</html>

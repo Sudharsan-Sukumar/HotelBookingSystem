@@ -90,10 +90,12 @@
           <div class="col-md-6">
             <label class="form-label small fw-semibold">Contact Number *</label>
             <input type="text" class="form-control form-control-sm" id="contact" required>
+            <div class="invalid-feedback">Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold">Email Address *</label>
             <input type="email" class="form-control form-control-sm" id="email" required>
+            <div class="invalid-feedback">Please enter a valid email address.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold">Assigned Manager</label>
@@ -164,6 +166,43 @@
       }
     });
 
+    const contactInput = document.getElementById('contact');
+    const emailInput = document.getElementById('email');
+    const contactRegex = /^[6-9]\d{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (contactInput) {
+      contactInput.addEventListener('input', () => {
+        if (contactInput.value.length > 0) {
+          if (contactRegex.test(contactInput.value)) {
+            contactInput.classList.remove('is-invalid');
+            contactInput.classList.add('is-valid');
+          } else {
+            contactInput.classList.remove('is-valid');
+            contactInput.classList.add('is-invalid');
+          }
+        } else {
+          contactInput.classList.remove('is-invalid', 'is-valid');
+        }
+      });
+    }
+
+    if (emailInput) {
+      emailInput.addEventListener('input', () => {
+        if (emailInput.value.length > 0) {
+          if (emailRegex.test(emailInput.value)) {
+            emailInput.classList.remove('is-invalid');
+            emailInput.classList.add('is-valid');
+          } else {
+            emailInput.classList.remove('is-valid');
+            emailInput.classList.add('is-invalid');
+          }
+        } else {
+          emailInput.classList.remove('is-invalid', 'is-valid');
+        }
+      });
+    }
+
     document.getElementById('addHotelForm').addEventListener('submit', (e) => {
       e.preventDefault();
       let isValid = true;
@@ -176,9 +215,21 @@
           f.classList.add('is-invalid');
           isValid = false;
         } else {
-          f.classList.remove('is-invalid');
+          if (f.id !== 'contact' && f.id !== 'email') {
+            f.classList.remove('is-invalid');
+          }
         }
       });
+
+      if (contactInput && !contactRegex.test(contactInput.value)) {
+        contactInput.classList.add('is-invalid');
+        isValid = false;
+      }
+      if (emailInput && !emailRegex.test(emailInput.value)) {
+        emailInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
       if (isValid) {
         const newHotelCity = citySelect.value === 'Others' ? otherCityInput.value.trim() : citySelect.value;
         const name = document.getElementById('hotelName').value;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Management - Elegant Enclave Admin</title>
+  <title>Admin Dashboard - Elegant Enclave Admin</title>
   <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,6 +30,19 @@
       border-bottom: 2px solid #D4AF37;
       background: transparent;
     }
+    .btn-outline-purple {
+      border: 1px solid #1A0A2E;
+      color: #1A0A2E;
+      background-color: transparent;
+      transition: all 0.2s ease-in-out;
+      border-radius: 6px;
+      font-weight: 500;
+      padding: 0.25rem 0.75rem;
+    }
+    .btn-outline-purple:hover {
+      background-color: #1A0A2E;
+      color: #fff;
+    }
   </style>
   <link rel="stylesheet" href="components/admin-sidebar.css">
 </head>
@@ -52,7 +65,7 @@
         <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom sticky-top shadow-sm">
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-light d-lg-none" id="mobile-sidebar-toggle"><i class="bi bi-list fs-4"></i></button>
-                <h5 class="mb-0 font-serif fw-bold text-dark" id="header-page-title">User Management</h5>
+                <h5 class="mb-0 font-serif fw-bold text-dark" id="header-page-title">Admin Dashboard</h5>
             </div>
             
             <div class="d-flex align-items-center gap-3">
@@ -73,7 +86,42 @@
         </ol>
       </nav>
       <div class="d-flex align-items-center gap-2">
-        <div class="bg-white border rounded px-3 py-2 text-dark font-serif fw-bold small"><i class="bi bi-calendar3 text-warning me-2"></i>29 June 2026</div>
+        <div class="dropdown">
+          <div id="currentDateDisplay" class="bg-white border rounded px-3 py-2 text-dark font-serif fw-bold small user-select-none" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.classList.add('shadow-sm')" onmouseout="this.classList.remove('shadow-sm')">
+            <i class="bi bi-calendar3 text-warning me-2"></i>Loading...
+          </div>
+          <!-- Portable Calendar UI (APK Style) -->
+          <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 mt-2" style="border-radius: 16px; min-width: 320px; animation: fadeIn 0.2s ease; overflow: hidden;">
+            <!-- Header -->
+            <div class="p-3 position-relative" style="background-color: #1A0A2E;">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small fw-semibold text-warning" id="calYearDisplay">2026</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-end">
+                <h4 class="mb-0 fw-bold text-white" id="calMonthDayDisplay">Fri, Jul 10</h4>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm text-white p-1 rounded-circle" style="background: rgba(255,255,255,0.1);" onclick="renderCalendar(-1, event)"><i class="bi bi-chevron-left"></i></button>
+                  <button class="btn btn-sm text-white p-1 rounded-circle" style="background: rgba(255,255,255,0.1);" onclick="renderCalendar(1, event)"><i class="bi bi-chevron-right"></i></button>
+                </div>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-3 bg-white">
+              <div class="d-flex text-center text-muted small fw-bold mb-2">
+                <div style="width: 14.28%">S</div>
+                <div style="width: 14.28%">M</div>
+                <div style="width: 14.28%">T</div>
+                <div style="width: 14.28%">W</div>
+                <div style="width: 14.28%">T</div>
+                <div style="width: 14.28%">F</div>
+                <div style="width: 14.28%">S</div>
+              </div>
+              <div id="calendarDaysGrid" class="d-flex flex-wrap text-center small fw-medium">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -255,6 +303,59 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../../Shared/UtilityClass/session.js"></script>
   <script src="components/admin-sidebar.js"></script>
+  <script>
+    let currentCalDate = new Date();
+    
+    function renderCalendar(monthOffset = 0, event = null) {
+      if(event) event.stopPropagation(); // prevent dropdown from closing when clicking arrows
+      
+      currentCalDate.setMonth(currentCalDate.getMonth() + monthOffset);
+      
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      
+      document.getElementById('calYearDisplay').textContent = year;
+      document.getElementById('calMonthDayDisplay').textContent = currentCalDate.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
+      
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      let gridHtml = '';
+      // Fill empty slots for previous month
+      for(let i = 0; i < firstDay; i++) {
+        gridHtml += `<div style="width: 14.28%; padding: 8px 0;"></div>`;
+      }
+      
+      const today = new Date();
+      // Fill days
+      for(let d = 1; d <= daysInMonth; d++) {
+        const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+        const bgClass = isToday ? 'bg-warning text-dark rounded-circle shadow-sm' : 'text-dark';
+        const fontWeight = isToday ? 'fw-bold' : '';
+        gridHtml += `<div style="width: 14.28%; padding: 8px 0; cursor: pointer;" class="cal-day ${fontWeight}" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1"><span class="d-inline-block ${bgClass}" style="width: 28px; height: 28px; line-height: 28px;">${d}</span></div>`;
+      }
+      
+      document.getElementById('calendarDaysGrid').innerHTML = gridHtml;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const dateDisplay = document.getElementById('currentDateDisplay');
+      if (dateDisplay) {
+        const today = new Date();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        dateDisplay.innerHTML = '<i class="bi bi-calendar3 text-warning me-2"></i>' + today.toLocaleDateString('en-GB', options);
+        
+        // Initial render of calendar popup
+        renderCalendar(0);
+        
+        // Ensure dropdown doesn't close when clicking inside the calendar body
+        const dropdownMenu = dateDisplay.nextElementSibling;
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+      }
+    });
+  </script>
   </div>
 </div>
 </body>

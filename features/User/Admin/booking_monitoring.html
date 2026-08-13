@@ -221,6 +221,20 @@
               </tbody>
             </table>
           </div>
+          <!-- All Bookings Pagination Controls -->
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2" id="allBookingsPaginationContainer">
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-muted">Show:</span>
+              <select class="form-select form-select-sm" style="width: 70px;" id="allBookingsPageSizeSelector">
+                <option value="5">5</option>
+                <option value="8" selected>8</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="small text-muted" id="allBookingsPageInfo"></span>
+            </div>
+            <div id="allBookingsPaginationWrapper"></div>
+          </div>
         </div>
       </div>
 
@@ -279,6 +293,20 @@
                 <!-- Loaded dynamically -->
               </tbody>
             </table>
+          </div>
+          <!-- History Pagination Controls -->
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2" id="historyPaginationContainer">
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-muted">Show:</span>
+              <select class="form-select form-select-sm" style="width: 70px;" id="historyPageSizeSelector">
+                <option value="5">5</option>
+                <option value="8" selected>8</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="small text-muted" id="historyPageInfo"></span>
+            </div>
+            <div id="historyPaginationWrapper"></div>
           </div>
         </div>
       </div>

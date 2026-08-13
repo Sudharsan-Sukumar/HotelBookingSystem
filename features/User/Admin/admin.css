@@ -232,3 +232,60 @@ body.admin-body .restore-data-packet {
 
 
 
+
+/* Custom Admin Buttons */
+.btn-purple {
+  background-color: #1A0A2E;
+  color: #fff;
+  border: 1px solid #1A0A2E;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+.btn-purple:hover {
+  background-color: #D4AF37;
+  color: #1A0A2E;
+  border-color: #D4AF37;
+}
+
+.btn-outline-purple {
+  background-color: transparent;
+  color: #1A0A2E;
+  border: 1px solid #1A0A2E;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+.btn-outline-purple:hover {
+  background-color: #1A0A2E;
+  color: #fff;
+}
+
+/* Custom Premium Pagination */
+body.admin-body .admin-pagination .page-item .page-link {
+  color: #1A0A2E;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  margin: 0 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+body.admin-body .admin-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+  background-color: rgba(26, 10, 46, 0.05);
+  transform: translateY(-1px);
+}
+body.admin-body .admin-pagination .page-item.active .page-link {
+  background-color: #1A0A2E;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(26, 10, 46, 0.2);
+}
+body.admin-body .admin-pagination .page-item.disabled .page-link {
+  color: #a0a0a0;
+  background-color: transparent;
+}

@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
          const userObj = HotelState.getUserById(userId);
          const userName = userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Customer';
 
-         HotelState.addAuditLog(userId, userName, 'Customer', 'BOOKING_CANCELLED', 'Bookings', `Cancelled booking ${currentCancelId}. Refund amount: ₹${refundAmount}`);
+         
 
          const mockNotifs = HotelState.notifications;
          mockNotifs.unshift({

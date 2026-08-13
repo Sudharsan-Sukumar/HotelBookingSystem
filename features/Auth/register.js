@@ -3,22 +3,38 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const firstName = document.getElementById('firstName');
   const lastName = document.getElementById('lastName');
+  const dobInput = document.getElementById('registerDob');
   const emailInput = document.getElementById('registerEmail');
   const phoneInput = document.getElementById('registerPhone');
+  const btnSendOtp = document.getElementById('btnSendOtp');
+  const otpContainer = document.getElementById('otpContainer');
+  const localOtpAlert = document.getElementById('localOtpAlert');
+  const otpInput = document.getElementById('registerOtp');
   const passwordInput = document.getElementById('registerPassword');
   const confirmPasswordInput = document.getElementById('confirmRegisterPassword');
   const showPasswordCheckbox = document.getElementById('showPassword');
   const btnSubmit = document.getElementById('btnSubmitRegister');
+  const agreePoliciesCheckbox = document.getElementById('agreePolicies');
 
   const fNameError = document.getElementById('firstNameError');
   const lNameError = document.getElementById('lastNameError');
+  const dobError = document.getElementById('registerDobError');
   const emailError = document.getElementById('registerEmailError');
   const phoneError = document.getElementById('registerPhoneError');
+  const otpError = document.getElementById('registerOtpError');
   const passwordError = document.getElementById('registerPasswordError');
   const confirmPasswordError = document.getElementById('confirmRegisterPasswordError');
-
-  const agreePoliciesCheckbox = document.getElementById('agreePolicies');
   const agreePoliciesError = document.getElementById('agreePoliciesError');
+  const statusAlert = document.getElementById('statusAlert'); 
+
+  // Set min and max for Date of Birth
+  if (dobInput) {
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+    const minDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+    dobInput.max = maxDate;
+    dobInput.min = minDate;
+  }
 
   // 1. Password Visibility Toggle
   if (showPasswordCheckbox && passwordInput && confirmPasswordInput) {
@@ -29,164 +45,317 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const formInputs = [firstName, lastName, emailInput, phoneInput, passwordInput, confirmPasswordInput];
-  formInputs.forEach(input => {
-    if (input) {
-      input.addEventListener('input', () => validateFormInputs(false));
-    }
-  });
+  // Regexes
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  if (agreePoliciesCheckbox) {
-    agreePoliciesCheckbox.addEventListener('change', () => validateFormInputs(false));
+  function showError(input, errorElement, message) {
+    input.classList.add('is-invalid');
+    if (errorElement) errorElement.textContent = message;
   }
 
-  function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase().trim());
+  function clearError(input, errorElement) {
+    input.classList.remove('is-invalid');
+    if (errorElement) errorElement.textContent = '';
   }
 
-  function validatePasswordStrength(pwd) {
-    // min 8 chars, 1 uppercase, 1 number, 1 special character
-    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return re.test(pwd);
+  function validateFirstName() {
+    if (!firstName.value.trim()) {
+      showError(firstName, fNameError, 'First name is required.');
+      return false;
+    }
+    clearError(firstName, fNameError);
+    return true;
   }
 
-  function validateFormInputs(showErrors = true) {
-    let isValid = true;
-
-    if (showErrors) {
-      formInputs.forEach(i => i && i.classList.remove('is-invalid'));
-      if(fNameError) fNameError.textContent = '';
-      if(lNameError) lNameError.textContent = '';
-      if(emailError) emailError.textContent = '';
-      if(phoneError) phoneError.textContent = '';
-      if(passwordError) passwordError.textContent = '';
-      if(confirmPasswordError) confirmPasswordError.textContent = '';
-      if(agreePoliciesError) agreePoliciesError.textContent = '';
+  function validateLastName() {
+    if (!lastName.value.trim()) {
+      showError(lastName, lNameError, 'Last name is required.');
+      return false;
     }
+    clearError(lastName, lNameError);
+    return true;
+  }
 
-    if (firstName && !firstName.value.trim()) {
-      if (showErrors) {
-        firstName.classList.add('is-invalid');
-        fNameError.textContent = 'First name is required.';
-      }
-      isValid = false;
+  function validateDob() {
+    const val = dobInput.value;
+    if (!val) {
+      showError(dobInput, dobError, 'Date of Birth is required.');
+      return false;
     }
-
-    if (lastName && !lastName.value.trim()) {
-      if (showErrors) {
-        lastName.classList.add('is-invalid');
-        lNameError.textContent = 'Last name is required.';
-      }
-      isValid = false;
+    const dob = new Date(val);
+    if (isNaN(dob.getTime())) {
+      showError(dobInput, dobError, 'Please enter a valid date.');
+      return false;
     }
-
-    const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : '';
-    if (!emailVal || !validateEmail(emailVal)) {
-      if (showErrors) {
-        emailInput.classList.add('is-invalid');
-        emailError.textContent = 'Please enter a valid email address.';
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    
+    if (age > 120) {
+      showError(dobInput, dobError, 'Please enter a valid date of birth.');
+      return false;
+    }
+    
+    if (age < 18) {
+      if (dob > today) {
+        showError(dobInput, dobError, 'Date of birth cannot be in the future.');
+      } else {
+        showError(dobInput, dobError, 'You must be at least 18 years old to register.');
       }
-      isValid = false;
-    } else {
-      const existingUser = HotelState.users.find(u => u.email.toLowerCase() === emailVal);
+      return false;
+    }
+    clearError(dobInput, dobError);
+    return true;
+  }
+
+  function validateEmail() {
+    const val = emailInput.value.trim();
+    if (!val) {
+      showError(emailInput, emailError, 'Email address is required.');
+      return false;
+    }
+    if (!emailRegex.test(val.toLowerCase())) {
+      showError(emailInput, emailError, 'Please enter a valid email address (e.g., name@example.com).');
+      return false;
+    }
+    
+    // Check if already registered
+    if (typeof HotelState !== 'undefined' && HotelState.users) {
+      const existingUser = HotelState.users.find(u => u.email.toLowerCase() === val.toLowerCase());
       if (existingUser) {
-        if (showErrors) {
-          emailInput.classList.add('is-invalid');
-          emailError.textContent = 'An account with this email already exists.';
+        showError(emailInput, emailError, 'An account with this email already exists.');
+        return false;
+      }
+    }
+    
+    clearError(emailInput, emailError);
+    return true;
+  }
+
+  function validatePhone() {
+    const val = phoneInput.value.trim();
+    if (!val) {
+      showError(phoneInput, phoneError, 'Phone number is required.');
+      return false;
+    }
+    if (!phoneRegex.test(val)) {
+      showError(phoneInput, phoneError, 'Enter a valid 10-digit Indian mobile number (e.g., 9876543210).');
+      return false;
+    }
+    clearError(phoneInput, phoneError);
+    return true;
+  }
+
+  let otpSent = false;
+
+  if (btnSendOtp) {
+    btnSendOtp.addEventListener('click', () => {
+      if (validatePhone()) {
+        otpSent = true;
+        otpContainer.classList.remove('d-none');
+        btnSendOtp.textContent = 'Resend OTP';
+        phoneInput.readOnly = true;
+        if (localOtpAlert) {
+          localOtpAlert.textContent = 'OTP sent successfully! For development, the OTP is: 123456';
+          localOtpAlert.classList.remove('d-none');
         }
-        isValid = false;
+        checkFormValidity();
+      } else {
+        showAlert('Please enter a valid phone number before sending OTP.', 'danger');
       }
-    }
+    });
+  }
 
-    if (phoneInput && !phoneInput.value.trim()) {
-      if (showErrors) {
-        phoneInput.classList.add('is-invalid');
-        phoneError.textContent = 'Phone number is required.';
-      }
-      isValid = false;
+  function validateOtp() {
+    if (!otpSent) return false;
+    const val = otpInput.value.trim();
+    if (!val) {
+      showError(otpInput, otpError, 'OTP is required.');
+      return false;
     }
+    if (val !== '123456') {
+      showError(otpInput, otpError, 'Invalid OTP.');
+      return false;
+    }
+    clearError(otpInput, otpError);
+    return true;
+  }
 
-    const pwdVal = passwordInput ? passwordInput.value : '';
-    if (!pwdVal || !validatePasswordStrength(pwdVal)) {
-      if (showErrors) {
-        passwordInput.classList.add('is-invalid');
-        passwordError.textContent = 'Password must be at least 8 characters long, contain 1 uppercase letter, 1 number, and 1 special character.';
-      }
-      isValid = false;
+  function validatePassword() {
+    const val = passwordInput.value;
+    if (!val) {
+      showError(passwordInput, passwordError, 'Password is required.');
+      return false;
     }
+    if (!passwordRegex.test(val)) {
+      showError(passwordInput, passwordError, 'Minimum 8 characters, one uppercase, one lowercase, one number, and one special character.');
+      return false;
+    }
+    clearError(passwordInput, passwordError);
+    return true;
+  }
 
-    const confirmPwdVal = confirmPasswordInput ? confirmPasswordInput.value : '';
-    if (!confirmPwdVal || pwdVal !== confirmPwdVal) {
-      if (showErrors) {
-        confirmPasswordInput.classList.add('is-invalid');
-        confirmPasswordError.textContent = 'Passwords do not match.';
-      }
-      isValid = false;
+  function validateConfirmPassword() {
+    const val = confirmPasswordInput.value;
+    const pwdVal = passwordInput.value;
+    if (!val) {
+      showError(confirmPasswordInput, confirmPasswordError, 'Please confirm your password.');
+      return false;
     }
+    if (val !== pwdVal) {
+      showError(confirmPasswordInput, confirmPasswordError, 'Passwords do not match.');
+      return false;
+    }
+    clearError(confirmPasswordInput, confirmPasswordError);
+    return true;
+  }
 
-    if (agreePoliciesCheckbox && !agreePoliciesCheckbox.checked) {
-      if (showErrors && agreePoliciesError) {
-        agreePoliciesError.textContent = 'You must accept the registration policies to continue.';
-      }
-      isValid = false;
+  function validatePolicies() {
+    if (!agreePoliciesCheckbox.checked) {
+      if (agreePoliciesError) agreePoliciesError.textContent = 'You must accept the registration policies to continue.';
+      return false;
     }
+    if (agreePoliciesError) agreePoliciesError.textContent = '';
+    return true;
+  }
+
+  function checkFormValidity() {
+    const isFirstNameValid = firstName.value.trim() !== '';
+    const isLastNameValid = lastName.value.trim() !== '';
+    let isDobValid = false;
+    if (dobInput.value) {
+      const dob = new Date(dobInput.value);
+      if (!isNaN(dob.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+          age--;
+        }
+        isDobValid = age >= 18 && age <= 120;
+      }
+    }
+    const isEmailValid = emailRegex.test(emailInput.value.trim().toLowerCase()) && (typeof HotelState === 'undefined' || !HotelState.users || !HotelState.users.find(u => u.email.toLowerCase() === emailInput.value.trim().toLowerCase()));
+    const isPhoneValid = phoneRegex.test(phoneInput.value.trim());
+    const isOtpValid = otpSent && otpInput.value.trim() === '123456';
+    const isPasswordValid = passwordRegex.test(passwordInput.value);
+    const isConfirmPasswordValid = confirmPasswordInput.value === passwordInput.value && confirmPasswordInput.value !== '';
+    const isPoliciesValid = agreePoliciesCheckbox.checked;
+
+    const isValid = isFirstNameValid && isLastNameValid && isDobValid && isEmailValid && isPhoneValid && isOtpValid && isPasswordValid && isConfirmPasswordValid && isPoliciesValid;
 
     if (btnSubmit) {
-      if (isValid) {
-        btnSubmit.removeAttribute('disabled');
-      } else {
-        btnSubmit.setAttribute('disabled', 'true');
+      btnSubmit.disabled = !isValid;
+    }
+    return isValid;
+  }
+
+  // Attach events
+  const fieldValidators = [
+    { field: firstName, validator: validateFirstName },
+    { field: lastName, validator: validateLastName },
+    { field: dobInput, validator: validateDob },
+    { field: emailInput, validator: validateEmail },
+    { field: phoneInput, validator: validatePhone },
+    { field: otpInput, validator: validateOtp },
+    { field: passwordInput, validator: validatePassword },
+    { field: confirmPasswordInput, validator: validateConfirmPassword },
+    { field: agreePoliciesCheckbox, validator: validatePolicies, event: 'change' }
+  ];
+
+  fieldValidators.forEach(({ field, validator, event }) => {
+    if (field) {
+      const evt = event || 'input';
+      field.addEventListener(evt, () => {
+        validator();
+        checkFormValidity();
+      });
+      if (!event) {
+        field.addEventListener('blur', () => {
+          validator();
+          checkFormValidity();
+        });
       }
     }
+  });
+  
+  // Re-validate confirm password if password changes
+  if (passwordInput && confirmPasswordInput) {
+    passwordInput.addEventListener('input', () => {
+      if (confirmPasswordInput.value) {
+        validateConfirmPassword();
+      }
+    });
+  }
 
-    return isValid;
+  // Initial check
+  checkFormValidity();
+
+  function showAlert(msg, type = 'success') {
+    if(!statusAlert) return;
+    statusAlert.className = `alert alert-${type} mb-3 small py-2 px-3 text-center fw-bold`;
+    statusAlert.textContent = msg;
+    statusAlert.classList.remove('d-none');
   }
 
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      if (validateFormInputs(true)) {
+      // Trigger all validations to show errors if any
+      const v1 = validateFirstName();
+      const v2 = validateLastName();
+      const vDob = validateDob();
+      const v3 = validateEmail();
+      const v4 = validatePhone();
+      const vOtp = validateOtp();
+      const v5 = validatePassword();
+      const v6 = validateConfirmPassword();
+      const v7 = validatePolicies();
+
+      if (v1 && v2 && vDob && v3 && v4 && vOtp && v5 && v6 && v7) {
         if (btnSubmit) {
           btnSubmit.disabled = true;
           btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
         }
 
         setTimeout(() => {
-          const users = HotelState.users;
-          const newUserId = 'USR' + String(users.length + 1).padStart(3, '0');
-          
-          const newUser = {
-            id: newUserId,
-            firstName: firstName.value.trim(),
-            lastName: lastName.value.trim(),
-            email: emailInput.value.trim().toLowerCase(),
-            password: passwordInput.value,
-            role: 'Customer',
-            phone: phoneInput.value.trim() || '',
-            address: { street: '', city: '', state: '', pincode: '' },
-            createdAt: new Date().toISOString(),
-            status: 'Active',
-            loyaltyPoints: 0,
-            memberTier: 'Bronze',
-            assignedHotelId: null
-          };
-          
-          users.push(newUser);
-          HotelState.users = users;
+          if (typeof HotelState !== 'undefined' && HotelState.users) {
+            const users = HotelState.users;
+            const newUserId = 'USR' + String(users.length + 1).padStart(3, '0');
+            
+            const newUser = {
+              id: newUserId,
+              firstName: firstName.value.trim(),
+              lastName: lastName.value.trim(),
+              email: emailInput.value.trim().toLowerCase(),
+              password: passwordInput.value,
+              role: 'Customer',
+              phone: phoneInput.value.trim() || '',
+              dob: dobInput.value,
+              address: { street: '', city: '', state: '', pincode: '' },
+              createdAt: new Date().toISOString(),
+              status: 'Active',
+              loyaltyPoints: 0,
+              memberTier: 'Bronze',
+              assignedHotelId: null
+            };
+            
+            users.push(newUser);
+            HotelState.users = users;
+          }
 
-          // Auto login
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userName', newUser.firstName + ' ' + newUser.lastName);
-          localStorage.setItem('userRole', newUser.role);
-          localStorage.setItem('userEmail', newUser.email);
-          localStorage.setItem('userId', newUser.id);
-          
-          HotelState.set('currentUser', newUser);
-          HotelState.addAuditLog(newUser.id, newUser.firstName + ' ' + newUser.lastName, newUser.role, 'USER_CREATED', 'Auth', 'User registered and logged in.');
+          showAlert('Registration completed successfully.', 'success');
 
           // Redirect
-          window.location.href = '../../features/User/Candidate/my_bookings.html';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2500);
         }, 800);
       }
     });

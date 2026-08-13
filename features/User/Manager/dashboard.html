@@ -110,7 +110,7 @@
       <!-- WELCOME / TITLE HEADER -->
       <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-start">
         <div>
-          <h1 class="welcome-heading m-0 font-serif">Welcome back, Sridhar! 👋</h1>
+          <h1 class="welcome-heading m-0 font-serif" id="welcomeManagerName">Welcome back, Manager! 👋</h1>
           <p class="welcome-sub text-muted m-0">Here's what's happening at The Elegant Enclave today.</p>
         </div>
       </header>
@@ -196,136 +196,11 @@
               <i class="bi bi-door-closed me-2"></i> Check-out Guest
             </a>
           </div>
-          <div class="col-xl-2 col-md-4 col-sm-6">
-            <a href="rooms.html?action=add" class="btn btn-action-quick w-100 py-3 rounded border text-decoration-none d-block text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Register a new room">
-              <i class="bi bi-plus-square me-2"></i> Add Room
-            </a>
-          </div>
           
-          <div class="col-xl-2 col-md-4 col-sm-6">
-            <a href="reports_occupancy.html" class="btn btn-action-quick w-100 py-3 rounded border text-decoration-none d-block text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="View operational reports">
-              <i class="bi bi-bar-chart-line me-2"></i> View Reports
-            </a>
-          </div>
         </div>
       </section>
 
-      <!-- DATA GRIDS GRID ROW -->
-      <div class="row g-4 text-start">
-        
-        <!-- Left Table: Recent Bookings -->
-        <section class="col-lg-7">
-          <div class="bg-white rounded border p-4 h-100 shadow-lg" style="border-color: #ECE6D8 !important; border-radius: 18px !important;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h2 class="font-serif text-dark fs-5 m-0 fw-bold">Recent Bookings</h2>
-              <a href="bookings.html" class="btn-view-all text-decoration-none small text-warning fw-bold">View All <i class="bi bi-chevron-right"></i></a>
-            </div>
 
-            <div class="table-responsive">
-              <table class="table align-middle text-start mb-0 manager-premium-table">
-                <thead>
-                  <tr class="table-light">
-                    <th>Booking ID</th>
-                    <th>Guest</th>
-                    <th>Room</th>
-                    <th>Check-in</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>HBS-2026-001</strong></td>
-                    <td>Rajesh K.</td>
-                    <td>Exec Studio 201</td>
-                    <td>20 Nov 2026</td>
-                    <td><span class="badge bg-success-light text-success rounded-pill px-3 py-1">Confirmed</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>HBS-2026-002</strong></td>
-                    <td>Priya S.</td>
-                    <td>Deluxe Suite 305</td>
-                    <td>26 Jun 2026</td>
-                    <td><span class="badge bg-warning-light text-warning rounded-pill px-3 py-1">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>HBS-2026-003</strong></td>
-                    <td>Arun M.</td>
-                    <td>Standard 108</td>
-                    <td>27 Jun 2026</td>
-                    <td><span class="badge bg-success-light text-success rounded-pill px-3 py-1">Confirmed</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>HBS-2026-004</strong></td>
-                    <td>Meena V.</td>
-                    <td>Penthouse 501</td>
-                    <td>23 Nov 2026</td>
-                    <td><span class="badge bg-success-light text-success rounded-pill px-3 py-1">Confirmed</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>HBS-2026-005</strong></td>
-                    <td>Suresh P.</td>
-                    <td>Deluxe Suite 302</td>
-                    <td>29 Jun 2026</td>
-                    <td><span class="badge bg-warning-light text-warning rounded-pill px-3 py-1">Pending</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Right List: Pending Requests -->
-        <section class="col-lg-5">
-          <div class="bg-white rounded border p-4 h-100 shadow-lg" style="border-color: #ECE6D8 !important; border-radius: 18px !important;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h2 class="font-serif text-dark fs-5 m-0 fw-bold">Pending Requests</h2>
-              <a href="bookings.html?filter=pending" class="btn-view-all text-decoration-none small text-warning fw-bold">View All <i class="bi bi-chevron-right"></i></a>
-            </div>
-
-            <div class="d-flex flex-column gap-3">
-              <!-- Request 1 -->
-              <div class="request-item-card p-3 rounded border d-flex gap-3 align-items-start bg-white shadow" style="border-radius: 14px !important;">
-                <span class="req-icon"><i class="bi bi-pencil-square"></i></span>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <strong class="text-dark small fw-bold">HBS-2026-005 – Suresh P.</strong>
-                    <span class="small text-muted" style="font-size: 0.7rem;">10:30 AM</span>
-                  </div>
-                  <p class="small text-muted mb-2 mt-1">Modification: Check-in date change</p>
-                  <span class="badge bg-danger text-white rounded px-2" style="font-size: 0.65rem;">High Priority</span>
-                </div>
-              </div>
-              
-              <!-- Request 2 -->
-              <div class="request-item-card p-3 rounded border d-flex gap-3 align-items-start bg-white shadow" style="border-radius: 14px !important;">
-                <span class="req-icon"><i class="bi bi-x-circle"></i></span>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <strong class="text-dark small fw-bold">HBS-2026-006 – Kavya R.</strong>
-                    <span class="small text-muted" style="font-size: 0.7rem;">09:45 AM</span>
-                  </div>
-                  <p class="small text-muted mb-2 mt-1">Cancellation request pending</p>
-                  <span class="badge bg-warning text-dark rounded px-2" style="font-size: 0.65rem;">Medium Priority</span>
-                </div>
-              </div>
-
-              <!-- Request 3 -->
-              <div class="request-item-card p-3 rounded border d-flex gap-3 align-items-start bg-white shadow" style="border-radius: 14px !important;">
-                <span class="req-icon"><i class="bi bi-plus-circle"></i></span>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <strong class="text-dark small fw-bold">HBS-2026-007 – Mohan V.</strong>
-                    <span class="small text-muted" style="font-size: 0.7rem;">09:15 AM</span>
-                  </div>
-                  <p class="small text-muted mb-2 mt-1">New booking awaiting confirmation</p>
-                  <span class="badge bg-warning text-dark rounded px-2" style="font-size: 0.65rem;">Medium Priority</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </div>
 
       <!-- AVAILABILITY & ACTIVITY GRID ROW -->
       <div class="row g-4 text-start mt-2">
@@ -335,7 +210,6 @@
           <div class="bg-white rounded border p-4 h-100 shadow-lg" style="border-color: #ECE6D8 !important; border-radius: 18px !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h2 class="font-serif text-dark fs-5 m-0 fw-bold">Room Availability Snapshot</h2>
-              <a href="booking_calendar.html" class="btn-view-all text-decoration-none small text-warning fw-bold">View Calendar <i class="bi bi-chevron-right"></i></a>
             </div>
 
             <ul class="availability-list ps-0 mb-4 d-flex flex-column gap-3" style="font-size: 0.85rem; list-style: none;">

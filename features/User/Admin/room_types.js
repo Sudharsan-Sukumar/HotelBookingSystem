@@ -8,14 +8,16 @@ if (!isLoggedIn || userRole !== 'Admin') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  let currentPage = 1;
+  let rowsPerPage = 5;
   let roomTypes = HotelState.roomTypes || [];
   if (roomTypes.length === 0) {
     roomTypes = [
-      { id: 'RT-001', name: 'Standard Room', maxCapacity: 2, basePrice: 3500, totalUnits: 30, propertiesCount: 3, status: 'Active' },
-      { id: 'RT-002', name: 'Executive Studio', maxCapacity: 3, basePrice: 5500, totalUnits: 18, propertiesCount: 3, status: 'Active' },
-      { id: 'RT-003', name: 'Deluxe Suite', maxCapacity: 4, basePrice: 8000, totalUnits: 24, propertiesCount: 3, status: 'Active' },
-      { id: 'RT-004', name: 'Penthouse Suite', maxCapacity: 6, basePrice: 18000, totalUnits: 12, propertiesCount: 3, status: 'Active' },
-      { id: 'RT-005', name: 'Family Room', maxCapacity: 6, basePrice: 6500, totalUnits: 0, propertiesCount: 0, status: 'Disabled' }
+      { id: 'RT-001', name: 'Standard Room', maxCapacity: 2, basePrice: 3500, totalUnits: 30, propertiesCount: 3, branches: ['Salem', 'Coimbatore', 'Chennai'], status: 'Active' },
+      { id: 'RT-002', name: 'Executive Studio', maxCapacity: 3, basePrice: 5500, totalUnits: 18, propertiesCount: 3, branches: ['Salem', 'Coimbatore', 'Chennai'], status: 'Active' },
+      { id: 'RT-003', name: 'Deluxe Suite', maxCapacity: 4, basePrice: 8000, totalUnits: 24, propertiesCount: 3, branches: ['Salem', 'Coimbatore', 'Chennai'], status: 'Active' },
+      { id: 'RT-004', name: 'Penthouse Suite', maxCapacity: 6, basePrice: 18000, totalUnits: 12, propertiesCount: 2, branches: ['Coimbatore', 'Chennai'], status: 'Active' },
+      { id: 'RT-005', name: 'Family Room', maxCapacity: 6, basePrice: 6500, totalUnits: 0, propertiesCount: 0, branches: [], status: 'Disabled' }
     ];
     HotelState.roomTypes = roomTypes;
   }
@@ -26,6 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnReset = document.getElementById('btnResetFilters');
   const btnApply = document.getElementById('btnApplyFilters');
 
+  const customConfirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+  const customConfirmModalBody = document.getElementById('customConfirmModalBody');
+  const btnConfirmActionSubmit = document.getElementById('btnConfirmActionSubmit');
+  let activeConfirmAction = null;
+
+  btnConfirmActionSubmit.addEventListener('click', () => {
+    if (activeConfirmAction) {
+      activeConfirmAction();
+      activeConfirmAction = null;
+    }
+    customConfirmModal.hide();
+  });
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
     const toastEl = document.getElementById('statusToast');
@@ -43,10 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
     tblBody.innerHTML = '';
     const q = typeSearch.value.toLowerCase().trim();
     const statusVal = statusFilter.value;
+    const branchFilter = document.getElementById('typeBranchFilter');
+    const branchVal = branchFilter ? branchFilter.value : 'all';
 
     let filtered = roomTypes.filter(rt => {
+      if (!rt.branches) {
+        if (rt.id === 'RT-004') rt.branches = ['Coimbatore', 'Chennai'];
+        else if (rt.status === 'Disabled') rt.branches = [];
+        else rt.branches = ['Salem', 'Coimbatore', 'Chennai'];
+      }
+      
       if (q && !rt.name.toLowerCase().includes(q) && !rt.id.toLowerCase().includes(q)) return false;
       if (statusVal !== 'all' && rt.status !== statusVal) return false;
+      if (branchVal !== 'all') {
+        const branches = rt.branches || [];
+        if (!branches.includes(branchVal)) return false;
+      }
       return true;
     });
 
@@ -55,15 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('kpiCapacity').textContent = `${roomTypes.reduce((acc, x) => acc + x.maxCapacity, 0)} Guests`;
     document.getElementById('kpiUnits').textContent = `${roomTypes.reduce((acc, x) => acc + x.totalUnits, 0)} Rooms`;
     
-    const avgPrice = Math.round(roomTypes.reduce((acc, x) => acc + x.basePrice, 0) / roomTypes.length);
+    const avgPrice = Math.round(roomTypes.reduce((acc, x) => acc + x.basePrice, 0) / (roomTypes.length || 1));
     document.getElementById('kpiAvgPrice').textContent = `Rs. ${avgPrice.toLocaleString()}`;
 
-    if (filtered.length === 0) {
+    const totalFiltered = filtered.length;
+    const totalPages = Math.ceil(totalFiltered / rowsPerPage);
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+    if (totalFiltered === 0) {
       tblBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No room types found.</td></tr>`;
+      renderPagination(0);
       return;
     }
 
-    filtered.forEach(rt => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const paginated = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+    paginated.forEach(rt => {
       let statusBadge = '';
       if (rt.status === 'Active') {
         statusBadge = '<span class="badge bg-success">Active</span>';
@@ -95,28 +129,103 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       tblBody.appendChild(tr);
     });
+
+    renderPagination(totalFiltered);
+  }
+
+  window.changePage = function(page) {
+    currentPage = page;
+    renderTable();
+  };
+
+  function renderPagination(totalFiltered) {
+    const paginationControls = document.getElementById('paginationControls');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationList = document.getElementById('paginationList');
+    
+    if (totalFiltered === 0) {
+      paginationControls.style.setProperty('display', 'none', 'important');
+      return;
+    }
+    
+    paginationControls.style.setProperty('display', 'flex', 'important');
+    
+    const totalPages = Math.ceil(totalFiltered / rowsPerPage);
+    const startItem = (currentPage - 1) * rowsPerPage + 1;
+    const endItem = Math.min(currentPage * rowsPerPage, totalFiltered);
+    
+    paginationInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalFiltered} entries`;
+    
+    let html = '';
+    
+    // Prev
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+               <a class="page-link text-purple" href="#" onclick="changePage(${currentPage - 1}); return false;">Previous</a>
+             </li>`;
+             
+    for (let i = 1; i <= totalPages; i++) {
+      if (currentPage === i) {
+        html += `<li class="page-item active">
+                   <a class="page-link bg-purple border-purple text-white" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                 </li>`;
+      } else {
+        html += `<li class="page-item">
+                   <a class="page-link text-purple" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                 </li>`;
+      }
+    }
+    
+    // Next
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+               <a class="page-link text-purple" href="#" onclick="changePage(${currentPage + 1}); return false;">Next</a>
+             </li>`;
+             
+    paginationList.innerHTML = html;
   }
 
   window.toggleStatus = function(id, newStatus) {
     const rt = roomTypes.find(x => x.id === id);
     if (rt) {
-      if (newStatus === 'Disabled' && rt.totalUnits > 0) {
-        alert('This room type is currently assigned to hotel rooms. It can only be disabled.');
+      if (newStatus === 'Disabled') {
+        customConfirmModalBody.textContent = rt.totalUnits > 0 
+          ? `This room type is currently assigned to ${rt.totalUnits} rooms. Are you sure you want to disable it?` 
+          : 'Are you sure you want to disable this room type?';
+      } else {
+        customConfirmModalBody.textContent = 'Are you sure you want to activate this room type?';
       }
-      rt.status = newStatus;
-      HotelState.roomTypes = roomTypes;
-
-      showToast(`Room type ${newStatus === 'Active' ? 'Activated' : 'Disabled'} Successfully.`, true);
-      renderTable();
+      
+      activeConfirmAction = () => {
+        rt.status = newStatus;
+        HotelState.roomTypes = roomTypes;
+        showToast(`Room type ${newStatus === 'Active' ? 'Activated' : 'Disabled'} Successfully.`, true);
+        renderTable();
+      };
+      
+      customConfirmModal.show();
     }
   };
 
-  btnApply.addEventListener('click', renderTable);
+  btnApply.addEventListener('click', () => {
+    currentPage = 1;
+    renderTable();
+  });
   btnReset.addEventListener('click', () => {
     typeSearch.value = '';
     statusFilter.value = 'all';
+    const branchFilter = document.getElementById('typeBranchFilter');
+    if (branchFilter) branchFilter.value = 'all';
+    currentPage = 1;
     renderTable();
   });
+
+  const pageSizeSelector = document.getElementById('pageSizeSelector');
+  if (pageSizeSelector) {
+    pageSizeSelector.addEventListener('change', (e) => {
+      rowsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+    });
+  }
 
   // Modal form submit logic & validations
   const modalForm = document.getElementById('modalAddRoomTypeForm');
@@ -201,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
           basePrice: base,
           totalUnits: 0,
           propertiesCount: 0,
+          branches: [],
           status: document.getElementById('modalStatus').value
         });
         HotelState.roomTypes = roomTypes;
@@ -323,19 +433,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnDisableType').addEventListener('click', () => {
     const rtId = document.getElementById('editRoomTypeId').value;
     const rt = roomTypes.find(x => x.id === rtId);
-    if (rt && rt.totalUnits > 0) {
-      alert(`This room type is currently used by ${rt.totalUnits} rooms. Disabling it will prevent future assignments but will not affect existing bookings.`);
-    }
-
-    if (confirm('Are you sure you want to disable this room type?')) {
-      if (rt) {
+    if (rt) {
+      customConfirmModalBody.textContent = rt.totalUnits > 0
+        ? `This room type is currently used by ${rt.totalUnits} rooms. Disabling it will prevent future assignments but will not affect existing bookings. Are you sure?`
+        : 'Are you sure you want to disable this room type?';
+        
+      activeConfirmAction = () => {
         rt.status = 'Disabled';
         HotelState.roomTypes = roomTypes;
-
         editModal.hide();
         showToast('Room Type disabled successfully.', true);
         renderTable();
-      }
+      };
+      
+      customConfirmModal.show();
     }
   });
 

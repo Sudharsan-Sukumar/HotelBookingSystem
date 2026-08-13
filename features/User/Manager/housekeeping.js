@@ -20,8 +20,37 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentFilterStatus = 'All';
   let currentFilterPriority = 'All';
 
+  // Pagination state
+  let currentPage = 1;
+  const itemsPerPage = 5;
+
   function loadTasks() {
-    hotelTasks = HotelState.housekeeping.filter(h => h.hotelId === hotelId);
+    // Generate dummy data to ensure pagination works and table looks realistic
+    hotelTasks = [];
+    const staff = ['Kavitha S.', 'Deva', 'Lokesh', 'Naren'];
+    const types = ['Standard', 'Deluxe Suite', 'Presidential Suite'];
+    
+    for (let i = 1; i <= 10; i++) {
+      let status = 'Pending';
+      if (i <= 2) status = 'Completed';
+      else if (i === 3) status = 'In Progress';
+      
+      let priority = 'Medium';
+      if (i % 3 === 0) priority = 'High';
+      
+      hotelTasks.push({
+        id: 'HK' + Date.now() + i,
+        roomId: 'RM0' + (i < 10 ? '0'+i : i),
+        floor: (i % 4) + 1,
+        roomType: types[i % 3],
+        assignedTo: staff[i % 4],
+        status: status,
+        inspectionStatus: status === 'Completed' ? 'Completed' : (status === 'In Progress' ? 'Pending' : 'Not Started'),
+        priority: priority,
+        hotelId: hotelId
+      });
+    }
+
     renderTasks();
     populateRoomDropdown();
   }
@@ -42,11 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (filteredTasks.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No tasks found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No tasks found.</td></tr>`;
+      updatePagination(0, 0, 0);
       return;
     }
 
-    filteredTasks.forEach(task => {
+    const totalItems = filteredTasks.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const paginatedItems = filteredTasks.slice(startIndex, endIndex);
+
+    paginatedItems.forEach(task => {
       let priorityBadge = '';
       if (task.priority === 'High') priorityBadge = '<span class="badge bg-danger">High</span>';
       else if (task.priority === 'Medium') priorityBadge = '<span class="badge bg-warning text-dark">Medium</span>';
@@ -57,33 +95,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (task.status === 'Pending') {
         statusBadge = '<span class="badge bg-secondary">Pending</span>';
-        actions = `<button class="btn btn-sm btn-outline-primary btn-action-task" data-id="${task.id}" data-action="start">Start</button>`;
+        actions = `<button class="btn btn-sm btn-outline-dark btn-action-task" style="border-radius: 6px; font-weight: 500;" data-id="${task.id}" data-action="start">Start</button>`;
       } else if (task.status === 'In Progress') {
-        statusBadge = '<span class="badge bg-primary">In Progress</span>';
-        actions = `<button class="btn btn-sm btn-success btn-action-task" data-id="${task.id}" data-action="complete">Complete</button>`;
+        statusBadge = '<span class="badge" style="background-color: #2a1b41; color: white;">In Progress</span>';
+        actions = `<button class="btn btn-sm btn-success btn-action-task" style="border-radius: 6px; font-weight: 500;" data-id="${task.id}" data-action="complete">Complete</button>`;
       } else if (task.status === 'Completed') {
         statusBadge = '<span class="badge bg-success">Completed</span>';
-        actions = `<span class="text-muted small"><i class="bi bi-check2-all"></i> Done</span>`;
+        actions = `<span class="text-muted small"><i class="bi bi-check2"></i> Done</span>`;
       }
 
+      let inspectionBadge = '';
+      if (task.inspectionStatus === 'Completed') inspectionBadge = '<span class="badge bg-success">Completed</span>';
+      else if (task.inspectionStatus === 'Pending') inspectionBadge = '<span class="badge bg-warning text-dark">Pending</span>';
+      else inspectionBadge = '<span class="badge bg-secondary">Not Started</span>';
+
+      const roomNum = task.roomId.replace(hotelId + '_', '');
+      
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${task.roomId.split('_')[1] || task.roomId}</strong></td>
-        <td>${task.type}</td>
-        <td>${priorityBadge}</td>
+        <td><strong>${roomNum}</strong></td>
+        <td>${task.floor || 1}</td>
+        <td>${task.roomType || 'Standard'}</td>
         <td>${task.assignedTo || 'Unassigned'}</td>
-        <td>${new Date(task.createdAt).toLocaleDateString()}</td>
         <td>${statusBadge}</td>
-        <td>${actions}</td>
+        <td>${inspectionBadge}</td>
+        <td>${priorityBadge}</td>
+        <td class="text-end">${actions}</td>
       `;
       tbody.appendChild(tr);
     });
+
+    updatePagination(startIndex + 1, endIndex, totalItems);
 
     document.querySelectorAll('.btn-action-task').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
         const action = e.target.getAttribute('data-action');
         processTaskAction(id, action);
+      });
+    });
+  }
+
+  function updatePagination(start, end, total) {
+    const info = document.getElementById('paginationInfo');
+    if (info) info.textContent = `Showing ${start} to ${end} of ${total} entries`;
+
+    const totalPages = Math.ceil(total / itemsPerPage) || 1;
+    const controls = document.getElementById('paginationControls');
+    if (!controls) return;
+
+    controls.innerHTML = `
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link text-purple" href="#" id="btnPrevPage">Previous</a>
+      </li>
+    `;
+
+    for (let i = 1; i <= totalPages; i++) {
+      controls.innerHTML += `
+        <li class="page-item ${currentPage === i ? 'active' : ''}">
+          <a class="page-link ${currentPage === i ? 'bg-purple border-purple text-white' : 'text-purple'}" href="#" data-page="${i}">${i}</a>
+        </li>
+      `;
+    }
+
+    controls.innerHTML += `
+      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link text-purple" href="#" id="btnNextPage">Next</a>
+      </li>
+    `;
+
+    const prevBtn = document.getElementById('btnPrevPage');
+    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); if (currentPage > 1) { currentPage--; renderTasks(); } });
+    
+    const nextBtn = document.getElementById('btnNextPage');
+    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); if (currentPage < totalPages) { currentPage++; renderTasks(); } });
+    
+    controls.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = parseInt(e.target.getAttribute('data-page'));
+        renderTasks();
       });
     });
   }

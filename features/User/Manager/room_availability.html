@@ -132,89 +132,9 @@
     </div>
 
     <!-- Live Grid Table -->
-    <div class="card border p-4 shadow-sm bg-white text-start" style="border-radius: 12px;">
-      <div class="table-responsive">
-        <table class="table align-middle manager-premium-table small mb-0" id="tblAvailability">
-          <thead>
-            <tr>
-              <th>Room No</th>
-              <th>Room Type</th>
-              <th>Branch</th>
-              <th>Status</th>
-              <th>Current Occupant</th>
-              <th>Expected Checkout</th>
-              <th>Upcoming Booking</th>
-              <th>Expected Arrival</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Chennai Rooms -->
-            <tr>
-              <td><strong>101</strong></td>
-              <td>Standard Room</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-success">Available</span></td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td><strong>102</strong></td>
-              <td>Standard Room</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-warning text-dark">Cleaning</span></td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td><strong>108</strong></td>
-              <td>Standard Room</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-primary">Occupied</span></td>
-              <td>Ramesh Krishnan</td>
-              <td>2026-07-04</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td><strong>201</strong></td>
-              <td>Executive Studio</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-primary">Occupied</span></td>
-              <td>Sarah Jenkins</td>
-              <td>2026-07-05</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td><strong>302</strong></td>
-              <td>Deluxe Suite</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-danger">Maintenance</span></td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td><strong>304</strong></td>
-              <td>Deluxe Suite</td>
-              <td>Elegant Enclave Chennai</td>
-              <td><span class="badge bg-info">Reserved</span></td>
-              <td>-</td>
-              <td>-</td>
-              <td>Arjun Mehta</td>
-              <td>2026-07-03</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-        </table>
+    <div class="card border-0 p-4 shadow-sm text-start" style="border-radius: 16px; background-color: #fcfcfc;">
+      <div id="roomsGridContainer" class="d-flex flex-wrap gap-3">
+        <!-- Room cards populated by JS -->
       </div>
     </div>
   </div>

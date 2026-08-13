@@ -3,271 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Content Management - Elegant Enclave Admin</title>
+  <title>Content Management - Elegant Enclave CMS</title>
   <link rel='icon' type='image/png' href='../../../assets/images/logo.png'>
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../../Shared/Abstracts/global.css">
-  <link rel="stylesheet" href="../Manager/dashboard.css?v=1.9">
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="components/admin-sidebar.css">
+  <style>
+    .cms-controls::-webkit-scrollbar {
+      width: 6px;
+    }
+    .cms-controls::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .cms-controls::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+    .accordion-button:not(.collapsed) {
+      background-color: #f8f5ff;
+      color: #1A0A2E;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+    }
+    .accordion-button:focus {
+      box-shadow: none;
+      border-color: rgba(0,0,0,.125);
+    }
+    .iframe-device-mobile { max-width: 414px !important; margin: 0 auto; }
+    .iframe-device-tablet { max-width: 820px !important; margin: 0 auto; }
+    .iframe-device-desktop { max-width: 1440px !important; margin: 0 auto; }
+    
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+      70% { box-shadow: 0 0 0 5px rgba(25, 135, 84, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+    .animate-pulse {
+      animation: pulse-green 2s infinite;
+      border-radius: 50%;
+    }
+  </style>
 </head>
 <body class="admin-body">
 
-    
-
-
-
-
-  <!-- Main Layout Wrapper -->
-<div class="d-flex" style="min-height: 100vh;">
+  <div class="d-flex" style="height: 100vh; overflow: hidden;">
     <!-- Sidebar Container -->
-    <div id="admin-sidebar-container"></div>
+    <div id="admin-sidebar-container" style="flex-shrink: 0; z-index: 1050;"></div>
     
-    <!-- Main Content Area -->
-    <div class="flex-grow-1 d-flex flex-column bg-light" style="min-width: 0;">
-        
-        <!-- Lightweight Header -->
-        <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom sticky-top shadow-sm">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-light d-lg-none" id="mobile-sidebar-toggle"><i class="bi bi-list fs-4"></i></button>
-                <h5 class="mb-0 font-serif fw-bold text-dark" id="header-page-title">Content Management</h5>
-            </div>
-            
-            <div class="d-flex align-items-center gap-3">
-                <a href="notifications.html" class="position-relative text-dark p-2" style="text-decoration: none;">
-                    <i class="bi bi-bell-fill fs-5 text-warning"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(-30%, -10%); border: 2px solid #ffffff;">3</span>
-                </a>
-            </div>
-        </header>
-
-        <div class="container-fluid px-4 py-4">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
-        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Content Management</li>
-      </ol>
-    </nav>
-
-    <div class="mb-4 text-start">
-      <h1 class="font-serif fw-bold text-purple h2 mb-1">Content Management</h1>
-      <p class="text-secondary small mb-0">Configure dynamic banners, promo offers, landing page sections, and copy blocks.</p>
-    </div>
-
-    <!-- SUMMARY METRICS -->
-    <div class="row g-3 mb-4 text-start">
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-image"></i></div>
-          <div>
-            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Hero Banners</span>
-            <strong class="fs-5 text-dark">4 Registered</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">1 Active Hero Banner</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-tags-fill"></i></div>
-          <div>
-            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Promotions</span>
-            <strong class="fs-5 text-dark">5 Offers</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">3 active currently</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-grid-3x3-gap-fill"></i></div>
-          <div>
-            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Homepage Sections</span>
-            <strong class="fs-5 text-dark">6 Sections</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">All visible</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="kpi-card p-3 d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-star-fill"></i></div>
-          <div>
-            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Featured Rooms</span>
-            <strong class="fs-5 text-dark">4 Types</strong>
-            <span class="small text-muted d-block" style="font-size: 0.65rem;">Assigned badge picks</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTIONS MANAGER PANEL GRID -->
-    <div class="row g-4 text-start">
-      <!-- Section 1: Hero Banner Config -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-image me-2 text-warning"></i>1. Hero Banner</h5>
-            <span class="badge bg-success">Active</span>
-          </div>
-          <p class="text-secondary small mb-3">Manage main image and headers displayed on the customer landing homepage.</p>
-          <div class="p-3 bg-light rounded mb-3 small">
-            <div><strong>Heading:</strong> Escape to Elegant Luxury</div>
-            <div><strong>Subheading:</strong> Discover premium suites across India.</div>
-          </div>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="location.href='edit_hero.html'"><i class="bi bi-pencil-fill me-1"></i> Edit Banner</button>
-        </div>
-      </div>
-
-      <!-- Section 2: Promotions & Offers -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-tags-fill me-2 text-warning"></i>2. Promotions & Offers</h5>
-            <span class="badge bg-success">3 Active</span>
-          </div>
-          <p class="text-secondary small mb-3">Configure promotional offers and discounts with custom coupon codes.</p>
-          <div class="p-3 bg-light rounded mb-3 small">
-            <div><strong>Offer:</strong> Monsoon Getaway 25% Off</div>
-            <div><strong>Coupon:</strong> MONSOON25</div>
-          </div>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="showComingSoonToast()"><i class="bi bi-pencil-fill me-1"></i> Edit Offers</button>
-        </div>
-      </div>
-
-      <!-- Section 3: Homepage Sections Layout -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-grid-3x3-gap-fill me-2 text-warning"></i>3. Homepage Layout</h5>
-            <span class="badge bg-success">Custom Order</span>
-          </div>
-          <p class="text-secondary small mb-3">Reorder visibility states and sequencing of sections on the client homepage.</p>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="showComingSoonToast()"><i class="bi bi-pencil-fill me-1"></i> Configure Layout</button>
-        </div>
-      </div>
-
-      <!-- Section 4: Featured Rooms selection -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-star-fill text-warning me-2"></i>4. Featured Rooms</h5>
-            <span class="badge bg-success">4 selected</span>
-          </div>
-          <p class="text-secondary small mb-3">Choose which room categories are highlighted on the landing grid with quality badges.</p>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="showComingSoonToast()"><i class="bi bi-pencil-fill me-1"></i> Configure Featured Rooms</button>
-        </div>
-      </div>
-
-      <!-- Section 5: About Us copy -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-info-circle-fill me-2 text-warning"></i>5. About Us</h5>
-            <span class="badge bg-success">Configured</span>
-          </div>
-          <p class="text-secondary small mb-3">Modify our brand mission, vision statements, hotel history, and CEO messages.</p>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="location.href='edit_about.html'"><i class="bi bi-pencil-fill me-1"></i> Edit About Us</button>
-        </div>
-      </div>
-
-      <!-- Section 6: Contact & Footer links -->
-      <div class="col-md-6">
-        <div class="card p-4 border bg-white shadow-sm h-100" style="border-radius: 16px;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-telephone-fill me-2 text-warning"></i>6. Contact & Footer</h5>
-            <span class="badge bg-success">Configured</span>
-          </div>
-          <p class="text-secondary small mb-3">Update reception timing coordinates, hotel phone, address, and social links.</p>
-          <button class="btn btn-purple btn-sm mt-auto" onclick="location.href='edit_contact.html'"><i class="bi bi-pencil-fill me-1"></i> Edit Footer Details</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- STATUS TOAST -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="statusToast" class="toast align-items-center text-white border-0 shadow bg-purple" role="alert" style="background-color: #1A0A2E !important;">
-      <div class="d-flex">
-        <div class="toast-body small" id="toastMessage">Updates saved.</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>
-  </div>
-
-  <footer class="py-4 text-center mt-5" style="background-color: #1A0A2E; border-top: 2px solid #D4AF37;">
-    <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
-  </footer>
-
-  <script src="../../../Shared/UtilityClass/state.js"></script>
-  <script src="../../../Shared/UtilityClass/session.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const userId = localStorage.getItem('userId');
-      const userRole = localStorage.getItem('userRole');
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      if (!isLoggedIn || userRole !== 'Admin') {
-        window.location.href = '../../../features/Auth/login.html';
-      }
-
-      if (!window.HotelState) return;
-
-      const c = HotelState.content || {};
-
-      // 1. Hero Preview
-      const heroPreview = document.querySelector('.col-md-6:nth-child(1) .p-3');
-      if (heroPreview && c.hero) {
-        heroPreview.innerHTML = `
-          <div><strong>Heading:</strong> ${c.hero.tagline || ''}</div>
-          <div><strong>Subheading:</strong> ${c.hero.subtitle || ''}</div>
-        `;
-      }
-
-      // 5. About Preview
-      const aboutPreview = document.querySelector('.col-md-6:nth-child(5) .card');
-      if (aboutPreview && c.about) {
-        // Find or create preview block
-        let previewBlock = aboutPreview.querySelector('.p-3');
-        if (!previewBlock) {
-          previewBlock = document.createElement('div');
-          previewBlock.className = 'p-3 bg-light rounded mb-3 small';
-          aboutPreview.insertBefore(previewBlock, aboutPreview.querySelector('button'));
-        }
-        previewBlock.innerHTML = `
-          <div><strong>Heading:</strong> ${c.about.heading || ''}</div>
-          <div><strong>Vision/Body:</strong> ${c.about.body ? c.about.body.substring(0, 60) + '...' : ''}</div>
-        `;
-      }
-
-      // 6. Contact Preview
-      const contactPreview = document.querySelector('.col-md-6:nth-child(6) .card');
-      if (contactPreview && c.contact) {
-        let previewBlock = contactPreview.querySelector('.p-3');
-        if (!previewBlock) {
-          previewBlock = document.createElement('div');
-          previewBlock.className = 'p-3 bg-light rounded mb-3 small';
-          contactPreview.insertBefore(previewBlock, contactPreview.querySelector('button'));
-        }
-        previewBlock.innerHTML = `
-          <div><strong>Phone:</strong> ${c.contact.phone || ''}</div>
-          <div><strong>Email:</strong> ${c.contact.email || ''}</div>
-        </div>
-        `;
-      }
-    });
-
-    function showComingSoonToast() {
-      const toastEl = document.getElementById('statusToast');
-      const toastMessage = document.getElementById('toastMessage');
-      toastMessage.innerHTML = `<i class="bi bi-info-circle-fill text-warning me-2"></i><strong>Coming Soon:</strong> We apologize for the inconvenience, this content configuration screen is currently under active development.`;
+    <!-- Left CMS Controls (Scrollable) -->
+    <div class="cms-controls d-flex flex-column" style="flex: 0 0 420px; background-color: #F8F7F4; border-right: 1px solid #e0e0e0; position: relative;">
       
-      const toast = new bootstrap.Toast(toastEl);
-      toast.show();
-    }
-  </script>
-  <script src="components/admin-sidebar.js"></script>
+      <!-- Sticky CMS Header -->
+      <div class="p-4 bg-white border-bottom shadow-sm sticky-top z-index-1000 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-start gap-3">
+          <a href="dashboard.html" class="btn btn-sm btn-light border shadow-sm rounded-circle d-flex align-items-center justify-content-center mt-1" style="width: 32px; height: 32px;" title="Back to Dashboard">
+            <i class="bi bi-arrow-left text-secondary"></i>
+          </a>
+          <div>
+            <h2 class="font-serif fw-bold text-purple mb-1 fs-4">Website CMS</h2>
+            <p class="text-secondary small mb-0">Live editing landing page</p>
+          </div>
+        </div>
+        <button class="btn btn-purple btn-sm rounded-pill px-3 shadow-sm" id="btnPublishCms">
+          <i class="bi bi-cloud-check me-1"></i> Publish
+        </button>
+      </div>
+
+      <!-- CMS Accordion Editor -->
+      <div class="p-3 overflow-auto flex-grow-1" id="cmsEditorContainer">
+        
+        <div class="accordion accordion-flush rounded overflow-hidden shadow-sm" id="cmsAccordion">
+          
+          <!-- Hero Section -->
+          <div class="accordion-item border-0 mb-2 rounded shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHero">
+                <i class="bi bi-image text-primary me-2"></i> Hero Banner
+              </button>
+            </h2>
+            <div id="collapseHero" class="accordion-collapse collapse" data-bs-parent="#cmsAccordion">
+              <div class="accordion-body bg-light">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Heading</label>
+                  <textarea class="form-control form-control-sm" id="cmsHeroHeading" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Subheading</label>
+                  <textarea class="form-control form-control-sm" id="cmsHeroSubheading" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Background Image URL</label>
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="cmsHeroImage" placeholder="assets/images/...">
+                    <input type="file" class="d-none" id="cmsHeroImageUpload" accept="image/*">
+                    <button class="btn btn-outline-secondary" type="button" id="btnUploadHeroImage" title="Upload Image"><i class="bi bi-upload"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Us Section -->
+          <div class="accordion-item border-0 mb-2 rounded shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAbout">
+                <i class="bi bi-info-circle text-info me-2"></i> About Us
+              </button>
+            </h2>
+            <div id="collapseAbout" class="accordion-collapse collapse" data-bs-parent="#cmsAccordion">
+              <div class="accordion-body bg-light">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Section Heading</label>
+                  <input type="text" class="form-control form-control-sm" id="cmsAboutHeading">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Subheading</label>
+                  <input type="text" class="form-control form-control-sm" id="cmsAboutSubheading">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Brand History / Description</label>
+                  <textarea class="form-control form-control-sm" id="cmsAboutHistory" rows="5"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Settings -->
+          <div class="accordion-item border-0 mb-2 rounded shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFooter">
+                <i class="bi bi-layout-text-window-reverse text-secondary me-2"></i> Footer Contacts
+              </button>
+            </h2>
+            <div id="collapseFooter" class="accordion-collapse collapse" data-bs-parent="#cmsAccordion">
+              <div class="accordion-body bg-light">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Phone Numbers</label>
+                  <input type="text" class="form-control form-control-sm" id="cmsFooterPhone">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Email Address</label>
+                  <input type="text" class="form-control form-control-sm" id="cmsFooterEmail">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Branch Locations Text</label>
+                  <input type="text" class="form-control form-control-sm" id="cmsFooterAddress">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Live Preview (Iframe) -->
+    <div class="cms-preview flex-grow-1 d-flex flex-column position-relative" style="background-color: #e5e5e5;">
+      
+      <!-- Toolbar -->
+      <div class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 border border-success"><i class="bi bi-record-circle me-1 animate-pulse"></i> Live Preview Mode</span>
+        </div>
+        
+        <div class="btn-group btn-group-sm shadow-sm" role="group" aria-label="Device Preview Modes">
+          <button type="button" class="btn btn-outline-secondary active" id="btnPreviewDesktop" title="Desktop View"><i class="bi bi-display"></i></button>
+          <button type="button" class="btn btn-outline-secondary" id="btnPreviewTablet" title="Tablet View"><i class="bi bi-tablet"></i></button>
+          <button type="button" class="btn btn-outline-secondary" id="btnPreviewMobile" title="Mobile View"><i class="bi bi-phone"></i></button>
+        </div>
+        
+        <div>
+          <a href="../../../index.html" target="_blank" class="btn btn-light btn-sm shadow-sm border"><i class="bi bi-box-arrow-up-right text-purple"></i> Open Site</a>
+        </div>
+      </div>
+      
+      <!-- Canvas Wrapper -->
+      <div class="flex-grow-1 position-relative d-flex justify-content-center pt-4 pb-0 px-4" style="overflow-y: auto; overflow-x: hidden;" id="iframeCanvasWrapper">
+        <div id="iframeDeviceContainer" class="iframe-device-desktop" style="width: 100%; transition: max-width 0.3s ease; height: fit-content; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border-radius: 8px 8px 0 0; overflow: hidden; border: 1px solid #ccc; background: white;">
+          <iframe id="livePreviewFrame" src="../../../index.html" style="width: 100%; height: calc(100vh - 80px); border: none; display: block; background: white;"></iframe>
+        </div>
+      </div>
+      
+    </div>
   </div>
-</div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000;">
+    <div id="statusToast" class="toast align-items-center text-white border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body small" id="toastMessage">Updates published successfully.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../Shared/UtilityClass/session.js"></script>
+  <script src="../../../Shared/UtilityClass/state.js"></script>
+  <script src="components/admin-sidebar.js"></script>
+  <script src="content.js"></script>
 </body>
 </html>

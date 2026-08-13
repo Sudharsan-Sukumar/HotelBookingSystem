@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabs = document.querySelectorAll('#userTabs .nav-link');
 
   let activeTab = 'all';
+  let currentPage = 1;
+  let rowsPerPage = 10;
 
   function showToast(message, isSuccess = true) {
     const toastMessage = document.getElementById('toastMessage');
@@ -163,10 +165,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (filtered.length === 0) {
       tblBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No users found matching current criteria.</td></tr>`;
+      renderPagination(0);
       return;
     }
 
-    filtered.forEach(u => {
+    const totalPages = Math.ceil(filtered.length / rowsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const pagedData = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+    pagedData.forEach(u => {
       let roleBadge = '';
       if (u.role === 'Customer') roleBadge = '<span class="badge bg-primary text-white">Customer</span>';
       else if (u.role === 'Manager') roleBadge = '<span class="badge bg-success text-white">Manager</span>';
@@ -193,9 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="navigateToEdit('${u.id}')"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
           `;
         }
+        let toggleLabel = u.status === 'Active' ? 'Inactive' : 'Active';
+        let toggleColor = u.status === 'Active' ? 'danger' : 'success';
         actions += `
           <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" onclick="resetPassword('${u.id}')">Reset PW</button>
-          <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteUser('${u.id}')">Delete</button>
+          <button class="btn btn-sm btn-outline-${toggleColor} py-0 px-2" onclick="toggleUserStatus('${u.id}', '${toggleLabel}')">${toggleLabel}</button>
         `;
       }
 
@@ -215,6 +227,60 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="text-end text-nowrap">${actions}</td>
       `;
       tblBody.appendChild(tr);
+    });
+
+    renderPagination(filtered.length);
+  }
+
+  function renderPagination(totalItems) {
+    const controls = document.getElementById('paginationControls');
+    const info = document.getElementById('paginationInfo');
+    
+    if (!controls || !info) return;
+
+    if (totalItems === 0) {
+      controls.innerHTML = '';
+      info.textContent = 'Showing 0 entries';
+      return;
+    }
+
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+    const startIdx = (currentPage - 1) * rowsPerPage + 1;
+    const endIdx = Math.min(startIdx + rowsPerPage - 1, totalItems);
+
+    info.textContent = `Showing ${startIdx} to ${endIdx} of ${totalItems} entries`;
+
+    let html = '';
+    
+    // Prev Button
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+               <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+             </li>`;
+
+    // Page Numbers
+    for (let i = 1; i <= totalPages; i++) {
+      html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                 <a class="page-link" href="#" data-page="${i}">${i}</a>
+               </li>`;
+    }
+
+    // Next Button
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+               <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+             </li>`;
+
+    controls.innerHTML = html;
+
+    // Attach events
+    controls.querySelectorAll('.page-link').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const li = e.target.closest('.page-item');
+        if (li.classList.contains('disabled') || li.classList.contains('active')) return;
+        
+        currentPage = parseInt(e.target.getAttribute('data-page'));
+        renderTable();
+      });
     });
   }
 
@@ -250,41 +316,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const deleteModal = new bootstrap.Modal(document.getElementById('deleteUserReasonModal'));
-  const deleteForm = document.getElementById('deleteUserReasonForm');
+  const statusModal = new bootstrap.Modal(document.getElementById('statusUserReasonModal'));
+  const statusForm = document.getElementById('statusUserReasonForm');
 
-  window.deleteUser = function(id) {
-    document.getElementById('deleteUserId').value = id;
-    document.getElementById('deleteReasonInput').value = '';
-    deleteModal.show();
+  window.toggleUserStatus = function(id, newStatus) {
+    document.getElementById('statusUserId').value = id;
+    document.getElementById('statusUserNewVal').value = newStatus;
+    const reasonInput = document.getElementById('statusReasonInput');
+    reasonInput.value = '';
+    reasonInput.classList.remove('is-invalid');
+    statusModal.show();
   };
 
-  deleteForm.addEventListener('submit', (e) => {
+  statusForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const id = document.getElementById('deleteUserId').value;
-    const reason = document.getElementById('deleteReasonInput').value;
+    const id = document.getElementById('statusUserId').value;
+    const newStatus = document.getElementById('statusUserNewVal').value;
+    const reasonInput = document.getElementById('statusReasonInput');
+    const reason = reasonInput.value;
 
-    if (!reason.trim()) return;
+    if (!reason.trim()) {
+      reasonInput.classList.add('is-invalid');
+      return;
+    }
+    reasonInput.classList.remove('is-invalid');
 
     const list = HotelState.users;
     const idx = list.findIndex(x => x.id === id);
     if (idx !== -1) {
-      const u = list[idx];
-      
-      const bookingsCount = HotelState.getBookingsByCustomer(u.id).length;
-      if (bookingsCount > 0) {
-        u.status = 'Inactive';
-        list[idx] = u;
-        HotelState.users = list;
-        showToast(`User has active bookings. Status set to 'Inactive' instead of deleting.`, true);
-      } else {
-        list.splice(idx, 1);
-        HotelState.users = list;
-        showToast(`Profile ${u.id} deleted.`, true);
-      }
-
+      list[idx].status = newStatus;
+      HotelState.users = list;
+      showToast(`User status changed to ${newStatus}.`, true);
       renderTable();
-      deleteModal.hide();
+      statusModal.hide();
     }
   });
 
@@ -298,16 +362,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  if (btnApply) btnApply.addEventListener('click', renderTable);
+  if (btnApply) btnApply.addEventListener('click', () => {
+    currentPage = 1;
+    renderTable();
+  });
   if (btnReset) btnReset.addEventListener('click', () => {
     userSearch.value = '';
     roleFilter.value = 'all';
     statusFilter.value = 'all';
-    branchFilter.value = 'all';
+    if (branchFilter) branchFilter.value = 'all';
+    currentPage = 1;
     renderTable();
   });
 
-  userSearch.addEventListener('input', renderTable);
+  userSearch.addEventListener('input', () => {
+    currentPage = 1;
+    renderTable();
+  });
+
+  const pageSizeSelector = document.getElementById('pageSizeSelector');
+  if (pageSizeSelector) {
+    pageSizeSelector.addEventListener('change', (e) => {
+      rowsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+    });
+  }
 
   renderTable();
 });

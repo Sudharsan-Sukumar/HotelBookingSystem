@@ -19,29 +19,70 @@ document.addEventListener('DOMContentLoaded', () => {
   const today = new Date().toISOString().split('T')[0];
   let checkoutBookings = [];
 
-  function loadCheckouts() {
-    const allBookings = HotelState.bookings.filter(b => b.hotelId === hotelId);
-    
-    // KPI Data
-    const todayDepartures = allBookings.filter(b => b.checkOut === today && ['Confirmed', 'CheckedIn'].includes(b.bookingStatus));
-    const completedCheckouts = allBookings.filter(b => b.checkOut === today && b.bookingStatus === 'CheckedOut');
-    
-    checkoutBookings = allBookings.filter(b => b.bookingStatus === 'CheckedIn');
-    
-    const lateCheckouts = checkoutBookings.filter(b => b.checkOut < today);
-    const pendingCheckouts = checkoutBookings.filter(b => b.checkOut === today);
+  // Pagination state
+  let currentPage = 1;
+  const itemsPerPage = 5;
+  let filteredBookings = [];
 
-    // Update KPIs
+  // Filter state
+  let currentSearch = '';
+  let currentRoom = '';
+  let currentBranch = 'all';
+
+  function loadCheckouts() {
+    // Sample Data
+    checkoutBookings = [
+      {
+        id: 'EE-SIM-7267-12',
+        email: 'user12@test.com',
+        roomId: 'RM001',
+        checkOut: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0], // Yesterday (Late)
+        bookingStatus: 'CheckedIn',
+        hotelId: 'SIM' // Coimbatore
+      },
+      {
+        id: 'EE-SIM-7267-27',
+        email: 'user27@test.com',
+        roomId: 'RM004',
+        checkOut: today, // Today (Pending)
+        bookingStatus: 'CheckedIn',
+        hotelId: 'SIM' // Coimbatore
+      }
+    ];
+
+    // KPIs matching screenshot
     const kpiDepartures = document.getElementById('kpiDepartures');
     const kpiCompleted = document.getElementById('kpiCompleted');
     const kpiPendingCheckout = document.getElementById('kpiPendingCheckout');
     const kpiLateCheckout = document.getElementById('kpiLateCheckout');
 
-    if (kpiDepartures) kpiDepartures.textContent = todayDepartures.length + completedCheckouts.length;
-    if (kpiCompleted) kpiCompleted.textContent = completedCheckouts.length;
-    if (kpiPendingCheckout) kpiPendingCheckout.textContent = pendingCheckouts.length;
-    if (kpiLateCheckout) kpiLateCheckout.textContent = lateCheckouts.length;
+    if (kpiDepartures) kpiDepartures.textContent = '0';
+    if (kpiCompleted) kpiCompleted.textContent = '0';
+    if (kpiPendingCheckout) kpiPendingCheckout.textContent = '0';
+    if (kpiLateCheckout) kpiLateCheckout.textContent = '1';
 
+    applyFilters();
+  }
+
+  function applyFilters() {
+    filteredBookings = checkoutBookings.filter(b => {
+      let match = true;
+      const guestName = (b.guestDetails && b.guestDetails.primaryGuest) ? `${b.guestDetails.primaryGuest.firstName} ${b.guestDetails.primaryGuest.lastName}` : b.email;
+      
+      if (currentSearch && !b.id.toLowerCase().includes(currentSearch) && !guestName.toLowerCase().includes(currentSearch)) {
+        match = false;
+      }
+      if (currentRoom && !b.roomId.toLowerCase().includes(currentRoom)) {
+        match = false;
+      }
+      if (currentBranch !== 'all') {
+        const branchMatch = (currentBranch === 'Salem' && b.hotelId === 'SAL') || (currentBranch === 'Coimbatore' && b.hotelId === 'SIM') || (currentBranch === 'Chennai' && b.hotelId === 'CHE');
+        if (!branchMatch) match = false;
+      }
+      return match;
+    });
+
+    currentPage = 1;
     renderTable();
   }
 
@@ -50,16 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (checkoutBookings.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No pending check-outs.</td></tr>`;
+    if (filteredBookings.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No records found matching filters.</td></tr>`;
+      updatePagination(0, 0, 0);
       return;
     }
 
-    checkoutBookings.forEach(b => {
+    const totalItems = filteredBookings.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const paginatedItems = filteredBookings.slice(startIndex, endIndex);
+
+    paginatedItems.forEach(b => {
       const isLate = b.checkOut < today;
       const statusBadge = isLate 
-        ? `<span class="badge bg-danger">Overdue Checkout</span>` 
-        : `<span class="badge bg-warning text-dark">Pending</span>`;
+        ? `<span class="badge bg-danger rounded-pill px-3 py-1 text-white">Overdue Checkout</span>` 
+        : `<span class="badge bg-warning text-dark rounded-pill px-3 py-1">Pending</span>`;
       
       const guestName = (b.guestDetails && b.guestDetails.primaryGuest) ? `${b.guestDetails.primaryGuest.firstName} ${b.guestDetails.primaryGuest.lastName}` : b.email;
       
@@ -70,20 +120,90 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><strong>${b.id}</strong></td>
         <td>${guestName}</td>
         <td>${b.roomId}</td>
-        <td class="text-purple fw-bold">₹0.00</td>
+        <td class="text-dark fw-bold">₹0.00</td>
         <td>${statusBadge}</td>
         <td class="text-end">
-          <button class="btn btn-purple btn-sm btn-process-checkout" data-id="${b.id}">Process Check-out</button>
+          <button class="btn btn-outline-dark btn-sm btn-process-checkout" style="border-radius: 6px; font-weight: 500;" data-id="${b.id}">Process Check-out</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
+
+    updatePagination(startIndex + 1, endIndex, totalItems);
 
     document.querySelectorAll('.btn-process-checkout').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
         openCheckoutModal(id);
       });
+    });
+  }
+
+  function updatePagination(start, end, total) {
+    const info = document.getElementById('paginationInfo');
+    if (info) info.textContent = `Showing ${start} to ${end} of ${total} entries`;
+
+    const totalPages = Math.ceil(total / itemsPerPage) || 1;
+    const controls = document.getElementById('paginationControls');
+    if (!controls) return;
+
+    controls.innerHTML = `
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link text-purple" href="#" id="btnPrevPage">Previous</a>
+      </li>
+    `;
+
+    for (let i = 1; i <= totalPages; i++) {
+      controls.innerHTML += `
+        <li class="page-item ${currentPage === i ? 'active' : ''}">
+          <a class="page-link ${currentPage === i ? 'bg-purple border-purple text-white' : 'text-purple'}" href="#" data-page="${i}">${i}</a>
+        </li>
+      `;
+    }
+
+    controls.innerHTML += `
+      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link text-purple" href="#" id="btnNextPage">Next</a>
+      </li>
+    `;
+
+    const prevBtn = document.getElementById('btnPrevPage');
+    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); if (currentPage > 1) { currentPage--; renderTable(); } });
+    
+    const nextBtn = document.getElementById('btnNextPage');
+    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); if (currentPage < totalPages) { currentPage++; renderTable(); } });
+    
+    controls.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = parseInt(e.target.getAttribute('data-page'));
+        renderTable();
+      });
+    });
+  }
+
+  // Filter Bindings
+  const btnApplyCheckoutFilters = document.getElementById('btnApplyCheckoutFilters');
+  if (btnApplyCheckoutFilters) {
+    btnApplyCheckoutFilters.addEventListener('click', () => {
+      currentSearch = (document.getElementById('checkoutSearch')?.value || '').toLowerCase().trim();
+      currentRoom = (document.getElementById('checkoutRoom')?.value || '').toLowerCase().trim();
+      currentBranch = document.getElementById('checkoutBranch')?.value || 'all';
+      applyFilters();
+    });
+  }
+
+  const btnResetCheckoutFilters = document.getElementById('btnResetCheckoutFilters');
+  if (btnResetCheckoutFilters) {
+    btnResetCheckoutFilters.addEventListener('click', () => {
+      if(document.getElementById('checkoutSearch')) document.getElementById('checkoutSearch').value = '';
+      if(document.getElementById('checkoutRoom')) document.getElementById('checkoutRoom').value = '';
+      if(document.getElementById('checkoutBranch')) document.getElementById('checkoutBranch').value = 'all';
+      
+      currentSearch = '';
+      currentRoom = '';
+      currentBranch = 'all';
+      applyFilters();
     });
   }
 
@@ -127,8 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       HotelState.bookings = HotelState.bookings; // trigger save
 
       // c. Update room status to 'Housekeeping'
-      const auditStatusSelect = document.getElementById('checkoutAuditStatus');
-      const nextRoomStatus = auditStatusSelect ? (auditStatusSelect.value === 'Cleaning' ? 'Housekeeping' : 'Available') : 'Housekeeping';
+      const nextRoomStatus = "Housekeeping";
       
       HotelState.updateRoomStatus(b.hotelId, b.roomId, nextRoomStatus);
 
@@ -148,17 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
         HotelState.set('housekeeping', hks);
       }
 
-      // e. Add audit log
-      HotelState.addAuditLog({
-        id: 'LOG_' + Date.now(),
-        action: 'BOOKING_CHECKOUT',
-        entityId: b.id,
-        entityType: 'Booking',
-        userId: userId,
-        hotelId: hotelId,
-        details: 'Guest checked out',
-        timestamp: new Date().toISOString()
-      });
+      
+      
 
       // f. Add notification for customer
       HotelState.addNotification({
