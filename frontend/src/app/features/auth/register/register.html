@@ -1,0 +1,170 @@
+<div class="register-page">
+  <div class="container-fluid p-0 login-container">
+    <div class="row g-0 min-vh-100">
+
+      <!-- Left Panel (Resort exterior image column) -->
+      <div class="col-lg-5 d-none d-lg-block position-relative image-panel-column">
+        <div class="image-panel" style="background-image: url('assets/images/forgot_hero.jpg');">
+          <div class="curved-border-overlay"></div>
+        </div>
+      </div>
+
+      <!-- Right Panel (Registration form column) -->
+      <div class="col-lg-7 col-12 d-flex align-items-center justify-content-center form-panel-column bg-light-ivory">
+        <div class="w-100 py-4 form-inner-wrapper">
+
+          <!-- Hero Heading -->
+          <div class="text-center mb-4 px-3">
+            <h1 class="login-hero-heading text-uppercase">Customer Registration</h1>
+            <p class="login-hero-sub">Create an account to search and book hotels</p>
+          </div>
+
+          <!-- Registration Container Card -->
+          <div class="login-card mx-auto">
+
+            <p class="mandatory-note text-start mb-3"><span class="mandatory-star">*</span> Indicates a mandatory field</p>
+
+            @if (errorMessage()) {
+              <div class="alert alert-danger mb-3 small py-2 px-3 text-start" role="alert">{{ errorMessage() }}</div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+              <!-- First Name & Last Name (Side by Side) -->
+              <div class="row g-3 mb-3">
+                <div class="col-6 text-start">
+                  <label for="firstName" class="form-label">First Name <span class="mandatory-star">*</span></label>
+                  <input type="text" id="firstName" class="form-control" placeholder="First Name" formControlName="firstName"
+                    [class.is-invalid]="form.controls.firstName.invalid && form.controls.firstName.touched">
+                  @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+                    <span class="invalid-feedback-msg">First name must be 2-80 letters.</span>
+                  }
+                </div>
+                <div class="col-6 text-start">
+                  <label for="lastName" class="form-label">Last Name <span class="mandatory-star">*</span></label>
+                  <input type="text" id="lastName" class="form-control" placeholder="Last Name" formControlName="lastName"
+                    [class.is-invalid]="form.controls.lastName.invalid && form.controls.lastName.touched">
+                  @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+                    <span class="invalid-feedback-msg">Last name must be 1-80 letters.</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Date of Birth -->
+              <div class="mb-3 text-start">
+                <label for="registerDob" class="form-label">Date of Birth <span class="mandatory-star">*</span></label>
+                <input type="date" id="registerDob" class="form-control" formControlName="dateOfBirth"
+                  [class.is-invalid]="form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched">
+                @if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.errors?.['required']) {
+                  <span class="invalid-feedback-msg">Date of Birth is required.</span>
+                } @else if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.errors?.['underage']) {
+                  <span class="invalid-feedback-msg">You must be at least 18 years old to register.</span>
+                }
+              </div>
+
+              <!-- Email Address -->
+              <div class="mb-3 text-start">
+                <label for="registerEmail" class="form-label">Email Address <span class="mandatory-star">*</span></label>
+                <input type="email" id="registerEmail" class="form-control" placeholder="example@domain.com" formControlName="email"
+                  [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched">
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="invalid-feedback-msg">Please enter a valid email (e.g. user&#64;gmail.com).</span>
+                }
+              </div>
+
+              <!-- Phone Number -->
+              <div class="mb-3 text-start">
+                <label for="registerPhone" class="form-label">Phone Number <span class="mandatory-star">*</span></label>
+                <input type="tel" id="registerPhone" class="form-control" placeholder="10-digit mobile number" formControlName="phone"
+                  [class.is-invalid]="form.controls.phone.invalid && form.controls.phone.touched">
+                @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                  <span class="invalid-feedback-msg">Phone must be exactly 10 digits and start with 6, 7, 8, or 9.</span>
+                }
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3 text-start">
+                <label for="registerPassword" class="form-label">Password <span class="mandatory-star">*</span></label>
+                <input [type]="showPassword() ? 'text' : 'password'" id="registerPassword" class="form-control" placeholder="Create password" formControlName="password"
+                  [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched">
+                @if (form.controls.password.touched && form.controls.password.invalid) {
+                  <span class="invalid-feedback-msg">Password must be at least 8 characters with one digit and one special character.</span>
+                }
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="mb-3 text-start">
+                <label for="confirmRegisterPassword" class="form-label">Confirm Password <span class="mandatory-star">*</span></label>
+                <input [type]="showPassword() ? 'text' : 'password'" id="confirmRegisterPassword" class="form-control" placeholder="Confirm password" formControlName="confirmPassword"
+                  [class.is-invalid]="form.controls.confirmPassword.touched && (form.controls.confirmPassword.invalid || form.errors?.['passwordMismatch'])">
+                @if (form.controls.confirmPassword.touched && form.errors?.['passwordMismatch']) {
+                  <span class="invalid-feedback-msg">Passwords do not match.</span>
+                }
+              </div>
+
+              <!-- Show Password Checkbox -->
+              <div class="mb-3 form-check text-start d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input" id="showPassword" [checked]="showPassword()" (change)="togglePasswordVisibility()">
+                <label class="form-check-label checkbox-label" for="showPassword">Show Password</label>
+              </div>
+
+              <!-- Policies Agreement Checkbox -->
+              <div class="mb-3 form-check text-start d-flex align-items-start gap-2">
+                <input type="checkbox" class="form-check-input mt-1" id="agreePolicies" formControlName="agreePolicies">
+                <label class="form-check-label checkbox-label" for="agreePolicies">
+                  I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#policiesModal">Registration Policies</a>, privacy guidelines, and terms of service.
+                </label>
+              </div>
+              @if (form.controls.agreePolicies.touched && form.controls.agreePolicies.invalid) {
+                <span class="invalid-feedback-msg d-block mb-3">You must accept the policies to continue.</span>
+              }
+
+              <!-- Registration Policies Modal -->
+              <div class="modal fade" id="policiesModal" tabindex="-1" aria-labelledby="policiesModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content policies-modal-content">
+                    <div class="modal-header border-0 pb-0 text-start">
+                      <h5 class="modal-title font-serif fw-bold text-purple" id="policiesModalLabel">Registration Policies</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start small text-secondary">
+                      <p class="mb-3">Welcome to Elegant Enclave. Before registering, please read and agree to our booking policies:</p>
+                      <ol class="ps-3 mb-0 d-flex flex-column gap-2 text-dark">
+                        <li><strong>Account Security:</strong> Your customer account credentials are personal, confidential, and non-transferable.</li>
+                        <li><strong>Data Capture Accuracy:</strong> All personal registration details, email coordinates, and contact numbers must be valid and kept up to date.</li>
+                        <li><strong>Booking Timelines:</strong> Reservation modifications or cancellations must comply with hotel-specific cancellation time window limits.</li>
+                        <li><strong>Privacy Guidelines:</strong> Guest check-in records, personal identifiers, and transaction history are stored securely and encrypted.</li>
+                      </ol>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                      <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal">I Understand</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Register button -->
+              <div class="mb-3">
+                <button type="submit" class="btn btn-login-submit w-100" [disabled]="submitting()">
+                  @if (submitting()) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registering...
+                  } @else {
+                    Register
+                  }
+                </button>
+              </div>
+
+              <!-- Back to Login button -->
+              <div>
+                <a routerLink="/login" class="btn btn-login-register w-100 d-flex align-items-center justify-content-center">Back to Login</a>
+              </div>
+
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

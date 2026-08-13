@@ -1,0 +1,86 @@
+<footer class="custom-footer">
+  <div class="row g-4 text-start align-items-start">
+    <!-- Brand column -->
+    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
+      <h2 class="footer-brand-title">
+        <img src="assets/images/logo.png" alt="Elegant Enclave logo" class="brand-logo-img me-2">
+        Elegant<span>Enclave</span>
+      </h2>
+      <p class="text-white fw-bold mb-2 small text-uppercase footer-about-label">About Us</p>
+      <p class="footer-desc">{{ about()?.history ?? 'At ElegantEnclave, we believe every guest deserves comfort without compromise.' }}</p>
+      <div class="mt-4">
+        <p class="text-white fw-bold mb-2 small text-uppercase">Social Links</p>
+        <div class="social-links d-flex align-items-center">
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="YouTube profile link"><i class="bi bi-youtube"></i></a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram profile link"><i class="bi bi-instagram"></i></a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook profile link"><i class="bi bi-facebook"></i></a>
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="X twitter profile link"><i class="bi bi-twitter-x"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information links -->
+    <div class="col-xl-2 col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
+      <h3 class="footer-heading">Information</h3>
+      <ul class="footer-links">
+        <li><a routerLink="/">Home</a></li>
+        <li><a routerLink="/hotels">Hotels</a></li>
+        <li><a routerLink="/hotels">Rooms &amp; Suites</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div class="col-xl-2 col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
+      <h3 class="footer-heading">Services</h3>
+      <ul class="contact-info-list d-flex flex-column gap-3">
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-envelope text-warning"></i> {{ contact()?.email ?? 'support@elegantenclave.com' }}</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-telephone text-warning"></i> {{ contact()?.phone ?? '+91 98765 43210' }}</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-geo-alt text-warning"></i> {{ contact()?.address ?? 'Chennai - Coimbatore - Salem' }}</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-clock text-warning"></i> Available 24/7</li>
+      </ul>
+    </div>
+
+    <!-- Our Locations -->
+    <div class="col-xl-2 col-lg-3 col-md-6 col-12 mb-4 mb-lg-0 text-start">
+      <h3 class="footer-heading">Our Locations</h3>
+      <div class="d-flex flex-column gap-2 text-start">
+        <span class="map-branch-link"><i class="bi bi-geo-alt-fill"></i> Salem</span>
+        <span class="map-branch-link"><i class="bi bi-geo-alt-fill"></i> Coimbatore</span>
+        <span class="map-branch-link"><i class="bi bi-geo-alt-fill"></i> Chennai</span>
+      </div>
+    </div>
+
+    <!-- Quick Help -->
+    <div class="col-xl-3 col-lg-2 col-md-6 col-12">
+      <h3 class="footer-heading">Quick Help</h3>
+      <div class="help-widget-card">
+        <div class="help-img-wrapper">
+          <img src="assets/images/footer_help.png" alt="Luxury Hotel lobby seating">
+        </div>
+        <div class="help-content">
+          <h4 class="help-title">Need Assistance?</h4>
+          <p class="help-text">Our Guest Relations team is ready to help make your stay exceptional.</p>
+          <a class="btn-contact-reception" [href]="'tel:' + (contact()?.phone ?? '+919876543210')">
+            <i class="bi bi-telephone-outbound"></i> Contact Reception
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom-bar">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+        <p class="mb-0">&copy; 2026 The Elegant Enclave. All Rights Reserved.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <div class="bottom-links">
+          <a routerLink="/">Privacy Policy</a>
+          <a routerLink="/">Terms &amp; Conditions</a>
+          <a routerLink="/">Modification Policy</a>
+          <a routerLink="/">Cancellation &amp; Refund Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,64 @@
+<section class="reviews-section">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="reviews-heading">Guest Reviews</h3>
+    @if (reviews().length > 0) {
+      <span class="avg-rating"><i class="bi bi-star-fill text-warning"></i> {{ averageRating().toFixed(1) }} ({{ reviews().length }})</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="text-muted">Loading reviews...</p>
+  } @else if (reviews().length === 0) {
+    <p class="text-muted">No reviews yet for this hotel.</p>
+  }
+
+  <div class="d-flex flex-column gap-3 mb-4">
+    @for (review of reviews(); track review.id) {
+      <div class="review-card">
+        <div class="d-flex justify-content-between">
+          <span class="review-rating"><i class="bi bi-star-fill text-warning"></i> {{ review.rating }}/5</span>
+          <span class="review-date">{{ review.createdAt | date: 'mediumDate' }}</span>
+        </div>
+        @if (review.comment) {
+          <p class="review-comment">{{ review.comment }}</p>
+        }
+        @if (review.managerResponse) {
+          <div class="manager-response">
+            <strong>Response from management:</strong>
+            <p class="mb-0">{{ review.managerResponse }}</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (auth.role() === 'Customer') {
+    <form [formGroup]="form" (ngSubmit)="submitReview()" class="review-form">
+      <h4 class="review-form-title">Write a Review</h4>
+      @if (errorMessage()) {
+        <div class="alert alert-danger small py-2 px-3" role="alert">{{ errorMessage() }}</div>
+      }
+      <div class="mb-3">
+        <label class="filter-label">Rating</label>
+        <select class="form-select" formControlName="rating">
+          <option [value]="5">5 - Excellent</option>
+          <option [value]="4">4 - Very Good</option>
+          <option [value]="3">3 - Good</option>
+          <option [value]="2">2 - Fair</option>
+          <option [value]="1">1 - Poor</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="filter-label">Comment (optional)</label>
+        <textarea class="form-control" rows="3" formControlName="comment" maxlength="1000"></textarea>
+      </div>
+      <button type="submit" class="btn btn-submit-review" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...
+        } @else {
+          Submit Review
+        }
+      </button>
+    </form>
+  }
+</section>

@@ -1,0 +1,14 @@
+// Global styles entry point
+
+// Theme tokens ported from the original project (scss/abstracts/_variables.scss)
+@use 'styles/abstracts/variables' as *;
+
+// Bootstrap (matches original project's bootstrap ^5.3.8 dependency)
+@use 'bootstrap/scss/bootstrap' as *;
+
+// Base / component styles ported from Shared/Abstracts/global.css
+// (to be filled in during page-by-page migration — see src/styles/base and src/styles/components)
+@use 'styles/base/index' as base;
+@use 'styles/components/index' as components;
+
+@import 'bootstrap-icons/font/bootstrap-icons.css';

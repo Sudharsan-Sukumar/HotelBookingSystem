@@ -1,0 +1,76 @@
+<div class="verify-email-page">
+  <div class="container-fluid p-0 login-container">
+    <div class="row g-0 min-vh-100">
+
+      <div class="col-lg-5 d-none d-lg-block position-relative image-panel-column">
+        <div class="image-panel" style="background-image: url('assets/images/login_hero.png');">
+          <div class="curved-border-overlay"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-7 col-12 d-flex align-items-center justify-content-center form-panel-column bg-light-ivory">
+        <div class="w-100 py-5 form-inner-wrapper">
+
+          <div class="text-center mb-4">
+            <a routerLink="/login" class="back-home-link">
+              <i class="bi bi-arrow-left"></i> Back to Login
+            </a>
+          </div>
+
+          <div class="text-center mb-5 px-3">
+            <h1 class="login-hero-heading text-uppercase">Verify Your Email</h1>
+            <p class="login-hero-sub">Enter the 6-digit code we emailed you to activate your account.</p>
+          </div>
+
+          <div class="login-card mx-auto">
+
+            @if (statusMessage(); as status) {
+              <div class="alert mb-3 small py-2 px-3 text-start" [class.alert-success]="status.type === 'success'" [class.alert-danger]="status.type === 'danger'" role="alert">
+                {{ status.text }}
+              </div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+              <div class="mb-4 text-start form-group">
+                <label for="verifyEmail" class="form-label text-dark">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="verifyEmail" formControlName="email"
+                  [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched">
+              </div>
+
+              <div class="mb-4 text-start form-group">
+                <label for="verifyToken" class="form-label text-dark">Verification Code <span class="text-danger">*</span></label>
+                <input type="text" class="form-control text-center fw-bold" id="verifyToken" maxlength="6" placeholder="6-digit code" formControlName="token"
+                  [class.is-invalid]="form.controls.token.invalid && form.controls.token.touched">
+                @if (form.controls.token.touched && form.controls.token.invalid) {
+                  <div class="invalid-feedback-msg">Enter the 6-digit code sent to your email.</div>
+                }
+              </div>
+
+              <div class="mb-3 mt-5">
+                <button type="submit" class="btn btn-login-submit w-100" [disabled]="verifying()">
+                  @if (verifying()) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...
+                  } @else {
+                    Verify Email
+                  }
+                </button>
+              </div>
+
+              <div>
+                <button type="button" class="btn btn-login-register w-100" [disabled]="resending()" (click)="resend()">
+                  @if (resending()) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resending...
+                  } @else {
+                    Resend Code
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

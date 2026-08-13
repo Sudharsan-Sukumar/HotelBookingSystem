@@ -1,0 +1,20 @@
+<div class="sessions-page py-5">
+  <div class="container">
+    <div class="login-card mx-auto">
+      <h1 class="login-hero-heading text-uppercase mb-3">Active Sessions</h1>
+      <p class="login-hero-sub mb-4">Sign out everywhere if you suspect your account was accessed from a device you don't recognize.</p>
+
+      @if (errorMessage()) {
+        <div class="alert alert-danger small py-2 px-3 text-start mb-3" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <button type="button" class="btn btn-login-submit w-100" [disabled]="loggingOutAll()" (click)="logoutAllDevices()">
+        @if (loggingOutAll()) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing out everywhere...
+        } @else {
+          Log Out of All Devices
+        }
+      </button>
+    </div>
+  </div>
+</div>

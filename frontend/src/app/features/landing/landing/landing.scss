@@ -1,0 +1,222 @@
+.hero-section {
+  position: relative;
+  border-radius: 16px;
+  margin: 1.5rem;
+  height: 520px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(26, 10, 46, 0.35);
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding-left: 5%;
+  max-width: 600px;
+  color: #FFFFFF;
+}
+.hero-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 4rem;
+  line-height: 1.1;
+  color: #FFFFFF;
+  margin-bottom: 1.5rem;
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.search-widget-container {
+  position: relative;
+  z-index: 10;
+  margin-top: -50px;
+  padding: 0 4rem;
+}
+.search-widget {
+  background-color: #FFFFFF;
+  border-radius: 24px;
+  padding: 1.5rem 2.5rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+.search-field { width: 100%; position: relative; }
+.search-field label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6B6476;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.45rem;
+  display: block;
+}
+.search-spacer-label { visibility: hidden; margin-bottom: 0.35rem; }
+.input-wrapper { position: relative; display: flex; align-items: center; cursor: pointer; }
+.input-wrapper input {
+  width: 100%;
+  height: 56px;
+  border: 1px solid #E2E4E8;
+  border-radius: 12px;
+  padding: 0.5rem 1rem 0.5rem 3rem;
+  font-size: 16px;
+  color: #1A0A2E;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  outline: none;
+}
+.input-wrapper input:focus {
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+.input-wrapper .left-icon {
+  position: absolute; left: 1.25rem; color: #D4AF37; font-size: 1.15rem; pointer-events: none;
+}
+.input-wrapper .right-icon {
+  position: absolute; right: 1.25rem; color: #6B6476; font-size: 0.95rem; pointer-events: none;
+}
+.btn-search {
+  background-color: #1A0A2E;
+  color: #FFFFFF;
+  border: none;
+  height: 56px;
+  font-weight: 600;
+  font-size: 18px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+.btn-search:hover { background-color: #2E1560; color: #FFFFFF; }
+
+.guests-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  width: 280px;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(26, 10, 46, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background-color: #FFFFFF;
+  z-index: 20;
+}
+.guests-dropdown-menu .counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.guests-dropdown-menu .counter-row:last-child { margin-bottom: 0; }
+.counter-label { font-weight: 600; color: #1A0A2E; font-size: 0.85rem; }
+.counter-label span { display: block; font-size: 0.75rem; font-weight: 400; color: #6B6476; }
+.counter-controls { display: flex; align-items: center; gap: 0.75rem; }
+.btn-counter {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid #E2E4E8;
+  background: #FFFFFF; display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: #1A0A2E;
+}
+.btn-counter:hover:not(:disabled) { border-color: #D4AF37; color: #D4AF37; }
+.btn-counter:disabled { opacity: 0.3; cursor: not-allowed; }
+.counter-value { font-weight: 700; font-size: 0.9rem; width: 15px; text-align: center; }
+
+.section-tag {
+  color: #D4AF37;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.why-choose-us-section { padding: 5rem 3rem 4rem; }
+.feature-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border: none;
+  box-shadow: 0 10px 30px rgba(26, 10, 46, 0.05);
+  transition: all 0.4s ease;
+}
+.feature-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(26, 10, 46, 0.08); }
+.feature-icon-wrapper {
+  width: 70px; height: 70px; margin: 0 auto 1.5rem;
+  background-color: rgba(212, 175, 55, 0.1); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
+}
+.feature-icon-wrapper i { font-size: 2rem; color: #D4AF37; }
+.feature-card:hover .feature-icon-wrapper { background-color: #D4AF37; }
+.feature-card:hover .feature-icon-wrapper i { color: #1A0A2E; }
+.feature-title { font-family: "Playfair Display", Georgia, serif; font-size: 1.25rem; margin-bottom: 0.75rem; color: #1A0A2E; }
+.feature-desc { font-size: 0.85rem; color: #6B6476; line-height: 1.6; }
+
+.featured-rooms-section { padding: 1rem 3rem 5rem; }
+.room-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(26, 10, 46, 0.05);
+  border: 1px solid rgba(226, 228, 232, 0.6);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.room-image-wrapper { position: relative; height: 240px; overflow: hidden; }
+.room-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+.room-type-badge {
+  position: absolute; top: 1rem; left: 1rem;
+  background-color: #1A0A2E; color: #EFD98C;
+  padding: 0.35rem 1rem; font-size: 0.75rem; font-weight: 600; border-radius: 50px;
+}
+.room-rating {
+  position: absolute; top: 1rem; right: 1rem;
+  background-color: rgba(255, 255, 255, 0.95); color: #1A0A2E;
+  padding: 0.35rem 0.8rem; font-size: 0.8rem; font-weight: 600; border-radius: 50px;
+}
+.room-details { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+.room-title { font-family: "Playfair Display", Georgia, serif; font-size: 1.15rem; color: #1A0A2E; margin-bottom: 0.5rem; }
+.room-desc { font-size: 0.85rem; color: #6B6476; margin-bottom: 1rem; }
+.room-specs { display: flex; gap: 0.75rem; font-size: 0.8rem; color: #6B6476; margin-bottom: 1rem; }
+.room-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.room-price { font-size: 1.1rem; font-weight: 700; color: #1A0A2E; }
+.room-price span { font-size: 1.25rem; }
+.btn-book {
+  background-color: #D4AF37; color: #1A0A2E; border: none;
+  padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+  text-decoration: none;
+}
+.btn-book:hover { background-color: #EFD98C; color: #1A0A2E; }
+
+.view-all-rooms-card {
+  background-color: #1A0A2E;
+  border-radius: 16px;
+  height: 100%;
+  min-height: 340px;
+}
+.luxury-icon-wrapper-gold {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 1px solid #D4AF37; color: #D4AF37; font-size: 1.5rem;
+}
+.promo-heading { font-family: "Playfair Display", Georgia, serif; font-size: 1.5rem; }
+.gold-divider-short { width: 40px; height: 2px; background-color: #D4AF37; }
+.promo-desc { font-size: 0.9rem; opacity: 0.85; }
+.brushed-gold-circle-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background-color: #D4AF37; color: #1A0A2E; text-decoration: none;
+}
+.brushed-gold-circle-btn:hover { background-color: #EFD98C; }
+
+@media (max-width: 991.98px) {
+  .search-widget-container { padding: 0 1.5rem; }
+  .hero-title { font-size: 2.5rem; }
+}

@@ -1,0 +1,38 @@
+<app-header />
+
+<main class="container-fluid px-xl-5 py-4">
+  @if (loading()) {
+    <p class="text-muted">Loading hotel details...</p>
+  } @else if (notFound()) {
+    <p class="text-danger">Hotel not found.</p>
+  } @else if (hotel(); as h) {
+    <div class="mb-3">
+      <a routerLink="/hotels" class="btn-back-to-home d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i> Back to Results
+      </a>
+    </div>
+
+    <div class="hotel-hero-image mb-4" [style.background-image]="'url(' + (h.thumbnailUrl || 'assets/images/hotel_chennai.png') + ')'"></div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <h1 class="hotel-title">{{ h.name }}</h1>
+        <p class="hotel-location"><i class="bi bi-geo-alt-fill text-warning"></i> {{ h.location }}, {{ h.city }}, {{ h.state }}</p>
+        <p class="hotel-rating"><i class="bi bi-star-fill text-warning"></i> {{ h.starRating }} Star Property</p>
+        <p class="hotel-description">{{ h.description }}</p>
+
+        <app-reviews [hotelId]="h.id" />
+      </div>
+
+      <div class="col-lg-4">
+        <div class="booking-cta-card">
+          <h3 class="cta-title">Ready to book?</h3>
+          <p class="cta-desc">Select your dates and rooms to see availability and pricing.</p>
+          <a routerLink="/hotels" class="btn btn-book-now w-100">Check Availability</a>
+        </div>
+      </div>
+    </div>
+  }
+</main>
+
+<app-footer />

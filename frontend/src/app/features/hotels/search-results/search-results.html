@@ -1,0 +1,87 @@
+<app-header />
+
+<header class="results-header-section container-fluid px-xl-5 pt-3 pb-0 mt-0">
+  <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div class="text-start">
+      <div class="mb-2">
+        <a routerLink="/" class="btn-back-to-home d-inline-flex align-items-center gap-2">
+          <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+      </div>
+      <h1 class="results-title m-0">Search Results</h1>
+      <p class="results-subtitle text-muted m-0">Filter and select properties in Salem, Coimbatore, Chennai</p>
+    </div>
+  </div>
+</header>
+
+<main class="container-fluid px-xl-5 pt-3 pb-5">
+  <div class="row g-4">
+
+    <aside class="col-lg-4 col-xl-3">
+      <div class="filter-panel-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="filter-panel-title">Search Filters</h2>
+          <i class="bi bi-funnel text-warning fs-5"></i>
+        </div>
+
+        <div class="mb-4 text-start">
+          <label for="filterLocation" class="filter-label"><i class="bi bi-geo-alt-fill text-warning me-2"></i>Location Branch</label>
+          <select id="filterLocation" class="form-select filter-select" [ngModel]="city()" (ngModelChange)="city.set($event)">
+            <option value="Chennai">Chennai</option>
+            <option value="Coimbatore">Coimbatore</option>
+            <option value="Salem">Salem</option>
+          </select>
+        </div>
+
+        <div class="mb-4 text-start">
+          <label class="filter-label"><i class="bi bi-calendar3 text-warning me-2"></i>Check-In</label>
+          <input type="date" class="form-control filter-input" [ngModel]="checkin()" (ngModelChange)="checkin.set($event)">
+        </div>
+
+        <div class="mb-4 text-start">
+          <label class="filter-label"><i class="bi bi-calendar3 text-warning me-2"></i>Check-Out</label>
+          <input type="date" class="form-control filter-input" [ngModel]="checkout()" (ngModelChange)="checkout.set($event)">
+        </div>
+
+        <div class="mb-4 text-start">
+          <label class="filter-label"><i class="bi bi-people text-warning me-2"></i>Guests</label>
+          <input type="number" min="1" max="10" class="form-control filter-input" [ngModel]="guests()" (ngModelChange)="guests.set($event)">
+        </div>
+
+        <button type="button" class="btn btn-search w-100" (click)="search()">Search</button>
+        @if (errorMessage()) {
+          <p class="text-danger small mt-3 mb-0">{{ errorMessage() }}</p>
+        }
+      </div>
+    </aside>
+
+    <section class="col-lg-8 col-xl-9">
+      @if (loading()) {
+        <p class="text-muted">Searching...</p>
+      } @else if (searched() && results().length === 0 && !errorMessage()) {
+        <p class="text-muted">No hotels found for the selected destination and dates.</p>
+      }
+
+      <div class="row g-4">
+        @for (hotel of results(); track hotel.hotelId) {
+          <div class="col-md-6 col-xl-4">
+            <a [routerLink]="['/hotels', hotel.hotelId]" class="hotel-result-card d-block text-decoration-none">
+              <div class="hotel-image-wrapper">
+                <img [src]="hotel.thumbnailUrl || 'assets/images/hotel_chennai.png'" [alt]="hotel.name">
+              </div>
+              <div class="hotel-result-details">
+                <h3 class="hotel-result-title">{{ hotel.name }}</h3>
+                <p class="hotel-result-city"><i class="bi bi-geo-alt"></i> {{ hotel.city }}</p>
+                <p class="hotel-result-rating"><i class="bi bi-star-fill text-warning"></i> {{ hotel.starRating }}</p>
+                <p class="hotel-result-price">From <span>&#8377;{{ hotel.startingPrice }}</span> / night</p>
+              </div>
+            </a>
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<app-footer />

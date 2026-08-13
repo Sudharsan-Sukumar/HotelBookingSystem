@@ -1,0 +1,57 @@
+<nav class="navbar navbar-expand-xl custom-navbar sticky-top">
+  <div class="container-fluid px-xl-5">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/" aria-label="Elegant Enclave Home">
+      <img src="assets/images/logo.png" alt="Elegant Enclave logo" class="brand-logo-img me-2">
+      Elegant<span>Enclave</span>
+    </a>
+
+    <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mx-auto mb-2 mb-xl-0 align-items-center gap-1 gap-xxl-3">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/hotels" routerLinkActive="active">Hotels</a>
+        </li>
+        @if (isLoggedIn()) {
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" routerLink="/my-bookings" routerLinkActive="active">My Bookings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" routerLink="/notifications" routerLinkActive="active">Notifications</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/profile" routerLinkActive="active">Profile</a>
+          </li>
+        }
+      </ul>
+
+      <div class="d-flex align-items-center gap-3 align-middle flex-wrap justify-content-center justify-content-xl-end">
+        <div class="d-flex align-items-center gap-2">
+          @if (!isLoggedIn()) {
+            <a routerLink="/login" class="btn btn-auth-outline btn-sm text-nowrap d-flex align-items-center justify-content-center">Login</a>
+            <a routerLink="/register" class="btn btn-auth-gold btn-sm text-nowrap d-flex align-items-center justify-content-center">Register</a>
+          } @else {
+            <div class="auth-logged-in d-flex align-items-center gap-3 cursor-pointer" (click)="toggleProfileMenu()">
+              <div class="user-info d-none d-md-block text-end">
+                <p class="user-name text-white mb-0">{{ currentUser()?.name }}</p>
+                <p class="user-role mb-0">{{ currentUser()?.role }}</p>
+              </div>
+              <div class="profile-avatar"></div>
+            </div>
+            @if (showProfileMenu()) {
+              <div class="profile-dropdown">
+                <a routerLink="/profile" class="dropdown-item-link">View Profile</a>
+                <button type="button" class="dropdown-item-link" (click)="logout()">Logout</button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
