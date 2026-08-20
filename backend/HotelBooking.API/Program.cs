@@ -74,11 +74,18 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
 });
 
 
+var allowedOrigins = new List<string> { "http://localhost:4200", "https://localhost:4200" };
+var configuredOrigin = builder.Configuration["Cors:AllowedOrigin"];
+if (!string.IsNullOrWhiteSpace(configuredOrigin))
+{
+    allowedOrigins.Add(configuredOrigin);
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendDev", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
