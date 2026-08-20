@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5031/api',
+  apiUrl: 'https://hotelbooking-capstone-api-d9beh4f7c0fuetf8.centralindia-01.azurewebsites.net/api',
   // Google OAuth Client ID — a public identifier (Google's flow relies on this being visible in the
   // frontend), not a secret. No client secret is ever used here: Google Identity Services hands this
   // app a signed ID token directly, which the backend verifies against Google's own public keys.
