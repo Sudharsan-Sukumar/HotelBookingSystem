@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HotelBooking.API.Features.CMS.Services;
 using HotelBooking.API.Features.CMS.Models;
+using HotelBooking.API.Features.CMS.DTOs;
 using HotelBooking.API.Common.Models;
 
 namespace HotelBooking.API.Features.CMS.Controllers;
@@ -37,12 +38,16 @@ public class DatabaseBackupsController : ControllerBase
     }
 
     [HttpPost("{id}/restore")]
-    public async Task<IActionResult> RestoreBackup(int id)
+    public async Task<IActionResult> RestoreBackup(int id, [FromBody] RestoreBackupRequestDto? request)
     {
         try
         {
-            var result = await _backupService.RestoreBackupAsync(id);
-            return Ok(ApiResponse.SuccessResponse("Backup restored successfully."));
+            var result = await _backupService.RestoreBackupAsync(id, request?.Confirm ?? false);
+            if (result.RequiresConfirmation)
+            {
+                return Ok(ApiResponse<RestoreBackupResultDto>.SuccessResponse(result, result.Message));
+            }
+            return Ok(ApiResponse.SuccessResponse(result.Message));
         }
         catch (ArgumentException ex)
         {

@@ -1,0 +1,174 @@
+<app-navbar></app-navbar>
+
+<div class="search-results-page">
+
+  <!-- SEARCH RESULTS HEADER -->
+  <header class="results-header-section container-fluid px-xl-5 pt-3 pb-0 mt-0">
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+      <div class="text-start">
+        <div class="mb-2">
+          <a routerLink="/" class="btn btn-back-to-home d-inline-flex align-items-center gap-2"
+             style="color: #1A0A2E; border: 1px solid #1A0A2E; border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 0.85rem; text-decoration: none;">
+            <i class="bi bi-arrow-left"></i> Back to Home
+          </a>
+        </div>
+        <h1 class="results-title m-0">Search Results</h1>
+        <p class="results-subtitle text-muted m-0">Filter and select properties in Salem, Coimbatore, Chennai</p>
+      </div>
+      <div class="d-flex align-items-center">
+        <select class="form-select w-auto" [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" name="sortHotels">
+          <option value="none">Sort By...</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+          <option value="rating_high">Rating: High to Low</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN RESULTS VIEW CONTAINER -->
+  <main class="container-fluid px-xl-5 pt-3 pb-5">
+    <div class="row g-4">
+
+      <!-- Left Panel (Search Filters Column) -->
+      <aside class="col-lg-4 col-xl-3">
+        <div class="filter-panel-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="filter-panel-title">Search Filters</h2>
+            <i class="bi bi-funnel text-warning fs-5"></i>
+          </div>
+
+          <form (ngSubmit)="applyFilters()">
+            <!-- Location Branch Dropdown -->
+            <div class="mb-4 text-start">
+              <label for="filterLocation" class="filter-label"><i class="bi bi-geo-alt-fill text-warning me-2"></i>Location Branch</label>
+              <select id="filterLocation" class="form-select filter-select" [(ngModel)]="filterLocation" name="filterLocation">
+                <option value="All">All Locations</option>
+                <option value="Salem">Salem</option>
+                <option value="Coimbatore">Coimbatore</option>
+                <option value="Chennai">Chennai</option>
+              </select>
+            </div>
+
+            <!-- Check-In / Check-Out Date picker -->
+            <div class="mb-4 text-start">
+              <label class="filter-label"><i class="bi bi-calendar3 text-warning me-2"></i>Check-In / Out</label>
+              <div class="input-group d-flex flex-nowrap align-items-center date-input-group">
+                <input type="date" id="filterCheckIn" class="form-control filter-input text-center"
+                       [(ngModel)]="filterCheckIn" name="filterCheckIn" [min]="checkinMin" (ngModelChange)="onCheckinChange()">
+                <span class="px-2 text-muted fw-bold">to</span>
+                <input type="date" id="filterCheckOut" class="form-control filter-input text-center"
+                       [(ngModel)]="filterCheckOut" name="filterCheckOut" [min]="checkoutMin">
+              </div>
+              <div class="text-danger small mt-1" *ngIf="dateError">{{ dateError }}</div>
+            </div>
+
+            <!-- Price Limit Max field -->
+            <div class="mb-4 text-start">
+              <label for="filterMaxPrice" class="filter-label"><i class="bi bi-tag-fill text-warning me-2"></i>Price Limit Max</label>
+              <div class="input-container">
+                <input type="text" id="filterMaxPrice" class="form-control filter-input" placeholder="Rs. 15,000"
+                       [(ngModel)]="filterMaxPrice" name="filterMaxPrice">
+              </div>
+            </div>
+
+            <!-- Room Types Checklist Select -->
+            <div class="mb-4 text-start">
+              <label class="filter-label"><i class="bi bi-building text-warning me-2"></i>Room Types Select</label>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox" id="roomTypeStandard"
+                       [(ngModel)]="checkedTypes['Standard']" name="roomTypeStandard">
+                <label class="form-check-label check-label" for="roomTypeStandard">Classic Queen Bed</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox" id="roomTypeDeluxe"
+                       [(ngModel)]="checkedTypes['Deluxe']" name="roomTypeDeluxe">
+                <label class="form-check-label check-label" for="roomTypeDeluxe">Executive Twin Suite</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox" id="roomTypeSuite"
+                       [(ngModel)]="checkedTypes['Suite']" name="roomTypeSuite">
+                <label class="form-check-label check-label" for="roomTypeSuite">Penthouse Deluxe</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-checkbox" type="checkbox" id="roomTypePresidential"
+                       [(ngModel)]="checkedTypes['Presidential Suite']" name="roomTypePresidential">
+                <label class="form-check-label check-label" for="roomTypePresidential">Presidential Suite</label>
+              </div>
+            </div>
+
+            <!-- Apply Filters CTA button -->
+            <div class="pt-2 d-flex flex-column gap-2">
+              <button type="submit" class="btn btn-apply-filters w-100 py-3" [disabled]="isFetching">
+                <span *ngIf="isFetching" class="spinner-border spinner-border-sm"></span>
+                <span *ngIf="!isFetching">Apply Filters <i class="bi bi-arrow-right ms-1"></i></span>
+                <span *ngIf="isFetching"> Fetching...</span>
+              </button>
+              <button type="button" (click)="resetFilters()" class="btn w-100 py-2 text-warning font-sans"
+                      style="border: 1px dashed rgba(212, 175, 55, 0.4); background: transparent; border-radius: 8px; font-weight: 500; font-size: 0.85rem;">Clear Filters</button>
+            </div>
+
+            <div class="text-center mt-4 pt-1">
+              <span class="decor-diamond"></span>
+            </div>
+
+          </form>
+        </div>
+      </aside>
+
+      <!-- Right Panel (Hotel Results List Column) -->
+      <section class="col-lg-8 col-xl-9">
+        <div id="hotelListingsContainer" class="d-flex flex-column gap-4" *ngIf="!noResults">
+          <article class="hotel-card bg-white border rounded overflow-hidden" *ngFor="let item of results" [attr.data-id]="item.hotelId">
+            <div class="row g-0 h-100">
+              <div class="col-md-5 h-100">
+                <div class="hotel-img-wrapper" style="min-height:220px; overflow:hidden;">
+                  <img [src]="item.thumbnailUrl || '/assets/images/hotel_cbe.png'" [alt]="item.name" style="width:100%;height:100%;min-height:220px;object-fit:cover;">
+                </div>
+              </div>
+              <div class="col-md-7 d-flex flex-column justify-content-between p-4">
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="hotel-icon-badge text-warning fs-5"><i class="bi bi-building"></i></span>
+                    <h3 class="hotel-title m-0">{{ item.name }}</h3>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mb-2 small text-muted">
+                    <ng-container *ngIf="item.starRating">
+                      <span class="text-warning"><i class="bi bi-star-fill"></i> {{ item.starRating }}/5</span><span>|</span>
+                    </ng-container>
+                    <span>{{ item.city }}</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end mt-2">
+                  <div class="price-container">
+                    <span class="price-label small text-muted d-block">Starts from:</span>
+                    <p class="price-value m-0 fs-4 fw-bold text-dark">{{ formatPrice(item.startingPrice) }}
+                      <span class="fs-6 text-muted fw-normal">/night</span>
+                    </p>
+                  </div>
+                  <button class="btn btn-view-details px-4 py-2" type="button" (click)="viewDetails(item.hotelId)"
+                          style="background-color:#1A0A2E;color:#D4AF37;border:none;border-radius:6px;font-weight:600;">
+                    View Details <i class="bi bi-arrow-right ms-1"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Empty State Container Block -->
+        <div id="noResultsState" class="text-center py-5" *ngIf="noResults">
+          <div class="mb-3 fs-1 text-muted"><i class="bi bi-building-exclamation"></i></div>
+          <h3 class="font-serif">No hotels match your search criteria.</h3>
+          <p class="text-muted">Try adjusting your filters or resetting the inputs.</p>
+          <button class="btn btn-outline-warning mt-2" type="button" (click)="resetFilters()">Reset Filters</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<app-footer></app-footer>

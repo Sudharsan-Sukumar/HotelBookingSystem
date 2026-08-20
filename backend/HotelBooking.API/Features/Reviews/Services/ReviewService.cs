@@ -21,6 +21,7 @@ public class ReviewService : IReviewService
         _auditLogService = auditLogService;
     }
 
+    // Observer-Style Derived Recalculation — recomputes hotel AverageRating/ReviewCount as a side effect whenever a review is created, edited, or deleted.
     private async Task UpdateHotelStarRatingAsync(int hotelId)
     {
         var hotel = await _context.Hotels.FindAsync(hotelId);
@@ -59,7 +60,8 @@ public class ReviewService : IReviewService
             HotelId = booking.HotelId,
             Rating = request.Rating,
             Comment = request.Comment,
-            IsDeleted = false
+            IsDeleted = false,
+            RowVersion = new byte[8]
         };
 
         _context.Reviews.Add(review);
@@ -68,6 +70,7 @@ public class ReviewService : IReviewService
         {
             await _context.SaveChangesAsync();
         }
+        // Idempotency/Race Handling via DB Constraint — falls back to translating a unique-index violation into a clean error after a racy check-then-insert.
         catch (DbUpdateException)
         {
             // Customer Edge Case #18: the check above is a plain check-then-insert with a race
@@ -102,17 +105,25 @@ public class ReviewService : IReviewService
         if (review == null || review.IsDeleted)
             throw new ArgumentException("Review not found.");
 
-        if (!string.IsNullOrEmpty(review.ManagerResponse))
-            throw new InvalidOperationException("You have already responded to this review. You may edit your existing response.");
+        bool isEdit = !string.IsNullOrEmpty(review.ManagerResponse);
 
+        // Upsert Pattern - editing an existing manager response overwrites it instead of rejecting the request, matching the documented "existing response is edited instead of creating another" rule; UpdatedAt (already on Review) records when the edit happened.
         review.ManagerResponse = request.Response;
         review.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        // Optimistic Concurrency Guard - two managers responding to the same review at once must not silently clobber each other; the loser is told to refresh instead.
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new InvalidOperationException("This review was updated by another action. Please refresh and try again.");
+        }
 
         await _auditLogService.LogActionAsync(
-            "Review", review.Id, "ManagerResponse",
-            $"Manager responded to review {review.Id}.",
+            "Review", review.Id, isEdit ? "ManagerResponseEdited" : "ManagerResponse",
+            isEdit ? $"Manager edited their response to review {review.Id}." : $"Manager responded to review {review.Id}.",
             null);
 
         return review;
@@ -142,6 +153,7 @@ public class ReviewService : IReviewService
         return review;
     }
 
+    // Soft Delete Pattern — sets IsDeleted rather than removing the Review row, preserving history while hiding it from queries.
     public async Task DeleteOwnReviewAsync(int reviewId, int customerId)
     {
         var review = await _context.Reviews.FindAsync(reviewId);

@@ -1,0 +1,122 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/users" class="text-decoration-none">Users</a></li>
+        <li class="breadcrumb-item active">Add User</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Add New User</h1>
+    <p class="text-secondary small mb-1">Create a new user account and assign appropriate role credentials.</p>
+    <small class="text-danger fw-semibold"><span class="fs-6">*</span> denotes that the field is mandatory.</small>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto" style="border-radius: 16px; max-width: 900px;">
+    <form #addUserForm="ngForm" novalidate (ngSubmit)="onSubmit()">
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-person-fill me-2"></i>Personal Information</h5>
+        <hr class="my-2 opacity-10">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">First Name<span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('firstName')" [(ngModel)]="firstName" name="firstName" (blur)="validateFirstName()" required>
+            <div class="invalid-feedback small" *ngIf="hasError('firstName')">{{ errors['firstName'] }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Last Name<span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('lastName')" [(ngModel)]="lastName" name="lastName" (blur)="validateLastName()" required>
+            <div class="invalid-feedback small" *ngIf="hasError('lastName')">{{ errors['lastName'] }}</div>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small fw-semibold">Email Address<span class="text-danger">*</span></label>
+            <input type="email" class="form-control form-control-sm" [class.is-invalid]="hasError('email')" [(ngModel)]="email" name="email" (input)="validateEmail()" required>
+            <div class="invalid-feedback small">{{ hasError('email') ? errors['email'] : 'Please enter a valid email address (e.g., user@example.com).' }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Phone Number<span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('phone')" [(ngModel)]="phone" name="phone" (input)="validatePhone()" placeholder="9876543210" required>
+            <div class="invalid-feedback small">{{ hasError('phone') ? errors['phone'] : 'Phone number must be exactly 10 digits and start with 6, 7, 8, or 9.' }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Temporary Password<span class="text-danger">*</span></label>
+            <div class="input-group input-group-sm">
+              <input [type]="passwordType" class="form-control" [class.is-invalid]="hasError('password')" [(ngModel)]="password" name="password" (blur)="validatePassword()" required>
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()"><i class="bi" [class.bi-eye-slash]="!showPassword" [class.bi-eye]="showPassword"></i></button>
+            </div>
+            <div class="invalid-feedback small d-block" *ngIf="hasError('password')">{{ errors['password'] }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-shield-lock-fill me-2"></i>Account Details</h5>
+        <hr class="my-2 opacity-10">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Role<span class="text-danger">*</span></label>
+            <select class="form-select form-select-sm" [class.is-invalid]="hasError('role')" [(ngModel)]="role" name="role" (ngModelChange)="onRoleChange()" required>
+              <option value="">Select role</option>
+              <option *ngFor="let r of roles" [value]="r.name">{{ r.name === 'Manager' ? 'Hotel Manager' : r.name }}</option>
+            </select>
+            <div class="invalid-feedback small" *ngIf="hasError('role')">{{ errors['role'] }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Branch (if applicable)</label>
+            <select class="form-select form-select-sm" [class.is-invalid]="hasError('branch')" [(ngModel)]="branch" name="branch" [disabled]="!branchRequired">
+              <option value="">Select branch</option>
+              <option *ngFor="let h of hotels" [value]="h.id">{{ h.name }}</option>
+            </select>
+            <div class="invalid-feedback small" *ngIf="hasError('branch')">{{ errors['branch'] }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4" *ngIf="role !== 'Manager'">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-gear-fill me-2"></i>Additional Options</h5>
+        <hr class="my-2 opacity-10">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="accountActive" [(ngModel)]="accountActive" name="accountActive">
+          <label class="form-check-label small" for="accountActive">Account Active</label>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="submitting"><i class="bi bi-person-plus-fill me-1"></i> {{ submitting ? 'Creating…' : 'Create User' }}</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-backdrop-custom" *ngIf="successInfo">
+  <div class="modal-dialog-custom">
+    <div class="modal-content shadow border border-warning" style="border-radius: 12px; background-color: #FAF8F4;">
+      <div class="modal-header text-white" style="background-color: #1A0A2E;">
+        <h5 class="modal-title font-serif fw-bold text-white">User Created Successfully</h5>
+      </div>
+      <div class="modal-body text-start small">
+        <p>The system credentials profile has been successfully configured.</p>
+        <hr class="my-2">
+        <p class="mb-1"><strong style="color: #1A0A2E;">User ID:</strong> {{ successInfo.id }}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">User Name:</strong> {{ successInfo.name }}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Role Access:</strong> {{ successInfo.role }}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Branch Assignment:</strong> {{ successInfo.branchName }}</p>
+        <p class="mb-1"><strong style="color: #1A0A2E;">Temporary Password:</strong> {{ successInfo.password }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-purple btn-sm" (click)="closeSuccessModal()">Back to User Management</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

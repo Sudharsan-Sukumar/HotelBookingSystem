@@ -1,0 +1,101 @@
+<app-navbar></app-navbar>
+
+<div class="transactions-page">
+
+  <header class="container-fluid px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <h1 class="transactions-title m-0">Payment &amp; Refund History</h1>
+    <p class="transactions-sub text-muted m-0">Review every payment and refund transaction on your account.</p>
+  </header>
+
+  <main class="container-fluid px-xl-5 pb-5">
+
+    <!-- Date filter row -->
+    <div class="filter-row-container p-3 mb-4 bg-white rounded border d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <label class="small text-muted mb-0">From</label>
+        <input type="date" [(ngModel)]="startDate" class="form-control custom-select-filter" style="width: auto;">
+        <label class="small text-muted mb-0">To</label>
+        <input type="date" [(ngModel)]="endDate" class="form-control custom-select-filter" style="width: auto;">
+        <button class="btn text-white py-2 px-3 fw-semibold small" style="background-color: #1A0A2E; border-radius: 8px; font-size: 0.85rem;" type="button" (click)="applyDateFilter()">Apply</button>
+        <button class="btn text-warning py-2 px-3 fw-semibold small" style="border: 1px dashed rgba(212, 175, 55, 0.4); background: transparent; border-radius: 8px; font-size: 0.85rem;" type="button" (click)="resetDateFilter()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Loading / error states -->
+    <div *ngIf="isLoading" class="text-center py-5 text-muted">
+      <div class="spinner-border text-warning mb-3" role="status"></div>
+      <div>Loading your transaction history...</div>
+    </div>
+
+    <div *ngIf="!isLoading && loadError" class="alert alert-danger text-center">{{ loadError }}</div>
+
+    <!-- Transactions Table -->
+    <div class="table-card-wrapper bg-white rounded border overflow-hidden mb-4" *ngIf="!isLoading && !loadError">
+      <table class="table transactions-table align-middle text-start mb-0">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Booking Ref</th>
+            <th>Date</th>
+            <th class="text-center">Type</th>
+            <th>Payment Method</th>
+            <th>Amount</th>
+            <th class="text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="rows.length === 0">
+            <td colspan="7" class="text-center py-5 text-muted">
+              <div class="mb-3 fs-5">No transactions found for this period.</div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let row of rows">
+            <td>
+              <span class="booking-ref-number d-block text-dark fw-bold">{{ row.transaction.transactionId }}</span>
+            </td>
+            <td>
+              <span class="text-dark">{{ row.transaction.bookingCustomId || 'N/A' }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-calendar-event text-warning fs-5"></i>
+                <span class="fw-semibold text-dark d-block">{{ row.transaction.paymentDate | date:'mediumDate' }}</span>
+              </div>
+            </td>
+            <td class="text-center">
+              <span [class]="row.typeBadgeClass">{{ row.transaction.type }}</span>
+            </td>
+            <td>
+              <span class="text-dark">{{ row.transaction.paymentMethod }}</span>
+            </td>
+            <td>
+              <strong class="d-block text-dark font-serif fs-6">{{ row.formattedAmount }}</strong>
+              <span class="small text-muted" *ngIf="row.transaction.walletAmountUsed">
+                Wallet used: {{ row.transaction.walletAmountUsed | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span [class]="row.statusBadgeClass">{{ row.transaction.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Help card -->
+    <article class="help-desc-card p-4 d-flex justify-content-between align-items-center flex-wrap gap-4 text-start">
+      <div class="d-flex align-items-center gap-3">
+        <span class="help-badge-circle"><i class="bi bi-info-circle"></i></span>
+        <div>
+          <h4 class="help-card-title m-0 text-dark">Can't find a transaction?</h4>
+          <span class="small text-muted">Refunds may take a few business days to appear after cancellation.</span>
+        </div>
+      </div>
+      <button class="btn btn-contact-support py-2 px-4">Need Help? Contact Support</button>
+    </article>
+
+  </main>
+</div>
+
+<app-footer></app-footer>

@@ -41,6 +41,15 @@ public class HotelService : IHotelService
         return hotels ?? Array.Empty<HotelResponseDto>();
     }
 
+    public async Task<IEnumerable<HotelResponseDto>> GetHotelsByManagerAsync(int managerId)
+    {
+        // ManagerIds is a JSON-owned collection (not a queryable FK column), and the hotel count is
+        // small, so filtering in-memory after materializing is simpler and safe here rather than
+        // trying to force a server-side JSON Contains() translation.
+        var hotels = await _context.Hotels.AsNoTracking().ToListAsync();
+        return hotels.Where(h => h.ManagerIds.Contains(managerId)).Select(MapToDto);
+    }
+
     public async Task<HotelResponseDto?> GetHotelByIdAsync(int id)
     {
         var cacheKey = HotelByIdCacheKey(id);
@@ -88,6 +97,7 @@ public class HotelService : IHotelService
             IsActive = request.IsActive
         };
 
+        // Cache Invalidation — clears the hotel list cache so a newly created hotel isn't hidden behind a stale cached read.
         _context.Hotels.Add(hotel);
         await _context.SaveChangesAsync();
         _cache.Remove(HotelCacheKey);
@@ -105,6 +115,7 @@ public class HotelService : IHotelService
         var hotel = await _context.Hotels.FindAsync(id);
         if (hotel == null) return null;
 
+        // Guard Clause — blocks state transitions on a deactivated hotel unless the request is explicitly reactivating it.
         // Edge Case 10: Manager edits hotel after admin deactivated it -> Editing blocked
         if (!hotel.IsActive && hotelDto.IsActive == hotel.IsActive)
             throw new InvalidOperationException("Cannot edit a deactivated hotel. Please activate it first.");
@@ -130,6 +141,7 @@ public class HotelService : IHotelService
                 throw new InvalidOperationException("Reactivating a hotel must be a standalone action — submit the reactivation first, then edit other fields separately.");
         }
 
+        // Optimistic Concurrency (RowVersion) — stamps the client's last-seen RowVersion so a stale admin edit is rejected, not silently overwritten.
         // Edge Case 1 & 14: Optimistic Concurrency
         if (!string.IsNullOrEmpty(hotelDto.RowVersion))
         {
@@ -177,6 +189,7 @@ public class HotelService : IHotelService
         var hotel = await _context.Hotels.FindAsync(id);
         if (hotel == null) return false;
 
+        // Soft Delete Pattern — deactivates instead of hard-deleting a hotel that still has active future bookings.
         // Edge Case 2 & 29: Soft Delete + Status Validation
         bool hasActiveBookings = await _context.Bookings
             .AnyAsync(b => b.HotelId == id && b.Status != "Cancelled" && b.CheckOutDate > DateTime.UtcNow);
@@ -332,12 +345,29 @@ public class HotelService : IHotelService
 
         if (hotel.ManagerIds.Contains(managerId)) return true;
 
+        // Guard Clause — enforces the invariant that a hotel may have at most 2 active managers assigned.
         // FR-2.5: a hotel may have at most 2 active managers assigned at any time.
         if (hotel.ManagerIds.Count >= 2)
             throw new InvalidOperationException("Maximum manager limit (2) reached for this hotel.");
 
         hotel.ManagerIds.Add(managerId);
-        await _context.SaveChangesAsync();
+
+        // Optimistic Concurrency Retry - mirrors AdminUserService.CreateManagerAsync's recheck: a race with another concurrent manager assignment to the same hotel is retried once against a fresh read before failing.
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _context.Entry(hotel).State = EntityState.Detached;
+            var refreshedHotel = await _context.Hotels.FindAsync(hotelId);
+            if (refreshedHotel == null || refreshedHotel.ManagerIds.Count >= 2)
+                throw new InvalidOperationException("Maximum manager limit (2) reached for this hotel.");
+
+            refreshedHotel.ManagerIds.Add(managerId);
+            await _context.SaveChangesAsync();
+        }
+
         _cache.Remove(HotelCacheKey);
         _cache.Remove(HotelByIdCacheKey(hotelId));
 

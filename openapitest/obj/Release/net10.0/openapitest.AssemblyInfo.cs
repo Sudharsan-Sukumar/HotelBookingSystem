@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("openapitest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e719c2cf411bc34c287580dcd7c75d855e84ad8e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74a7dffded25ea2b354241211fbc019f7010a2b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("openapitest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("openapitest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

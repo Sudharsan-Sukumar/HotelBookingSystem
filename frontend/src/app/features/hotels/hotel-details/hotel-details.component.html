@@ -1,0 +1,183 @@
+<app-navbar></app-navbar>
+
+<div class="hotel-details-page" *ngIf="hotel; else hotelNotFound">
+
+  <!-- TOP HEADER SECTION -->
+  <header class="container px-xl-5 py-4 mt-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          <h1 class="hotel-details-title m-0">{{ hotel.name }}</h1>
+          <p class="hotel-details-sub text-muted m-0">Detailed property specs, location details, and features</p>
+        </div>
+      </div>
+      <a routerLink="/hotels/search" class="btn btn-back-to-hotels d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i> Back to Hotels
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN PHOTO SECTION (backend exposes a single thumbnailUrl — no gallery array) -->
+  <section class="container px-xl-5 mb-5">
+    <div class="position-relative hero-gallery-container mb-3 shadow-sm">
+      <img [src]="mainImage" [alt]="hotel.name + ' photo'" class="main-gallery-img">
+    </div>
+  </section>
+
+  <!-- PROPERTY DETAIL SECTION CARDS GRID -->
+  <section class="container px-xl-5 mb-4">
+    <div class="row g-4">
+
+      <!-- Left Card: Property Overview -->
+      <div class="col-lg-6">
+        <div class="details-card h-100 p-4">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="card-icon-badge"><i class="bi bi-building"></i></span>
+            <h2 class="card-section-title m-0">Property Overview</h2>
+          </div>
+
+          <ul class="overview-list text-start ps-0">
+            <li>
+              <i class="bi bi-geo-alt text-warning"></i>
+              <div>
+                <strong>Address:</strong>
+                <span>{{ hotel.location }}, {{ hotel.city }}, {{ hotel.state }}, {{ hotel.country }} - {{ hotel.zipCode }}</span>
+              </div>
+            </li>
+            <li>
+              <i class="bi bi-star text-warning"></i>
+              <div>
+                <strong>Star Rating:</strong>
+                <span>{{ hotel.starRating }} - Star Class</span>
+              </div>
+            </li>
+            <li *ngIf="startingPrice != null">
+              <i class="bi bi-tag text-warning"></i>
+              <div>
+                <strong>Starting Price:</strong>
+                <span>{{ formatPrice(startingPrice) }} / night</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right Card: Room Types available -->
+      <div class="col-lg-6">
+        <div class="details-card h-100 p-4">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="card-icon-badge"><i class="bi bi-door-open"></i></span>
+            <h2 class="card-section-title m-0">Room Types</h2>
+          </div>
+
+          <div class="row g-3 text-start" *ngIf="roomTypes.length; else noRoomTypes">
+            <div class="col-md-6 d-flex align-items-center justify-content-between gap-2 py-1" *ngFor="let rt of roomTypes">
+              <span class="amenity-text">{{ rt.name }} <small class="text-muted">(max {{ rt.capacity }})</small></span>
+              <span class="fw-bold text-warning">{{ formatPrice(rt.basePrice) }}</span>
+            </div>
+          </div>
+          <ng-template #noRoomTypes>
+            <p class="text-muted mb-0">No room types are currently available for this property.</p>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- REVIEWS SECTION -->
+  <section class="container px-xl-5 mb-5">
+    <div class="details-card p-4">
+      <div class="d-flex align-items-center justify-content-between gap-3 mb-4 flex-wrap">
+        <div class="d-flex align-items-center gap-3">
+          <span class="card-icon-badge"><i class="bi bi-chat-square-quote"></i></span>
+          <h2 class="card-section-title m-0">Guest Reviews</h2>
+        </div>
+        <div *ngIf="averageRating != null" class="d-flex align-items-center gap-2">
+          <span class="text-warning fs-5">
+            <i class="bi bi-star-fill" *ngFor="let s of starsArray(averageRating)"></i>
+          </span>
+          <span class="fw-bold">{{ averageRating }}/5</span>
+          <span class="text-muted small">({{ reviews.length }} review{{ reviews.length === 1 ? '' : 's' }})</span>
+        </div>
+      </div>
+
+      <div *ngIf="reviewsLoading" class="text-muted">Loading reviews...</div>
+
+      <div *ngIf="!reviewsLoading && reviews.length === 0" class="text-muted">
+        No reviews yet for this property.
+      </div>
+
+      <div class="d-flex flex-column gap-3" *ngIf="!reviewsLoading && reviews.length">
+        <div class="border rounded p-3 text-start" *ngFor="let r of reviews">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-warning">
+              <i class="bi bi-star-fill" *ngFor="let s of starsArray(r.rating)"></i>
+            </span>
+            <span class="text-muted small">{{ r.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <p class="mb-1" *ngIf="r.comment">{{ r.comment }}</p>
+          <div class="small text-muted fst-italic" *ngIf="r.managerResponse">
+            <strong>Manager response:</strong> {{ r.managerResponse }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Write-a-review entry point: only rendered when arriving via ?reviewBookingId=<completed booking id> -->
+      <div class="mt-4 pt-4 border-top" *ngIf="showReviewForm">
+        <h3 class="card-section-title fs-6 mb-3">Write a Review</h3>
+        <div class="mb-3">
+          <label class="filter-label d-block mb-1">Rating</label>
+          <select class="form-select w-auto d-inline-block" [(ngModel)]="reviewRating" name="reviewRating">
+            <option [ngValue]="5">5 - Excellent</option>
+            <option [ngValue]="4">4 - Very Good</option>
+            <option [ngValue]="3">3 - Average</option>
+            <option [ngValue]="2">2 - Poor</option>
+            <option [ngValue]="1">1 - Terrible</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="filter-label d-block mb-1">Comment (optional, max 1000 chars)</label>
+          <textarea class="form-control" rows="3" maxlength="1000" [(ngModel)]="reviewComment" name="reviewComment"></textarea>
+        </div>
+        <div class="text-danger small mb-2" *ngIf="reviewSubmitError">{{ reviewSubmitError }}</div>
+        <button class="btn btn-view-details px-4 py-2" type="button" (click)="submitReview()" [disabled]="reviewSubmitting"
+                style="background-color:#1A0A2E;color:#D4AF37;border:none;border-radius:6px;font-weight:600;">
+          <span *ngIf="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+          Submit Review
+        </button>
+      </div>
+      <div class="mt-3 text-success" *ngIf="reviewSubmitSuccess">Thank you — your review has been submitted.</div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CALL-TO-ACTION BOOKING BAR -->
+  <section class="container px-xl-5 mb-5">
+    <div class="bottom-cta-banner p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3 text-start">
+        <span class="cta-banner-icon"><i class="bi bi-calendar-event"></i></span>
+        <div>
+          <h3 class="cta-banner-title text-white m-0">Ready to book your stay?</h3>
+          <p class="cta-banner-sub text-white-50 m-0">Choose your perfect room and enjoy a luxurious experience.</p>
+        </div>
+      </div>
+      <button class="btn btn-book-now d-flex align-items-center gap-2" (click)="bookNow()" [disabled]="isBooking">
+        <span *ngIf="isBooking" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span *ngIf="isBooking">Saving Selection...</span>
+        <ng-container *ngIf="!isBooking">Book Now - Proceed to Room Selection <i class="bi bi-arrow-right"></i></ng-container>
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<ng-template #hotelNotFound>
+  <div class="container px-xl-5 py-5 text-center">
+    <div class="mb-3 fs-1 text-muted"><i class="bi bi-building-exclamation"></i></div>
+    <h3 class="font-serif">Hotel not found.</h3>
+    <p class="text-muted">The property you're looking for doesn't exist or is no longer available.</p>
+    <a routerLink="/hotels/search" class="btn btn-outline-warning mt-2">Back to Search</a>
+  </div>
+</ng-template>
+
+<app-footer></app-footer>

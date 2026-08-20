@@ -14,4 +14,5 @@ public interface IAuthService
     Task LogoutAllDevicesAsync(int userId, string? currentAccessTokenJti = null);
     Task<AuthResponseDto?> RefreshTokenAsync(RefreshTokenDto dto);
     Task LogoutAsync(LogoutDto dto);
+    Task<AuthResponseDto> GoogleLoginAsync(GoogleAuthDto dto);
 }

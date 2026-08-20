@@ -1,0 +1,193 @@
+﻿<app-navbar></app-navbar>
+
+<div class="modify-booking-page">
+  <header class="container px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <div class="mb-2">
+      <a [routerLink]="['/bookings/modify', bookingId, 'step1']" class="btn-back-to-bookings btn btn-sm d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+    <h1 class="modify-title m-0">Modify Booking</h1>
+    <p class="modify-sub text-muted m-0">Update your stay details in just a few simple steps.</p>
+  </header>
+
+  <main class="container px-xl-5 pb-5">
+    <div class="d-flex flex-column gap-4" *ngIf="!sessionError; else sessionErrorBlock">
+
+      <section class="progress-stepper-card bg-white p-4 text-start">
+        <div class="row align-items-center justify-content-between text-start">
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num active-check"><i class="bi bi-check-lg text-white"></i></span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Update Stay</strong>
+              <span class="step-sub text-muted small">Dates, Guests &amp; Room</span>
+            </div>
+          </div>
+          <div class="col-md-1 d-none d-md-block px-0"><div class="step-line active"></div></div>
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num active">2</span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Review Changes</strong>
+              <span class="step-sub text-muted small">Check new prices &amp; details</span>
+            </div>
+          </div>
+          <div class="col-md-1 d-none d-md-block px-0"><div class="step-line active"></div></div>
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num">3</span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Confirm</strong>
+              <span class="step-sub text-muted small">Pay difference (if any)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="current-summary-card bg-white p-4" *ngIf="booking">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 border-bottom pb-3 mb-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="summary-badge-icon"><i class="bi bi-briefcase"></i></span>
+            <h2 class="summary-title m-0">Current Booking Summary</h2>
+          </div>
+          <span class="ref-badge small py-1 px-3 rounded">Booking Reference: {{ booking.id }}</span>
+        </div>
+        <div class="row g-3 text-start">
+          <div class="col-md-3">
+            <div class="info-block p-3 d-flex align-items-center gap-3">
+              <span class="block-icon"><i class="bi bi-calendar-check"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase d-block mb-1">Check-in</strong>
+                <span class="fw-bold d-block text-dark">{{ booking.checkInDate | date:'mediumDate' }}</span>
+                <span class="small text-muted"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-block p-3 d-flex align-items-center gap-3">
+              <span class="block-icon"><i class="bi bi-calendar-x"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase d-block mb-1">Check-out</strong>
+                <span class="fw-bold d-block text-dark">{{ booking.checkOutDate | date:'mediumDate' }}</span>
+                <span class="small text-muted"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-block p-3 d-flex align-items-center gap-3">
+              <span class="block-icon"><i class="bi bi-people"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase d-block mb-1">Guests</strong>
+                <span class="fw-bold d-block text-dark">{{ booking.numberOfRooms }} Room(s)</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-block p-3 d-flex align-items-center gap-3">
+              <span class="block-icon"><i class="bi bi-door-open"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase d-block mb-1">Room Type</strong>
+                <span class="fw-bold d-block text-dark">{{ booking.roomTypeName }}</span>
+                <span class="small text-muted">{{ booking.hotelName }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <article class="success-alert-banner p-3 d-flex justify-content-between align-items-center flex-wrap gap-3 text-start">
+        <div class="d-flex align-items-center gap-3">
+          <span class="alert-icon-circle"><i class="bi bi-check-circle-fill"></i></span>
+          <div>
+            <strong class="alert-text-green d-block">Great News! We found available options for your new stay.</strong>
+            <span class="small text-secondary">{{ newCheckOut | date:'mediumDate' }} • {{ newGuests }} Guests • 1 Room</span>
+          </div>
+        </div>
+        <a [routerLink]="['/bookings/modify', bookingId, 'step1']" class="btn btn-edit-search py-2 px-4">Edit Search</a>
+      </article>
+
+      <section class="available-options-section text-start">
+        <h3 class="options-title font-serif text-dark m-0">Available Options for Your New Stay</h3>
+        <p class="small text-muted mb-4">{{ newCheckOut | date:'mediumDate' }} • {{ newGuests }} Guests • 1 Room</p>
+
+        <article class="option-selection-card active p-4 mb-3 rounded border">
+          <div class="row g-3 align-items-center">
+            <div class="col-lg-3">
+              <img src="/assets/images/room_classic.png" alt="Room interior" class="option-room-img rounded">
+            </div>
+            <div class="col-lg-6 ps-lg-4">
+              <span class="badge bg-gold-light text-warning fw-bold uppercase px-3 py-1 rounded-pill mb-2 d-inline-block">Stay Modification Details</span>
+              <h4 class="option-title m-0 text-dark font-serif">{{ newRoomType }}</h4>
+              <p class="small text-muted mb-3">Dates: {{ newCheckIn | date:'mediumDate' }} — {{ newCheckOut | date:'mediumDate' }} ({{ newNights }} Nights) at {{ booking?.hotelName }}.</p>
+              <div class="d-flex gap-3 text-secondary small py-2">
+                <span>👥 Up to {{ newGuests }} Guests</span>
+              </div>
+            </div>
+            <div class="col-lg-3 text-lg-end d-flex justify-content-between align-items-center flex-row flex-lg-column gap-3">
+              <div class="price-box">
+                <strong class="small text-muted text-uppercase d-block mb-1">New Total for {{ newNights }} Nights</strong>
+                <span class="fw-bold text-dark fs-5">{{ newGrandTotal | currency:'INR':'symbol':'1.0-0' }}</span>
+                <span class="small text-muted d-block">Avg ₹{{ avgPerNightWithTax.toLocaleString('en-IN') }} / Night</span>
+                <span class="small fw-bold d-block mt-1" [class.text-danger]="priceDiff > 0" [class.text-success]="priceDiff < 0" [class.text-muted]="priceDiff === 0">{{ diffLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="price-comparison-card p-4 rounded border text-start">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <span class="comp-badge-circle"><i class="bi bi-layout-split"></i></span>
+          <h3 class="comp-title m-0 text-dark font-serif">Price Comparison</h3>
+        </div>
+        <div class="row align-items-center text-center py-2 g-3">
+          <div class="col-md-3">
+            <strong class="small text-muted uppercase d-block mb-2">Current Booking Amount</strong>
+            <span class="fw-bold text-dark font-serif fs-4">{{ oldGrandTotal | currency:'INR':'symbol':'1.0-0' }}</span>
+            <span class="small text-muted d-block">For {{ newNights }} Night(s)</span>
+          </div>
+          <div class="col-md-1 d-flex justify-content-center align-items-center">
+            <span class="comp-math-symbol"><i class="bi bi-dash-lg"></i></span>
+          </div>
+          <div class="col-md-3">
+            <strong class="small text-muted uppercase d-block mb-2">New Booking Amount</strong>
+            <span class="fw-bold text-dark font-serif fs-4">{{ newGrandTotal | currency:'INR':'symbol':'1.0-0' }}</span>
+            <span class="small text-muted d-block">For {{ newNights }} Night(s)</span>
+          </div>
+          <div class="col-md-1 d-flex justify-content-center align-items-center">
+            <span class="comp-math-symbol"><i class="bi"
+              [class.bi-plus-lg]="priceDiff > 0" [class.bi-distribute-vertical]="priceDiff < 0" [class.bi-check-all]="priceDiff === 0"></i></span>
+          </div>
+          <div class="col-md-4 bg-light-ivory p-3 rounded">
+            <strong class="small text-muted uppercase d-block mb-2">{{ priceDiff > 0 ? 'Additional Amount' : (priceDiff < 0 ? 'Refund Amount' : 'Price Difference') }}</strong>
+            <span class="fw-bold font-serif fs-3" [class.text-danger]="priceDiff > 0" [class.text-success]="priceDiff < 0" [class.text-dark]="priceDiff === 0">
+              {{ absPriceDiff | currency:'INR':'symbol':'1.0-0' }}
+            </span>
+            <span class="small d-block" [class.text-danger]="priceDiff > 0" [class.text-success]="priceDiff < 0" [class.text-muted]="priceDiff === 0">
+              {{ priceDiff > 0 ? 'To be paid via secure gateway' : (priceDiff < 0 ? 'To be credited to original payment source' : 'No charge adjustments required') }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <a [routerLink]="['/bookings/modify', bookingId, 'step1']" class="btn btn-action-back py-3 px-5"><i class="bi bi-arrow-left"></i> Back to Edit</a>
+        <button class="btn btn-action-continue py-3 px-5 d-flex align-items-center gap-2" (click)="continueToConfirmation()">
+          Continue to Confirmation <i class="bi bi-arrow-right"></i>
+        </button>
+      </section>
+
+      <div class="info-alert-card p-3 d-flex align-items-center gap-3 rounded">
+        <span class="alert-icon-circle-info"><i class="bi bi-info-circle"></i></span>
+        <span class="small text-secondary">Prices include taxes and fees. Additional charges may apply based on hotel policies.</span>
+      </div>
+
+    </div>
+
+    <ng-template #sessionErrorBlock>
+      <div class="alert alert-danger text-center">
+        {{ sessionError }}
+        <br><br>
+        <a routerLink="/candidate/my-bookings" class="btn btn-purple">Return to My Bookings</a>
+      </div>
+    </ng-template>
+  </main>
+</div>

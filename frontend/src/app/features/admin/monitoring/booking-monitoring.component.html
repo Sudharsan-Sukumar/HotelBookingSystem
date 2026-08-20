@@ -1,0 +1,317 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color:#6c757d;">Home</a></li>
+      <li class="breadcrumb-item active" style="color:#1A0A2E; font-weight:500;">Booking Monitoring</li>
+    </ol>
+  </nav>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Global Booking Monitoring</h1>
+    <p class="text-secondary small mb-0">Monitor all bookings across branches in real-time.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius:12px;">
+    <div class="row g-2 align-items-end text-start">
+      <div class="col-md-2 col-sm-6">
+        <label class="form-label small fw-semibold text-purple">Branch</label>
+        <select class="form-select form-select-sm" [(ngModel)]="filterBranch">
+          <option value="all">Branch: All</option>
+          <option value="Salem">Salem</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Chennai">Chennai</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-6">
+        <label class="form-label small fw-semibold text-purple">Date Range</label>
+        <select class="form-select form-select-sm" [(ngModel)]="filterDateRange">
+          <option value="All Time">Date Range: All Time</option>
+          <option value="Today">Today</option>
+          <option value="Last 7 Days">Last 7 Days</option>
+          <option value="This Month">This Month</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-6">
+        <label class="form-label small fw-semibold text-purple">Status</label>
+        <select class="form-select form-select-sm" [(ngModel)]="filterStatus">
+          <option value="all">Status: All</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Pending">Pending</option>
+          <option value="CheckedIn">Checked-In</option>
+          <option value="CheckedOut">Checked-Out</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-6">
+        <label class="form-label small fw-semibold text-purple">Search</label>
+        <input type="text" class="form-control form-control-sm" placeholder="Booking ID or guest..." [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()">
+      </div>
+      <div class="col-md-2 col-sm-6 d-flex gap-2">
+        <button class="btn btn-outline-purple btn-sm w-50" (click)="resetFilters()">Reset</button>
+        <button class="btn btn-purple btn-sm w-50" (click)="applyFilters()">Apply</button>
+      </div>
+      <div class="col-md-2 col-sm-12 text-end">
+        <div class="dropdown d-inline-block w-100">
+          <button class="btn btn-outline-purple btn-sm w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-download me-1"></i> Export</button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><button class="dropdown-item small" (click)="exportReport('PDF')">Export as PDF</button></li>
+            <li><button class="dropdown-item small" (click)="exportReport('Excel')">Export as Excel</button></li>
+            <li><button class="dropdown-item small" (click)="exportReport('CSV')">Export as CSV</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size:1.25rem;"><i class="bi bi-calendar-check"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Total Bookings</span>
+          <strong class="fs-5 text-dark">{{ kpiTotal | number }}</strong>
+          <span class="small text-muted d-block" style="font-size:0.65rem;">All branches, all time</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size:1.25rem;"><i class="bi bi-door-open-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Active Bookings</span>
+          <strong class="fs-5 text-dark">{{ kpiActive }}</strong>
+          <span class="small text-muted d-block" style="font-size:0.65rem;">Across all branches</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size:1.25rem;"><i class="bi bi-shield-fill-check"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Confirmed</span>
+          <strong class="fs-5 text-dark">{{ kpiConfirmed }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size:1.25rem;"><i class="bi bi-hourglass-split"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Pending Review</span>
+          <strong class="fs-5 text-dark">{{ kpiPending }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS (Chart.js substitute) -->
+  <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius:12px;">
+    <h5 class="font-serif fw-bold text-purple mb-3">Bookings by Branch / Status</h5>
+    <div class="row g-4 text-start">
+      <div class="col-md-6">
+        <h6 class="text-secondary small fw-semibold">Branch Occupancy Ratio</h6>
+        <div *ngFor="let b of branchCounts" class="d-flex justify-content-between align-items-center small mb-1">
+          <span>{{ b.name }}</span><span class="fw-bold">{{ b.count }}</span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-secondary small fw-semibold">Status Distribution</h6>
+        <div *ngFor="let s of statusCounts" class="d-flex justify-content-between align-items-center small mb-1">
+          <span>{{ s.name }}</span><span class="fw-bold">{{ s.count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <ul class="nav nav-tabs mb-4 text-start">
+    <li class="nav-item"><button class="nav-link fw-bold text-purple" [class.active]="activeTab==='all'" (click)="setTab('all')">All Bookings</button></li>
+    <li class="nav-item"><button class="nav-link fw-bold text-purple" [class.active]="activeTab==='calendar'" (click)="setTab('calendar')">Booking Calendar</button></li>
+    <li class="nav-item"><button class="nav-link fw-bold text-purple" [class.active]="activeTab==='history'" (click)="setTab('history')">Booking History</button></li>
+  </ul>
+
+  <!-- ALL BOOKINGS -->
+  <div *ngIf="activeTab==='all'" class="card border shadow-sm bg-white p-3" style="border-radius:12px;">
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr>
+            <th>Booking ID</th><th>Customer</th><th>Hotel</th><th>Room</th><th>Check-in</th><th>Check-out</th>
+            <th>Status</th><th>Amount</th><th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of pagedAllBookings">
+            <td><strong>{{ b.bookingCustomId }}</strong></td>
+            <td>{{ getGuestName(b) }}</td>
+            <td>{{ getHotelName(b) }}</td>
+            <td>{{ b.roomTypeName }}</td>
+            <td>{{ b.checkInDate | slice:0:10 }}</td>
+            <td>{{ b.checkOutDate | slice:0:10 }}</td>
+            <td><span class="badge" [ngClass]="getStatusBadgeClass(b)">{{ getStatusLabel(b) }}</span></td>
+            <td>₹{{ b.amount | number:'1.0-0' }}</td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" (click)="viewBooking(b)">View</button>
+              <button *ngIf="canCancel(b)" class="btn btn-sm btn-outline-danger py-0 px-2" (click)="openCancelModal(b)">Cancel</button>
+            </td>
+          </tr>
+          <tr *ngIf="pagedAllBookings.length === 0 && !loading">
+            <td colspan="9" class="text-center py-4 text-muted">No active bookings found.</td>
+          </tr>
+          <tr *ngIf="loading">
+            <td colspan="9" class="text-center py-4 text-muted">Loading real bookings from every hotel...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="small text-muted">Show:</span>
+        <select class="form-select form-select-sm" style="width:70px;" [ngModel]="itemsPerPage" (ngModelChange)="onPageSizeChange($event)">
+          <option [value]="5">5</option>
+          <option [value]="8">8</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+        </select>
+        <span class="small text-muted">Showing {{ filteredAllBookings.length === 0 ? 0 : (currentPageAll-1)*itemsPerPage+1 }}
+          to {{ (currentPageAll*itemsPerPage) > filteredAllBookings.length ? filteredAllBookings.length : (currentPageAll*itemsPerPage) }}
+          of {{ filteredAllBookings.length }} entries</span>
+      </div>
+      <ul class="pagination pagination-sm mb-0 gap-1">
+        <li class="page-item" *ngFor="let p of pageRange(totalPagesAll())">
+          <button class="page-link rounded-circle" [class.text-white]="p===currentPageAll" [style.background-color]="p===currentPageAll ? '#1A0A2E' : ''" (click)="goToPageAll(p)">{{ p }}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div *ngIf="activeTab==='calendar'" class="row g-4 text-start">
+    <div class="col-lg-8">
+      <div class="card p-3 border bg-white shadow-sm" style="border-radius:12px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="font-serif fw-bold text-purple mb-0">{{ calendarMonthTitle }}</h5>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-purple" (click)="prevMonth()"><i class="bi bi-chevron-left"></i></button>
+            <button class="btn btn-outline-purple" (click)="nextMonth()"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="d-grid text-center fw-bold text-secondary mb-2" style="grid-template-columns:repeat(7,1fr); font-size:0.85rem;">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div class="d-grid gap-1" style="grid-template-columns:repeat(7,1fr);">
+          <div *ngFor="let day of calendarDays" class="border p-2 bg-white text-center position-relative d-flex flex-column justify-content-between"
+               style="min-height:65px; cursor:pointer;" (click)="showDayDetails(day)"
+               [style.border-top]="day && (day.checkIns.length || day.checkOuts.length) ? ('3px solid ' + (day.checkIns.length && day.checkOuts.length ? 'orange' : day.checkIns.length ? '#10B981' : '#EF4444')) : ''">
+            <ng-container *ngIf="day">
+              <span class="fw-bold small">{{ day.day }}</span>
+              <div class="d-flex flex-column gap-1" *ngIf="day.checkIns.length || day.checkOuts.length">
+                <span *ngIf="day.checkIns.length" class="badge bg-success p-1" style="font-size:0.6rem;">In: {{ day.checkIns.length }}</span>
+                <span *ngIf="day.checkOuts.length" class="badge bg-danger p-1" style="font-size:0.6rem;">Out: {{ day.checkOuts.length }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card p-3 border bg-white shadow-sm h-100" style="border-radius:12px;">
+        <h5 class="font-serif fw-bold text-purple mb-3">{{ selectedDay ? ('Activity: ' + selectedDay.dateStr) : 'Select a Day' }}</h5>
+        <div class="d-flex flex-column gap-2" *ngIf="!selectedDay">
+          <p class="text-muted small">Click any active day in the calendar to view Check-Ins and Check-Outs details.</p>
+        </div>
+        <div *ngIf="selectedDay">
+          <p *ngIf="!selectedDay.checkIns.length && !selectedDay.checkOuts.length" class="text-muted small">No check-ins or check-outs scheduled for this day.</p>
+          <ng-container *ngIf="selectedDay.checkIns.length">
+            <h6 class="fw-bold text-success small mb-2"><i class="bi bi-box-arrow-in-right"></i> Check-Ins ({{ selectedDay.checkIns.length }})</h6>
+            <div *ngFor="let b of selectedDay.checkIns" class="p-2 border rounded bg-light mb-2 small">
+              <strong>{{ b.bookingCustomId }}</strong> - {{ getGuestName(b) }}<br>Room: {{ b.roomTypeName }} | Total: ₹{{ b.amount | number:'1.0-0' }}
+            </div>
+          </ng-container>
+          <ng-container *ngIf="selectedDay.checkOuts.length">
+            <h6 class="fw-bold text-danger small my-2"><i class="bi bi-box-arrow-right"></i> Check-Outs ({{ selectedDay.checkOuts.length }})</h6>
+            <div *ngFor="let b of selectedDay.checkOuts" class="p-2 border rounded bg-light mb-2 small">
+              <strong>{{ b.bookingCustomId }}</strong> - {{ getGuestName(b) }}<br>Room: {{ b.roomTypeName }} | Total: ₹{{ b.amount | number:'1.0-0' }}
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div *ngIf="activeTab==='history'" class="card border shadow-sm bg-white p-3" style="border-radius:12px;">
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr>
+            <th>Booking ID</th><th>Customer</th><th>Hotel</th><th>Room</th><th>Check-in</th><th>Check-out</th>
+            <th>Status</th><th>Amount</th><th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of pagedHistory">
+            <td><strong>{{ b.bookingCustomId }}</strong></td>
+            <td>{{ getGuestName(b) }}</td>
+            <td>{{ getHotelName(b) }}</td>
+            <td>{{ b.roomTypeName }}</td>
+            <td>{{ b.checkInDate | slice:0:10 }}</td>
+            <td>{{ b.checkOutDate | slice:0:10 }}</td>
+            <td><span class="badge" [ngClass]="getStatusBadgeClass(b)">{{ getStatusLabel(b) }}</span></td>
+            <td>₹{{ b.amount | number:'1.0-0' }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-purple py-0 px-2" (click)="viewInvoice(b)"><i class="bi bi-file-earmark-pdf"></i> Invoice</button>
+            </td>
+          </tr>
+          <tr *ngIf="pagedHistory.length === 0 && !loading">
+            <td colspan="9" class="text-center py-4 text-muted">No booking history records found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+      <span class="small text-muted">Showing {{ filteredHistory.length === 0 ? 0 : (currentPageHistory-1)*itemsPerPage+1 }}
+        to {{ (currentPageHistory*itemsPerPage) > filteredHistory.length ? filteredHistory.length : (currentPageHistory*itemsPerPage) }}
+        of {{ filteredHistory.length }} entries</span>
+      <ul class="pagination pagination-sm mb-0 gap-1">
+        <li class="page-item" *ngFor="let p of pageRange(totalPagesHistory())">
+          <button class="page-link rounded-circle" [class.text-white]="p===currentPageHistory" [style.background-color]="p===currentPageHistory ? '#1A0A2E' : ''" (click)="goToPageHistory(p)">{{ p }}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Booking Reason Modal -->
+<div class="modal-backdrop-custom" *ngIf="showCancelModal">
+  <div class="modal-dialog-custom">
+    <div class="modal-content border border-danger" style="border-radius: 12px; background-color: #FAF8F4;">
+      <div class="modal-header" style="background-color: #1A0A2E; color: white;">
+        <h5 class="modal-title font-serif fw-bold">
+          <i class="bi bi-x-circle me-2"></i>Cancel Booking {{ cancelTarget?.bookingCustomId }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
+      </div>
+      <div class="modal-body text-start">
+        <p class="small text-secondary mb-3">
+          This will cancel the booking and, if eligible, refund the guest to their wallet per the standard refund policy.
+        </p>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Cancellation Reason <span class="text-danger">*</span></label>
+          <textarea class="form-control" rows="3" placeholder="Please enter a reason (at least 10 characters)" [(ngModel)]="cancelReason" [class.is-invalid]="cancelReasonInvalid"></textarea>
+          <div class="invalid-feedback">Reason must be at least 10 characters.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 8px;" [disabled]="cancelSubmitting" (click)="closeCancelModal()">Close</button>
+        <button type="button" class="btn btn-danger btn-sm" style="border-radius: 8px; font-weight: 600;" [disabled]="cancelSubmitting" (click)="confirmCancel()">Confirm Cancellation</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

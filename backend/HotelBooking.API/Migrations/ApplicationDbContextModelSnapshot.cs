@@ -90,6 +90,71 @@ namespace HotelBooking.API.Migrations
                     b.ToTable("RevocationTokens", "hotel");
                 });
 
+            modelBuilder.Entity("HotelBooking.API.Common.Models.FailedEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FailedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FailureReason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("To")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FailedEmails", "hotel");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Common.Models.IdempotencyRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ResponseBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ResponseStatusCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("IdempotencyRecords", "hotel");
+                });
+
             modelBuilder.Entity("HotelBooking.API.Features.Bookings.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -125,8 +190,8 @@ namespace HotelBooking.API.Migrations
 
                     b.Property<string>("IDProofNumber")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("IDProofType")
                         .IsRequired()
@@ -202,6 +267,37 @@ namespace HotelBooking.API.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("BookingRooms", "hotel");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Features.Bookings.Models.BookingStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NewStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("OldStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingStatusHistory", "hotel");
                 });
 
             modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.AboutContent", b =>
@@ -308,6 +404,37 @@ namespace HotelBooking.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DatabaseBackups", "hotel");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.GeneralPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PolicyType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedByUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GeneralPolicies", "hotel");
                 });
 
             modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.HelpArticle", b =>
@@ -449,6 +576,47 @@ namespace HotelBooking.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Promotions", "hotel");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.SeasonalPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("FullRefundHours")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("PartialRefundHours")
+                        .HasColumnType("float");
+
+                    b.Property<decimal>("PartialRefundPercentage")
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<string>("SeasonName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SeasonalPolicies", "hotel");
                 });
 
             modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.SystemSetting", b =>
@@ -664,6 +832,9 @@ namespace HotelBooking.API.Migrations
                     b.Property<string>("FailureReason")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("IsUpiEnabledSnapshot")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PaymentLinkUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -776,6 +947,12 @@ namespace HotelBooking.API.Migrations
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1013,6 +1190,55 @@ namespace HotelBooking.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HotelBooking.API.Users.Models.SecurityAuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CorrelationId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("EventType", "Timestamp");
+
+                    b.ToTable("SecurityAuditLogs", "hotel");
+                });
+
             modelBuilder.Entity("HotelBooking.API.Users.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -1020,6 +1246,10 @@ namespace HotelBooking.API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AuthProvider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1040,6 +1270,9 @@ namespace HotelBooking.API.Migrations
 
                     b.Property<bool>("ForcePasswordChange")
                         .HasColumnType("bit");
+
+                    b.Property<string>("GoogleUserId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -1166,6 +1399,17 @@ namespace HotelBooking.API.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Features.Bookings.Models.BookingStatusHistory", b =>
+                {
+                    b.HasOne("HotelBooking.API.Features.Bookings.Models.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
                 });
 
             modelBuilder.Entity("HotelBooking.API.Features.CMS.Models.Notification", b =>
@@ -1298,6 +1542,15 @@ namespace HotelBooking.API.Migrations
                         .HasForeignKey("ChangedByUserId");
 
                     b.Navigation("ChangedByUser");
+                });
+
+            modelBuilder.Entity("HotelBooking.API.Users.Models.SecurityAuditLog", b =>
+                {
+                    b.HasOne("HotelBooking.API.Users.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HotelBooking.API.Users.Models.User", b =>

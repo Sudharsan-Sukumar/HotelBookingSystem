@@ -88,11 +88,14 @@ public class PaymentsTests
     }
 
     [Test]
-    public void CreatePaymentLinkAsync_IncorrectAmount_ThrowsArgumentException()
+    public void CreatePaymentLinkAsync_IncorrectAmount_ThrowsInvalidOperationException()
     {
+        // BUG-003 fix (RazorpayPaymentService.CreatePaymentLinkAsync): a wrong AmountToPay is a
+        // client input-validation failure, not a "resource not found" case — routes to the
+        // controller's 400 BadRequest catch clause via InvalidOperationException, not ArgumentException.
         var dto = new CreatePaymentLinkDto { BookingId = _booking.Id, PaymentMethod = "Net Banking", AmountToPay = 500 };
 
-        Assert.ThrowsAsync<ArgumentException>(() => _service.CreatePaymentLinkAsync(_user.Id, dto));
+        Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePaymentLinkAsync(_user.Id, dto));
     }
 
     [Test]
@@ -246,5 +249,82 @@ public class PaymentsTests
         var status = await _service.GetStatusByReferenceAsync("NO_SUCH_REFERENCE");
 
         Assert.That(status, Is.Null);
+    }
+
+    // Split-Payment Fallback tests — a fresh service instance with a deliberately low
+    // MaxPaymentLinkAmount stands in for a Razorpay account whose single-link cap is below the
+    // booking's total, without needing to hit Razorpay's real 400 "amount exceeds maximum amount
+    // allowed" response to exercise the fallback.
+    private RazorpayPaymentService BuildServiceWithLowLinkCap(decimal maxPaymentLinkAmount)
+    {
+        var options = Options.Create(new RazorpayOptions
+        {
+            KeyId = "rzp_test_fake",
+            KeySecret = "test_key_secret",
+            WebhookSecret = "webhook_secret",
+            MaxPaymentLinkAmount = maxPaymentLinkAmount
+        });
+        return new RazorpayPaymentService(_context, _fakeApiClient, options, _notificationQueue,
+            _auditLogService, NullLogger<RazorpayPaymentService>.Instance);
+    }
+
+    [Test]
+    public async Task CreatePaymentLinkAsync_OutstandingExceedsMaxLinkAmount_CapsLinkAndReportsRemainder()
+    {
+        var service = BuildServiceWithLowLinkCap(600);
+        var dto = new CreatePaymentLinkDto { BookingId = _booking.Id, PaymentMethod = "Net Banking", AmountToPay = 1000 };
+
+        var result = await service.CreatePaymentLinkAsync(_user.Id, dto);
+
+        Assert.That(result.Amount, Is.EqualTo(600)); // capped at MaxPaymentLinkAmount, not the full 1000 outstanding
+        Assert.That(result.IsPartialPayment, Is.True);
+        Assert.That(result.RemainingAfterThisPayment, Is.EqualTo(400));
+
+        var record = await _context.RazorpayPayments.FirstAsync();
+        Assert.That(record.Amount, Is.EqualTo(600));
+    }
+
+    [Test]
+    public async Task CreatePaymentLinkAsync_SecondChunkOfSplitPayment_CoversExactRemainder()
+    {
+        var service = BuildServiceWithLowLinkCap(600);
+        var firstChunk = await service.CreatePaymentLinkAsync(_user.Id,
+            new CreatePaymentLinkDto { BookingId = _booking.Id, PaymentMethod = "Net Banking", AmountToPay = 1000 });
+        await service.HandleWebhookEventAsync("payment_link.paid", "pay_chunk_1", null, firstChunk.Reference);
+
+        // Booking isn't fully settled yet — the first 600 of 1000 is paid, 400 still owed.
+        var midway = await _context.Bookings.FindAsync(_booking.Id);
+        Assert.That(midway!.Status, Is.EqualTo("Pending Additional Payment"));
+
+        var secondChunk = await service.CreatePaymentLinkAsync(_user.Id,
+            new CreatePaymentLinkDto { BookingId = _booking.Id, PaymentMethod = "Net Banking", AmountToPay = 400 });
+
+        Assert.That(secondChunk.Amount, Is.EqualTo(400));
+        Assert.That(secondChunk.IsPartialPayment, Is.False); // this chunk covers exactly what's left
+
+        await service.HandleWebhookEventAsync("payment_link.paid", "pay_chunk_2", null, secondChunk.Reference);
+
+        var final = await _context.Bookings.FindAsync(_booking.Id);
+        Assert.That(final!.Status, Is.EqualTo("Confirmed"));
+
+        Assert.That(_auditLogService.LoggedActions.Exists(a => a.Action == "PartialPaymentReceived"), Is.True);
+        Assert.That(_auditLogService.LoggedActions.Exists(a => a.Action == "PaymentConfirmed"), Is.True);
+        Assert.That(_notificationQueue.Queued.Exists(n => n.Type == "PartialPaymentReceived"), Is.True);
+    }
+
+    [Test]
+    public async Task GetStatusByReferenceAsync_AfterFirstChunkPaid_ReportsPartialPaymentAndRemainder()
+    {
+        var service = BuildServiceWithLowLinkCap(600);
+        var firstChunk = await service.CreatePaymentLinkAsync(_user.Id,
+            new CreatePaymentLinkDto { BookingId = _booking.Id, PaymentMethod = "Net Banking", AmountToPay = 1000 });
+        await service.HandleWebhookEventAsync("payment_link.paid", "pay_chunk_1", null, firstChunk.Reference);
+
+        var status = await service.GetStatusByReferenceAsync(firstChunk.Reference);
+
+        Assert.That(status!.Status, Is.EqualTo("Paid"));
+        Assert.That(status.BookingStatus, Is.EqualTo("Pending Additional Payment"));
+        Assert.That(status.IsPartialPayment, Is.True);
+        Assert.That(status.RemainingAfterThisPayment, Is.EqualTo(400));
     }
 }

@@ -42,6 +42,7 @@ public class ApprovalWorkflowService : IApprovalWorkflowService
             .ToListAsync();
     }
 
+    // State Machine Transition (Pending -> Active) — only transitions a Manager account out of "Pending" status, guarded by role and current status.
     public async Task<bool> ApproveManagerAsync(int managerId, int adminId)
     {
         var manager = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == managerId);

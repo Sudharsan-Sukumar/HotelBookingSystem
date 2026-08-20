@@ -5,6 +5,7 @@ namespace HotelBooking.API.Features.Hotels.Services;
 public interface IHotelService
 {
     Task<IEnumerable<HotelResponseDto>> GetAllHotelsAsync();
+    Task<IEnumerable<HotelResponseDto>> GetHotelsByManagerAsync(int managerId);
     Task<HotelResponseDto?> GetHotelByIdAsync(int id);
     Task<HotelResponseDto> CreateHotelAsync(HotelRequestDto hotelDto);
     Task<HotelResponseDto?> UpdateHotelAsync(int id, HotelRequestDto hotelDto);

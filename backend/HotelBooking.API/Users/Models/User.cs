@@ -48,4 +48,12 @@ public class User
     // is never persisted anywhere.
     public byte[]? ProfilePhotoData { get; set; }
     public string? ProfilePhotoContentType { get; set; }
+
+    // "Local" (email/password, the default) or "Google" (signed up/in via Google OAuth — see
+    // AuthService.GoogleLoginAsync). GoogleUserId is Google's stable "sub" claim, used to link the
+    // account on every subsequent Google sign-in instead of matching on email alone (an email match
+    // could otherwise let anyone with control of that Google Workspace domain silently take over a
+    // pre-existing local account of the same address).
+    public string AuthProvider { get; set; } = "Local";
+    public string? GoogleUserId { get; set; }
 }

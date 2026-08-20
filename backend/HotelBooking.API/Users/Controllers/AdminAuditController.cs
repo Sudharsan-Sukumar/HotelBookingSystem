@@ -15,10 +15,12 @@ namespace HotelBooking.API.Users.Controllers;
 public class AdminAuditController : ControllerBase
 {
     private readonly IAuditLogService _auditService;
+    private readonly ISecurityAuditLogService _securityAuditService;
 
-    public AdminAuditController(IAuditLogService auditService)
+    public AdminAuditController(IAuditLogService auditService, ISecurityAuditLogService securityAuditService)
     {
         _auditService = auditService;
+        _securityAuditService = securityAuditService;
     }
 
     [HttpGet]
@@ -33,5 +35,14 @@ public class AdminAuditController : ControllerBase
     {
         var logs = await _auditService.GetAuditLogsByUserAsync(userId);
         return Ok(ApiResponse<IEnumerable<AuditLog>>.SuccessResponse(logs));
+    }
+
+    // Technical/security audit trail (login, logout, lockout, token refresh) — distinct from the
+    // business audit trail above (bookings, payments, admin actions).
+    [HttpGet("security")]
+    public async Task<IActionResult> GetSecurityLogs()
+    {
+        var logs = await _securityAuditService.GetRecentAsync();
+        return Ok(ApiResponse<IEnumerable<SecurityAuditLog>>.SuccessResponse(logs));
     }
 }

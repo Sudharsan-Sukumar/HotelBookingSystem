@@ -1,0 +1,132 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/content" class="text-decoration-none" style="color: #6c757d;">Content</a></li>
+        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Policy Management</li>
+      </ol>
+    </nav>
+    <a routerLink="/admin/content" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Content</a>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+    <div>
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Policy Management</h1>
+      <p class="text-secondary small mb-0">Define season-specific cancellation &amp; refund policies that temporarily override the base policy for stays checking in during that season.</p>
+    </div>
+    <button class="btn btn-purple btn-sm" (click)="openAdd()" *ngIf="!showForm"><i class="bi bi-plus-lg me-1"></i> Add Seasonal Policy</button>
+  </div>
+
+  <div class="card border bg-white p-3 shadow-sm text-start mb-4" style="border-radius: 16px;" *ngIf="effective">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <span class="badge mb-1" [ngClass]="effective.seasonName ? 'bg-warning text-dark' : 'bg-secondary'">
+          {{ effective.seasonName ? ('Seasonal: ' + effective.seasonName) : 'Base / Default Policy' }}
+        </span>
+        <div class="small text-secondary">
+          Full refund up to {{ effective.fullRefundHours }}h before check-in &middot;
+          {{ (effective.partialRefundPercentage * 100) | number:'1.0-0' }}% refund between {{ effective.partialRefundHours }}&ndash;{{ effective.fullRefundHours }}h &middot;
+          No refund under {{ effective.partialRefundHours }}h
+        </div>
+      </div>
+      <div class="text-end">
+        <div class="small text-muted">Last Updated</div>
+        <div class="small fw-semibold text-purple">{{ effective.updatedAt ? (effective.updatedAt | date:'medium') : 'Never (using built-in defaults)' }}</div>
+      </div>
+    </div>
+    <div class="small text-secondary mt-2" *ngIf="!effective.seasonName">
+      No seasonal override is active today. Edit the base thresholds from
+      <a routerLink="/admin/settings">System Settings</a> (keys prefixed <code>CancellationPolicy.</code>).
+    </div>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto mb-4" style="border-radius: 16px; max-width: 900px;" *ngIf="showForm">
+    <h5 class="font-serif fw-bold text-purple mb-3">{{ editingId ? 'Edit Seasonal Policy' : 'New Seasonal Policy' }}</h5>
+    <form #policyForm="ngForm" (ngSubmit)="onSubmit(policyForm)" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Season Name *</label>
+          <input type="text" name="seasonName" class="form-control form-control-sm" [(ngModel)]="seasonName" maxlength="100" placeholder="e.g. Summer Peak Season" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">Start Date *</label>
+          <input type="date" name="startDate" class="form-control form-control-sm" [(ngModel)]="startDate" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">End Date *</label>
+          <input type="date" name="endDate" class="form-control form-control-sm" [(ngModel)]="endDate" required>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Full Refund Threshold (hours) *</label>
+          <input type="number" name="fullRefundHours" class="form-control form-control-sm" [(ngModel)]="fullRefundHours" min="0" max="720" required>
+          <div class="form-text small">Cancel this many hours (or more) before check-in for a 100% refund.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Partial Refund Threshold (hours) *</label>
+          <input type="number" name="partialRefundHours" class="form-control form-control-sm" [(ngModel)]="partialRefundHours" min="0" max="720" required>
+          <div class="form-text small">Below the full-refund threshold but at/above this &rarr; partial refund.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Partial Refund % *</label>
+          <input type="number" name="partialRefundPercentage" class="form-control form-control-sm" [(ngModel)]="partialRefundPercentage" min="0" max="1" step="0.05" required>
+          <div class="form-text small">e.g. 0.5 = 50%</div>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" name="isActive" [(ngModel)]="isActive">
+            <label class="form-check-label small fw-semibold" for="isActive">Active</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="saving"><i class="bi bi-save me-1"></i> {{ editingId ? 'Update' : 'Create' }} Policy</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card border bg-white shadow-sm" style="border-radius: 16px;">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr class="text-secondary small">
+            <th>Season</th>
+            <th>Date Range</th>
+            <th>Full Refund</th>
+            <th>Partial Refund</th>
+            <th>Status</th>
+            <th>Last Updated</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of policies">
+            <td class="fw-semibold text-purple">{{ p.seasonName }}</td>
+            <td class="small text-secondary">{{ p.startDate | date:'mediumDate' }} &ndash; {{ p.endDate | date:'mediumDate' }}</td>
+            <td class="small">&ge; {{ p.fullRefundHours }}h &rarr; 100%</td>
+            <td class="small">&ge; {{ p.partialRefundHours }}h &rarr; {{ (p.partialRefundPercentage * 100) | number:'1.0-0' }}%</td>
+            <td>
+              <span class="badge" [ngClass]="p.isActive ? 'bg-success' : 'bg-secondary'" style="cursor: pointer;" (click)="toggleActive(p)">{{ p.isActive ? 'Active' : 'Inactive' }}</span>
+            </td>
+            <td class="small text-secondary">{{ p.updatedAt | date:'medium' }}</td>
+            <td class="text-end">
+              <button class="btn btn-outline-purple btn-sm py-0 px-2 me-1" (click)="openEdit(p)"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="deletePolicy(p)"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && policies.length === 0">
+            <td colspan="7" class="text-center text-muted py-4">No seasonal policies yet. Click "Add Seasonal Policy" to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>

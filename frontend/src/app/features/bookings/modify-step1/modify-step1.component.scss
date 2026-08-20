@@ -1,0 +1,180 @@
+@import "../../../../scss/abstracts/variables";
+
+// Direct port of features/bookings/modify_booking_step1.scss (original static app).
+$brand-dark-purple: #1A0A2E;
+$brand-hover: #2E1560;
+$brand-gold: #D4AF37;
+$bg-ivory: #FAF8F4;
+
+.modify-booking-page {
+  background-color: $bg-ivory;
+  font-family: $font-family-sans-serif;
+  color: $text-primary;
+}
+
+.btn-back-to-bookings {
+  background-color: #FFFFFF;
+  color: $text-primary;
+  border: 1px solid rgba($text-primary, 0.2);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.25rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $brand-gold;
+    color: $brand-gold;
+  }
+}
+
+.modify-title {
+  font-family: $font-family-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: $brand-dark-purple;
+}
+
+.modify-sub {
+  font-size: 0.95rem;
+}
+
+.progress-stepper-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba($brand-gold, 0.12);
+
+  .step-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    color: $brand-dark-purple;
+    border: 1.5px solid #D0CCD5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+
+    &.active {
+      background-color: $brand-dark-purple;
+      border-color: $brand-dark-purple;
+      color: #FFFFFF;
+    }
+  }
+
+  .step-title { font-size: 0.85rem; font-weight: 700; }
+  .step-sub { font-size: 0.75rem; }
+
+  .step-line {
+    height: 2px;
+    background-color: #E8E8E8;
+    width: 100%;
+
+    &.active { background-color: $brand-dark-purple; }
+  }
+}
+
+.current-summary-card {
+  border-radius: 20px;
+  border: 1px solid rgba($brand-gold, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.01);
+
+  .summary-badge-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background-color: $brand-dark-purple; color: $brand-gold;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  }
+
+  .summary-title { font-family: $font-family-serif; font-size: 1.35rem; color: $brand-dark-purple; }
+
+  .ref-badge {
+    background-color: $bg-ivory;
+    border: 1px solid rgba($brand-gold, 0.2);
+    color: $brand-dark-purple;
+    font-weight: 600;
+  }
+
+  .info-block {
+    background-color: $bg-ivory;
+    border-radius: 12px;
+    border: 1px solid rgba($brand-gold, 0.08);
+
+    .block-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background-color: rgba($brand-gold, 0.12); color: $brand-gold;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+
+    strong { letter-spacing: 0.5px; }
+  }
+}
+
+.update-form-card {
+  border-radius: 20px;
+  border: 1px solid rgba($brand-gold, 0.12);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+
+  .form-badge-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background-color: rgba($brand-gold, 0.12); color: $brand-gold;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  }
+
+  .form-section-title { font-family: $font-family-serif; font-size: 1.35rem; color: $brand-dark-purple; }
+
+  .custom-input-group, .custom-select {
+    height: 52px;
+    border: 1px solid #D0CCD5;
+    border-radius: 10px;
+    overflow: hidden;
+
+    input.form-control, select {
+      border: none;
+      height: 52px;
+      font-size: 0.95rem;
+      color: $brand-dark-purple;
+      box-shadow: none !important;
+    }
+  }
+
+  .info-alert-notice {
+    background-color: rgba($brand-dark-purple, 0.04);
+    border: 1px solid rgba($brand-dark-purple, 0.08);
+
+    .notice-icon-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      background-color: rgba($brand-dark-purple, 0.08); color: $brand-dark-purple;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+
+    .text-primary-dark { color: $brand-dark-purple; }
+  }
+
+  .btn-action-reset {
+    background-color: #FFFFFF;
+    color: $brand-dark-purple;
+    border: 1px solid rgba($brand-dark-purple, 0.25);
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+
+    &:hover { border-color: $brand-gold; color: $brand-gold; }
+  }
+
+  .btn-action-check {
+    background-color: $brand-dark-purple;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+
+    &:hover { background-color: $brand-hover; color: #FFFFFF; }
+    &:disabled { opacity: 0.5; }
+  }
+}

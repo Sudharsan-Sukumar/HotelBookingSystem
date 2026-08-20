@@ -11,6 +11,7 @@ namespace HotelBooking.API.Common.Middlewares;
 // InvalidOperationException/ArgumentException from a service, not just genuine 500s — came back in
 // a DIFFERENT casing than every other response, breaking case-sensitive client deserialization.
 
+// Middleware Pattern — wraps the rest of the request pipeline to catch unhandled exceptions in one place.
 public class GlobalExceptionMiddleware
 {
     private static readonly JsonSerializerOptions CamelCaseOptions = new()

@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using HotelBooking.API.Data;
+using HotelBooking.API.Common.Models;
 
 namespace HotelBooking.API.Common.Services;
 
@@ -19,6 +22,7 @@ public interface IEmailQueue
     ValueTask QueueEmailAsync(EmailPayload payload);
 }
 
+// Producer-Consumer Pattern — a bounded Channel decouples request threads (producers) enqueuing emails from the background worker (consumer) that sends them.
 public class BackgroundEmailQueue : IEmailQueue
 {
     private readonly Channel<EmailPayload> _queue;
@@ -58,28 +62,35 @@ public class SimulatedEmailSender : IEmailSender
     }
 }
 
+// Producer-Consumer Pattern — hosted BackgroundService consumer that drains BackgroundEmailQueue outside the request thread.
 public class BackgroundEmailService : BackgroundService
 {
     private readonly BackgroundEmailQueue _queue;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<BackgroundEmailService> _logger;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private const int MaxAttempts = 3;
     private readonly TimeSpan _retryDelay;
 
-    public BackgroundEmailService(BackgroundEmailQueue queue, IEmailSender emailSender, ILogger<BackgroundEmailService> logger)
-        : this(queue, emailSender, logger, TimeSpan.FromSeconds(5))
+    public BackgroundEmailService(BackgroundEmailQueue queue, IEmailSender emailSender, ILogger<BackgroundEmailService> logger,
+        IServiceScopeFactory scopeFactory)
+        : this(queue, emailSender, logger, TimeSpan.FromSeconds(5), scopeFactory)
     {
     }
 
     // Lets tests use a near-zero delay instead of waiting out the real production backoff — the DI
-    // container can't resolve a bare TimeSpan, so it always picks the 3-arg constructor above.
-    public BackgroundEmailService(BackgroundEmailQueue queue, IEmailSender emailSender, ILogger<BackgroundEmailService> logger, TimeSpan retryDelay)
+    // container can't resolve a bare TimeSpan, so it always picks the 4-arg constructor above.
+    // scopeFactory is optional (defaults to null) so existing in-memory-fake-based tests that don't
+    // care about dead-lettering can keep constructing this without a DI container.
+    public BackgroundEmailService(BackgroundEmailQueue queue, IEmailSender emailSender, ILogger<BackgroundEmailService> logger, TimeSpan retryDelay,
+        IServiceScopeFactory? scopeFactory = null)
     {
         _queue = queue;
         _emailSender = emailSender;
         _logger = logger;
         _retryDelay = retryDelay;
+        _scopeFactory = scopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -121,8 +132,36 @@ public class BackgroundEmailService : BackgroundService
             {
                 _logger.LogError(ex, "Failed to send email to {To} after {MaxAttempts} attempts — giving up.",
                     payload.To, MaxAttempts);
+
+                // Dead-Letter Pattern - persists the exhausted email as a durable, inspectable row instead of only a console log line that scrolls away.
+                await PersistFailedEmailAsync(payload, ex, stoppingToken);
                 return;
             }
+        }
+    }
+
+    private async Task PersistFailedEmailAsync(EmailPayload payload, Exception ex, CancellationToken stoppingToken)
+    {
+        if (_scopeFactory == null)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context.FailedEmails.Add(new FailedEmail
+            {
+                To = payload.To,
+                Subject = payload.Subject,
+                Body = payload.Body,
+                FailureReason = ex.Message,
+                FailedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync(stoppingToken);
+        }
+        catch (Exception persistEx)
+        {
+            _logger.LogError(persistEx, "Failed to persist dead-letter record for email to {To}.", payload.To);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using HotelBooking.API.Features.Hotels.DTOs;
 using HotelBooking.API.Features.Hotels.Services;
 using HotelBooking.API.Common.Models;
@@ -23,6 +24,15 @@ public class HotelsController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var hotels = await _hotelService.GetAllHotelsAsync();
+        return Ok(ApiResponse<IEnumerable<HotelResponseDto>>.SuccessResponse(hotels));
+    }
+
+    [HttpGet("my")]
+    [Authorize(Roles = "Manager")]
+    public async Task<IActionResult> GetMyHotels()
+    {
+        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? "0");
+        var hotels = await _hotelService.GetHotelsByManagerAsync(managerId);
         return Ok(ApiResponse<IEnumerable<HotelResponseDto>>.SuccessResponse(hotels));
     }
 
@@ -52,6 +62,7 @@ public class HotelsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] HotelRequestDto request)
     {
         try
@@ -67,6 +78,7 @@ public class HotelsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] HotelRequestDto request)
     {
         try
@@ -90,6 +102,7 @@ public class HotelsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _hotelService.DeleteHotelAsync(id);

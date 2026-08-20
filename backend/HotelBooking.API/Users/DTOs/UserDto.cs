@@ -14,4 +14,5 @@ public class UserDto
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public string? ProfilePhotoUrl { get; set; }
+    public decimal WalletBalance { get; set; }
 }

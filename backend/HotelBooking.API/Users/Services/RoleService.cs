@@ -42,6 +42,7 @@ public class RoleService : IRoleService
         var role = await _context.Roles.FindAsync(id);
         if (role == null) return false;
         
+        // Guard Clause — protects the seeded system roles from deletion.
         // Prevent deletion of seeded roles
         if (role.Name == "Admin" || role.Name == "Customer" || role.Name == "Manager")
             throw new InvalidOperationException("Cannot delete system roles.");

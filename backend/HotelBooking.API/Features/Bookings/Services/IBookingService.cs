@@ -13,4 +13,7 @@ public interface IBookingService
     Task<BookingResponseDto> CancelBookingAsync(int id, int userId);
     Task<BookingResponseDto> AdminCancelBookingAsync(int id, string reason, int adminUserId);
     Task<byte[]> GenerateInvoiceCsvAsync(int id, int userId);
+    Task<byte[]> GenerateInvoiceCsvForAdminAsync(int id);
+    Task<BookingResponseDto> CheckInBookingAsync(int id, int managerId);
+    Task<BookingResponseDto> CheckOutBookingAsync(int id, int managerId);
 }

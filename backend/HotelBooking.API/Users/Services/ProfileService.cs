@@ -42,7 +42,8 @@ public class ProfileService : IProfileService
             RoleName = user.Role != null ? user.Role.Name : string.Empty,
             Status = user.Status,
             CreatedAt = user.CreatedAt,
-            ProfilePhotoUrl = user.ProfilePhotoUrl
+            ProfilePhotoUrl = user.ProfilePhotoUrl,
+            WalletBalance = user.WalletBalance
         };
     }
 
@@ -83,7 +84,8 @@ public class ProfileService : IProfileService
             RoleName = user.Role != null ? user.Role.Name : string.Empty,
             Status = user.Status,
             CreatedAt = user.CreatedAt,
-            ProfilePhotoUrl = user.ProfilePhotoUrl
+            ProfilePhotoUrl = user.ProfilePhotoUrl,
+            WalletBalance = user.WalletBalance
         };
     }
 

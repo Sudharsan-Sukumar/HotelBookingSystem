@@ -1,0 +1,64 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Content Management</h1>
+    <p class="text-secondary small mb-0">Edit the public website's homepage content and see the customer Landing Page update on the right, live.</p>
+  </div>
+
+  <div class="content-split">
+    <!-- LEFT: CMS EDITOR -->
+    <div class="content-editor-pane">
+      <div class="card border shadow-sm bg-white p-3" style="border-radius: 12px;">
+        <ul class="nav nav-tabs-premium mb-3">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'hero'" href="javascript:void(0)" (click)="selectTab('hero')">Hero</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'about'" href="javascript:void(0)" (click)="selectTab('about')">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'contact'" href="javascript:void(0)" (click)="selectTab('contact')">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'policies'" href="javascript:void(0)" (click)="selectTab('policies')">General Policies</a>
+          </li>
+        </ul>
+
+        <app-admin-edit-hero *ngIf="activeTab === 'hero'"></app-admin-edit-hero>
+        <app-admin-edit-about *ngIf="activeTab === 'about'"></app-admin-edit-about>
+        <app-admin-edit-contact *ngIf="activeTab === 'contact'"></app-admin-edit-contact>
+        <app-admin-edit-general-policies *ngIf="activeTab === 'policies'"></app-admin-edit-general-policies>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-md-6" *ngFor="let card of quickLinks">
+          <a [routerLink]="[card.link]" class="text-decoration-none">
+            <div class="kpi-card h-100 p-3 text-start">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="bi {{ card.icon }} text-purple"></i>
+                <h6 class="font-serif fw-bold text-purple mb-0">{{ card.title }}</h6>
+              </div>
+              <p class="text-secondary small mb-0">{{ card.description }}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: LIVE PREVIEW (always visible, reuses the real customer Landing Page) -->
+    <div class="content-preview-pane">
+      <div class="preview-pane-header">
+        <h6 class="font-serif fw-bold text-purple mb-0">Live Demo</h6>
+        <p class="text-secondary small mb-0">Read-only — links and buttons here don't navigate.</p>
+      </div>
+      <div class="preview-pane-body">
+        <div #previewGuard class="preview-guard">
+          <app-landing [previewMode]="true"></app-landing>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

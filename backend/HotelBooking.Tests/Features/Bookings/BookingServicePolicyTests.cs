@@ -6,10 +6,12 @@ using HotelBooking.API.Data;
 using HotelBooking.API.Features.Bookings.DTOs;
 using HotelBooking.API.Features.Bookings.Services;
 using HotelBooking.API.Features.CMS.Models;
+using HotelBooking.API.Features.CMS.Services;
 using HotelBooking.API.Features.Hotels.Models;
 using HotelBooking.API.Features.Rooms.Models;
 using HotelBooking.API.Users.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace HotelBooking.Tests.Features.Bookings;
@@ -28,7 +30,9 @@ public class BookingServicePolicyTests
     {
         _context = TestDbContextFactory.Create();
         _service = new BookingService(_context, new FakePricingRuleService(), new BackgroundEmailQueue(),
-            new FakeAuditLogService(), new FakeNotificationQueue());
+            new FakeAuditLogService(), new FakeNotificationQueue(),
+            new SeasonalPolicyService(_context, new FakeAuditLogService(), NullLogger<SeasonalPolicyService>.Instance),
+            new RoomAllocationService(_context));
 
         _hotel = new Hotel { Name = "Policy Hotel", City = "Chennai", IsActive = true, RowVersion = new byte[8] };
         _context.Hotels.Add(_hotel);
@@ -86,6 +90,13 @@ public class BookingServicePolicyTests
         // Admin Edge Case #15: an admin changes the cancellation policy while a booking already
         // exists — that existing booking must keep the policy that was in effect when IT was made.
         var beforeChange = await CreateBookingAsync();
+
+        // Move the first booking out of "Pending Payment" so CreateBookingAsync's idempotency
+        // check (reusing an existing pending booking for identical room/dates/rooms) doesn't just
+        // hand back this same booking for the second call below.
+        var beforeChangeBooking = await _context.Bookings.FindAsync(beforeChange.Id);
+        beforeChangeBooking!.Status = "Confirmed";
+        await _context.SaveChangesAsync();
 
         _context.SystemSettings.Add(new SystemSetting { Key = "CancellationPolicy.FullRefundHours", Value = "72" });
         _context.SystemSettings.Add(new SystemSetting { Key = "CancellationPolicy.PartialRefundHours", Value = "36" });

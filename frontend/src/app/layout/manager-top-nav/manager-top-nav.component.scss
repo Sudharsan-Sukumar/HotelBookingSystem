@@ -1,0 +1,93 @@
+// This component previously had NO stylesheet at all — it rendered on Bootstrap's default
+// white/transparent navbar background while its template uses `text-white`/`text-warning`
+// everywhere (brand name, dropdown items, profile name), which is invisible white-on-white.
+// Angular scopes a page component's own imported styles (manager-shared.scss) to elements in
+// THAT component's own template only; they never reach into this child component's internal
+// DOM, so those colors had to live here instead. Values match the same Royal Purple (#1A0A2E)
+// + gold (#D4AF37) theme already established in Admin (admin-top-nav.component.scss) and the
+// rest of the Manager module (manager-shared.scss).
+
+.manager-top-nav {
+  background-color: #1A0A2E;
+  border-bottom: 2px solid #D4AF37;
+  min-height: 72px;
+  z-index: 1050;
+  padding: 0 24px;
+}
+
+.brand-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #FFFFFF;
+
+  span {
+    color: #D4AF37;
+  }
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, .85);
+  font-size: .78rem;
+  font-weight: 600;
+  padding: .4rem .75rem;
+  border-radius: 8px;
+  transition: color .15s ease, background-color .15s ease;
+}
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #D4AF37;
+  background-color: rgba(212, 175, 55, .1);
+}
+.nav-link.active {
+  color: #D4AF37;
+  background: transparent;
+  border-bottom: 2px solid #D4AF37;
+  border-radius: 0;
+}
+
+.notification-bell-btn {
+  color: #FFFFFF;
+}
+.notification-bell-btn:hover {
+  background-color: rgba(212, 175, 55, .1) !important;
+}
+
+// Bootstrap's dropdown-menu/dropdown-toggle render with default light backgrounds and dark
+// text unless overridden — without this, opening any of the nav's dropdowns (Bookings, Rooms,
+// Reports, the profile menu) would show white dropdown-item text on a plain white menu.
+::ng-deep {
+  .manager-top-nav .dropdown-menu {
+    background-color: #1A0A2E;
+    border: 1px solid rgba(212, 175, 55, .25);
+    border-radius: 12px;
+    padding: .5rem;
+  }
+  .manager-top-nav .dropdown-menu .dropdown-item {
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+  .manager-top-nav .dropdown-menu .dropdown-item:hover,
+  .manager-top-nav .dropdown-menu .dropdown-item:focus-visible {
+    background-color: #2E1560;
+    color: #D4AF37;
+  }
+  .manager-top-nav .dropdown-menu .dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, .15);
+    color: #ff8080;
+  }
+}
+
+.profile-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #2E1560;
+  color: #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .85rem;
+  border: 1.5px solid #D4AF37;
+}

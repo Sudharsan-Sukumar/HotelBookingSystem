@@ -9,6 +9,7 @@ using HotelBooking.API.Authentication.DTOs;
 using HotelBooking.API.Authentication.Models;
 using HotelBooking.API.Common.Services;
 using HotelBooking.API.Users.Models;
+using HotelBooking.API.Users.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,7 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly IEmailQueue _emailQueue;
     private readonly ILogger<AuthService> _logger;
+    private readonly ISecurityAuditLogService _securityAuditLog;
 
     private const int MaxFailedLoginAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(30);
@@ -30,12 +32,13 @@ public class AuthService : IAuthService
     // Shared with AuthController so the access-token cookie's expiry always matches the JWT's own.
     public static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromDays(1);
 
-    public AuthService(ApplicationDbContext context, IConfiguration configuration, IEmailQueue emailQueue, ILogger<AuthService> logger)
+    public AuthService(ApplicationDbContext context, IConfiguration configuration, IEmailQueue emailQueue, ILogger<AuthService> logger, ISecurityAuditLogService securityAuditLog)
     {
         _context = context;
         _configuration = configuration;
         _emailQueue = emailQueue;
         _logger = logger;
+        _securityAuditLog = securityAuditLog;
     }
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
@@ -55,12 +58,14 @@ public class AuthService : IAuthService
             // only, never the AuditLogs table. Deliberately vague on which condition failed (no
             // email enumeration).
             _logger.LogWarning("Login failed for {Email}: account not found or not active.", normalizedEmail);
+            await _securityAuditLog.LogAsync("LoginFailed", normalizedEmail, user?.Id, success: false, reason: "Account not found or not active.");
             return null;
         }
 
         if (user.LockoutUntil.HasValue && user.LockoutUntil.Value > DateTime.UtcNow)
         {
             _logger.LogWarning("Login blocked for {Email}: account locked out until {LockoutUntil}.", normalizedEmail, user.LockoutUntil);
+            await _securityAuditLog.LogAsync("LoginBlocked", normalizedEmail, user.Id, success: false, reason: $"Account locked out until {user.LockoutUntil:o}.");
             throw new InvalidOperationException("Account locked due to too many failed attempts. Try again after 30 minutes.");
         }
 
@@ -72,11 +77,13 @@ public class AuthService : IAuthService
                 user.LockoutUntil = DateTime.UtcNow.Add(LockoutDuration);
                 user.FailedLoginAttempts = 0;
                 _logger.LogWarning("Login failed for {Email}: incorrect password, account now locked out.", normalizedEmail);
+                await _securityAuditLog.LogAsync("AccountLockedOut", normalizedEmail, user.Id, success: false, reason: "Too many failed login attempts.");
             }
             else
             {
                 _logger.LogWarning("Login failed for {Email}: incorrect password (attempt {Attempts}/{Max}).",
                     normalizedEmail, user.FailedLoginAttempts, MaxFailedLoginAttempts);
+                await _securityAuditLog.LogAsync("LoginFailed", normalizedEmail, user.Id, success: false, reason: $"Incorrect password (attempt {user.FailedLoginAttempts}/{MaxFailedLoginAttempts}).");
             }
             await _context.SaveChangesAsync();
             return null;
@@ -90,11 +97,12 @@ public class AuthService : IAuthService
 
         await _context.SaveChangesAsync();
 
-        // Login is a technical/security event, not a business operation — console only (ILogger),
-        // never the AuditLogs table. This used to write directly to _context.AuditLogs, bypassing
-        // IAuditLogService entirely; that was the one place in the codebase where a routine
-        // technical event ended up in the business audit trail.
+        // Login is a technical/security event, not a business operation — console (ILogger) plus the
+        // dedicated SecurityAuditLogs table (never the business AuditLogs table). This used to write
+        // directly to _context.AuditLogs, bypassing IAuditLogService entirely; that was the one place
+        // in the codebase where a routine technical event ended up in the business audit trail.
         _logger.LogInformation("User {Email} (Id={UserId}) logged in successfully.", user.Email, user.Id);
+        await _securityAuditLog.LogAsync("LoginSucceeded", user.Email, user.Id, success: true);
 
         return new AuthResponseDto
         {
@@ -132,7 +140,11 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(rt => rt.Token == dto.RefreshToken);
 
         if (existing == null || existing.IsRevoked || existing.ExpiresAt < DateTime.UtcNow)
+        {
+            await _securityAuditLog.LogAsync("TokenRefreshRejected", null, existing?.UserId, success: false,
+                reason: existing == null ? "Unknown refresh token." : existing.IsRevoked ? "Refresh token already revoked (possible reuse)." : "Refresh token expired.");
             return null;
+        }
 
         // Rotate: revoke the presented refresh token and issue a brand new one (RefreshTokens row + link).
         existing.IsRevoked = true;
@@ -193,6 +205,7 @@ public class AuthService : IAuthService
         }
 
         await _context.SaveChangesAsync();
+        await _securityAuditLog.LogAsync("Logout", null, refreshToken?.UserId, success: true);
     }
 
     public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
@@ -256,6 +269,126 @@ public class AuthService : IAuthService
             LastName = user.LastName,
             Email = user.Email,
             Role = customerRole != null ? customerRole.Name : "Customer"
+        };
+    }
+
+    // Google OAuth / OpenID Connect — verifies the ID token Google Identity Services handed the
+    // frontend directly against Google's own public signing keys (Google.Apis.Auth fetches and
+    // caches those keys itself; nothing here trusts the token's claims without that verification).
+    // Distinguish from email/password auth: there is no password exchanged or stored at all for a
+    // Google-only account — PasswordHash stays empty and AuthProvider="Google" blocks the normal
+    // Login() path for it (see the check in LoginAsync-adjacent logic below).
+    public async Task<AuthResponseDto> GoogleLoginAsync(GoogleAuthDto dto)
+    {
+        Google.Apis.Auth.GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            var clientId = _configuration["Google:ClientId"]
+                ?? throw new InvalidOperationException("Google:ClientId configuration is required.");
+
+            payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(dto.IdToken,
+                new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { clientId }
+                });
+        }
+        catch (Google.Apis.Auth.InvalidJwtException ex)
+        {
+            _logger.LogWarning("Google login rejected: invalid ID token ({Reason}).", ex.Message);
+            await _securityAuditLog.LogAsync("GoogleLoginFailed", null, null, success: false, reason: "Invalid Google ID token.");
+            throw new InvalidOperationException("Google sign-in failed: the token could not be verified.");
+        }
+
+        if (!payload.EmailVerified)
+        {
+            await _securityAuditLog.LogAsync("GoogleLoginFailed", payload.Email, null, success: false, reason: "Google account email not verified.");
+            throw new InvalidOperationException("Google sign-in failed: your Google account email is not verified.");
+        }
+
+        var normalizedEmail = payload.Email.Trim().ToLowerInvariant();
+
+        // Account Linking Strategy: match by Google's stable "sub" claim first (a prior Google
+        // sign-in), then fall back to matching an existing LOCAL account by email — a customer who
+        // registered with email/password and later uses "Sign in with Google" on the same address
+        // gets the same account linked (GoogleUserId backfilled) rather than a confusing duplicate.
+        // A local account that is itself unverified/banned/etc. is left exactly as guarded as any
+        // other login attempt (the Status != "Active" check below).
+        var user = await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.GoogleUserId == payload.Subject);
+
+        if (user == null)
+        {
+            user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+
+            if (user != null)
+            {
+                // Link the existing local account to this Google identity. AuthProvider is left as
+                // whatever it already was ("Local", almost always) — this account can now sign in
+                // EITHER way; it's gained a second credential, not switched providers.
+                user.GoogleUserId = payload.Subject;
+            }
+        }
+
+        if (user == null)
+        {
+            // New customer, first-ever sign-in via Google — created pre-verified (Google already
+            // verified the email) and Active immediately, unlike email/password registration's
+            // Pending-until-OTP-verified flow.
+            var customerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
+            int roleId = customerRole?.Id ?? 2;
+
+            var existingIds = await _context.Users
+                .Where(u => u.UserCustomId != null && u.UserCustomId.StartsWith("CUST-"))
+                .Select(u => u.UserCustomId)
+                .ToListAsync();
+            int nextSequence = existingIds
+                .Select(id => int.TryParse(id?.Split('-').LastOrDefault(), out var n) ? n : 0)
+                .DefaultIfEmpty(0)
+                .Max() + 1;
+
+            user = new User
+            {
+                UserCustomId = $"CUST-{DateTime.UtcNow.Year}-{nextSequence:D4}",
+                FirstName = payload.GivenName ?? payload.Name ?? "Google",
+                LastName = payload.FamilyName ?? "User",
+                Email = normalizedEmail,
+                PasswordHash = string.Empty, // Google-only account — no password ever set.
+                Phone = string.Empty,
+                RoleId = roleId,
+                Status = "Active",
+                AuthProvider = "Google",
+                GoogleUserId = payload.Subject
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            user.Role = customerRole!;
+        }
+        else if (user.Status != "Active")
+        {
+            await _securityAuditLog.LogAsync("GoogleLoginFailed", normalizedEmail, user.Id, success: false, reason: "Account not active.");
+            throw new InvalidOperationException("Your account is not active. Please contact support.");
+        }
+
+        var (token, _) = GenerateJwtToken(user);
+        var refreshToken = await IssueRefreshTokenAsync(user.Id);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("User {Email} (Id={UserId}) logged in via Google.", user.Email, user.Id);
+        await _securityAuditLog.LogAsync("GoogleLoginSucceeded", user.Email, user.Id, success: true);
+
+        return new AuthResponseDto
+        {
+            Token = token,
+            RefreshToken = refreshToken,
+            UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            Role = user.Role != null ? user.Role.Name : "Customer",
+            ForcePasswordChange = user.ForcePasswordChange
         };
     }
 
@@ -399,12 +532,14 @@ public class AuthService : IAuthService
         }
 
         await _context.SaveChangesAsync();
+        await _securityAuditLog.LogAsync("LogoutAllDevices", user.Email, userId, success: true);
     }
 
     private (string Token, string Jti) GenerateJwtToken(User user)
     {
-        // For development, hardcode a secret if not in appsettings
-        var secret = _configuration["Jwt:Secret"] ?? "SuperSecretKeyThatIsVeryLongAndSecure12345!";
+        // Fail-Fast Startup Validation - mirrors Program.cs's own check; no silent insecure fallback for the signing key.
+        var secret = _configuration["Jwt:Secret"]
+            ?? throw new InvalidOperationException("Jwt:Secret configuration is required.");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var jti = Guid.NewGuid().ToString();

@@ -1,0 +1,179 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color:#6c757d;">Home</a></li>
+      <li class="breadcrumb-item active" style="color:#1A0A2E; font-weight:500;">Notifications</li>
+    </ol>
+  </nav>
+
+  <div class="mb-4 text-start d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Notification Center</h1>
+      <p class="text-secondary small mb-0">Monitor all important system events, approvals, warnings and activities from one place.</p>
+    </div>
+    <button class="btn btn-purple btn-sm" (click)="openComposeModal()"><i class="bi bi-megaphone-fill me-1"></i> Compose Broadcast</button>
+  </div>
+
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size:1.25rem;"><i class="bi bi-bell"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Unread Notifications</span>
+          <strong class="fs-5 text-dark">{{ unreadCount }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-danger bg-opacity-10 text-danger" style="font-size:1.25rem;"><i class="bi bi-exclamation-octagon-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Critical Alerts</span>
+          <strong class="fs-5 text-dark">{{ criticalCount }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size:1.25rem;"><i class="bi bi-calendar-event"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Today's Notifications</span>
+          <strong class="fs-5 text-dark">{{ todayCount }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size:1.25rem;"><i class="bi bi-check-circle-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Resolved Today</span>
+          <strong class="fs-5 text-dark">{{ resolvedTodayCount }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 text-start">
+    <div class="col-md-3">
+      <div class="card p-3 border bg-white shadow-sm" style="border-radius:16px;">
+        <h6 class="font-serif fw-bold text-purple mb-3">Notification Categories</h6>
+        <div class="d-flex flex-column gap-1">
+          <a href="javascript:void(0)" class="category-link" [class.active]="activeCategory===cat" *ngFor="let cat of categories" (click)="setCategory(cat)">
+            <span>{{ cat }}</span> <span class="badge bg-light text-dark border">{{ categoryCount(cat) }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="card p-3 border bg-white shadow-sm mb-3" style="border-radius:12px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <input type="text" class="form-control form-control-sm w-auto" placeholder="Search notifications..." [(ngModel)]="searchQuery">
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-purple btn-sm" (click)="markAllRead()">Mark All Read</button>
+            <button class="btn btn-outline-purple btn-sm" (click)="clearRead()">Clear Read</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-2" style="max-height:550px; overflow-y:auto; padding-right:5px;">
+        <div *ngFor="let n of filtered" class="card p-3 border bg-white shadow-sm notif-card"
+             [ngClass]="[borderClass(n.priority), n.status==='Unread' ? 'unread' : '', selected?.id===n.id ? 'active-selected' : '']"
+             (click)="viewDetails(n.id)">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div class="small fw-bold text-purple">{{ n.title }}</div>
+            <span class="badge" [ngClass]="priorityBadgeClass(n.priority)" style="font-size:0.6rem;">{{ n.priority }}</span>
+          </div>
+          <div class="text-secondary small mb-2">{{ n.desc }}</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small" style="font-size:0.65rem;">{{ n.date }}</span>
+            <button class="btn btn-outline-purple btn-sm py-0 px-2 small" (click)="$event.stopPropagation(); viewDetails(n.id)">View</button>
+          </div>
+        </div>
+        <div *ngIf="filtered.length === 0" class="card p-5 border bg-white shadow-sm text-center text-muted" style="border-radius:12px;">
+          <i class="bi bi-bell-slash fs-1 mb-2 d-block text-warning"></i>
+          No notifications available.<br>You are all caught up.
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-4 border bg-white shadow-sm" style="border-radius:16px;">
+        <h5 class="font-serif fw-bold text-purple mb-3"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>Notification Details</h5>
+        <hr class="opacity-10">
+        <div *ngIf="!selected" class="text-center text-muted py-5">
+          <i class="bi bi-chat-left-dots fs-1 mb-2 d-block"></i>
+          Select a notification to view complete details.
+        </div>
+        <div *ngIf="selected" class="small">
+          <div class="row g-3">
+            <div class="col-5 text-secondary">Notification ID</div>
+            <div class="col-7 text-dark fw-bold">{{ selected.id }}</div>
+            <div class="col-5 text-secondary">Module</div>
+            <div class="col-7 text-dark">{{ selected.module }}</div>
+            <div class="col-5 text-secondary">Created Date</div>
+            <div class="col-7 text-dark">{{ selected.date }}</div>
+            <div class="col-5 text-secondary">Priority</div>
+            <div class="col-7"><span class="badge" [ngClass]="priorityBadgeClass(selected.priority)">{{ selected.priority }}</span></div>
+            <div class="col-5 text-secondary">Status</div>
+            <div class="col-7"><span class="badge bg-warning text-dark">{{ selected.status }}</span></div>
+            <div class="col-12 mt-3">
+              <label class="form-label text-secondary fw-semibold">Description</label>
+              <div class="p-3 bg-light rounded text-dark">{{ selected.desc }}</div>
+            </div>
+            <div class="col-12 mt-2">
+              <label class="form-label text-secondary fw-semibold">Recommended Action</label>
+              <div class="p-3 bg-light rounded text-dark">{{ selected.recommendation }}</div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn btn-outline-purple btn-sm" (click)="markSelectedRead()">Mark as Read</button>
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteSelected()"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Compose Broadcast Notification Modal -->
+<div class="custom-modal-backdrop" *ngIf="showComposeModal">
+  <div class="custom-modal">
+    <div class="modal-header border-bottom-0 pb-0 d-flex justify-content-between align-items-start p-3">
+      <h5 class="font-serif fw-bold text-purple mt-2 mb-0"><i class="bi bi-megaphone-fill me-2"></i>Compose Notification</h5>
+      <button type="button" class="btn-close" (click)="cancelCompose()" aria-label="Close"></button>
+    </div>
+    <form (ngSubmit)="sendBroadcast()">
+      <div class="modal-body pt-2 px-3">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold text-purple">Recipient User ID (leave empty to broadcast to all users)</label>
+          <input type="number" class="form-control form-control-sm" [(ngModel)]="composeUserId" name="composeUserId" placeholder="e.g. 12 - leave blank for broadcast">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold text-purple">Type</label>
+          <select class="form-select form-select-sm" [(ngModel)]="composeType" name="composeType">
+            <option value="Info">Info</option>
+            <option value="Alert">Alert</option>
+            <option value="Warning">Warning</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-purple">Message *</label>
+          <textarea class="form-control form-control-sm" rows="3" [(ngModel)]="composeMessage" name="composeMessage" placeholder="Notification message..."></textarea>
+          <div class="text-danger mt-1 small" *ngIf="composeError">{{ composeError }}</div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0 p-3">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelCompose()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="isSending">
+          <span *ngIf="!isSending">Send</span>
+          <span *ngIf="isSending">Sending...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

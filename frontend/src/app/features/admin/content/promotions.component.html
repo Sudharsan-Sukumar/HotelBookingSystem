@@ -1,0 +1,110 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/content" class="text-decoration-none" style="color: #6c757d;">Content</a></li>
+        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Promotions</li>
+      </ol>
+    </nav>
+    <a routerLink="/admin/content" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Content</a>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+    <div>
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Promotions &amp; Offers</h1>
+      <p class="text-secondary small mb-0">Manage the discount promotions shown to customers on the homepage.</p>
+    </div>
+    <button class="btn btn-purple btn-sm" (click)="openAdd()" *ngIf="!showForm"><i class="bi bi-plus-lg me-1"></i> Add Promotion</button>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto mb-4" style="border-radius: 16px; max-width: 900px;" *ngIf="showForm">
+    <h5 class="font-serif fw-bold text-purple mb-3">{{ editingId ? 'Edit Promotion' : 'New Promotion' }}</h5>
+    <form #promoForm="ngForm" (ngSubmit)="onSubmit(promoForm)" novalidate>
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label small fw-semibold">Title *</label>
+          <input type="text" name="title" class="form-control form-control-sm" [(ngModel)]="title" maxlength="200" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Valid Until *</label>
+          <input type="date" name="validUntil" class="form-control form-control-sm" [(ngModel)]="validUntil" required>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-semibold">Discount Description *</label>
+          <textarea name="discountDescription" class="form-control form-control-sm" rows="3" [(ngModel)]="discountDescription" maxlength="1000" required></textarea>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Coupon Code *</label>
+          <input
+            type="text"
+            name="couponCode"
+            class="form-control form-control-sm"
+            [ngClass]="{ 'is-invalid': couponCodeError }"
+            [ngModel]="couponCode"
+            (ngModelChange)="onCouponCodeInput($event)"
+            (blur)="validateCouponCode()"
+            maxlength="15"
+            placeholder="e.g. SUMMER25"
+            required>
+          <div class="invalid-feedback" *ngIf="couponCodeError">{{ couponCodeError }}</div>
+          <div class="form-text small" *ngIf="!couponCodeError">5-15 uppercase letters/numbers (auto-uppercased).</div>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label small fw-semibold">Image URL</label>
+          <input type="text" name="imageUrl" class="form-control form-control-sm" [(ngModel)]="imageUrl" maxlength="500" placeholder="/assets/images/...">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" name="isActive" [(ngModel)]="isActive">
+            <label class="form-check-label small fw-semibold" for="isActive">Active</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="saving"><i class="bi bi-save me-1"></i> {{ editingId ? 'Update' : 'Create' }} Promotion</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card border bg-white shadow-sm" style="border-radius: 16px;">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr class="text-secondary small">
+            <th>Title</th>
+            <th>Discount</th>
+            <th>Coupon Code</th>
+            <th>Valid Until</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of promotions">
+            <td class="fw-semibold text-purple">{{ p.title }}</td>
+            <td class="small text-secondary">{{ p.discountDescription }}</td>
+            <td class="small"><code>{{ p.couponCode }}</code></td>
+            <td class="small text-secondary">{{ p.validUntil | date:'mediumDate' }}</td>
+            <td>
+              <span class="badge" [ngClass]="p.isActive ? 'bg-success' : 'bg-secondary'" style="cursor: pointer;" (click)="toggleActive(p)">{{ p.isActive ? 'Active' : 'Inactive' }}</span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-outline-purple btn-sm py-0 px-2 me-1" (click)="openEdit(p)"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="deletePromotion(p)"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && promotions.length === 0">
+            <td colspan="6" class="text-center text-muted py-4">No promotions yet. Click "Add Promotion" to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>

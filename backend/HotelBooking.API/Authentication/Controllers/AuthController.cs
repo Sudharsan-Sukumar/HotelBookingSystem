@@ -7,6 +7,7 @@ using HotelBooking.API.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Hosting;
 
 namespace HotelBooking.API.Authentication.Controllers;
@@ -55,6 +56,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth-login")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
     {
         try
@@ -73,6 +75,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth-otp")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
     {
         var response = await _authService.RegisterAsync(dto);
@@ -93,6 +96,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("resend-verification")]
+    [EnableRateLimiting("auth-otp")]
     public async Task<ActionResult> ResendVerificationEmail([FromBody] ResendVerificationDto dto)
     {
         await _authService.ResendVerificationEmailAsync(dto);
@@ -101,6 +105,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth-otp")]
     public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
         await _authService.ForgotPasswordAsync(dto);
@@ -109,6 +114,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("reset-password")]
+    [EnableRateLimiting("auth-otp")]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
     {
         try
@@ -134,6 +140,27 @@ public class AuthController : ControllerBase
         await _authService.LogoutAllDevicesAsync(userId, currentJti);
         ClearAccessTokenCookie();
         return Ok(ApiResponse.SuccessResponse("Logged out from all devices. Please log in again."));
+    }
+
+    // Traditional email/password auth (Login above) vs Google OAuth (this endpoint): Login verifies
+    // a password this API stores (BCrypt hash); this endpoint instead verifies a Google-issued ID
+    // token against Google's own signing keys and never sees or stores a password for that account.
+    // Both paths converge on the same outcome — the app's own JWT + refresh token pair from this
+    // API — so nothing downstream of login needs to know or care which method was used.
+    [HttpPost("google")]
+    [EnableRateLimiting("auth-login")]
+    public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleAuthDto dto)
+    {
+        try
+        {
+            var response = await _authService.GoogleLoginAsync(dto);
+            SetAccessTokenCookie(response.Token);
+            return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(response));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(ApiResponse<object?>.ErrorResponse(ex.Message));
+        }
     }
 
     [HttpPost("refresh")]

@@ -1,0 +1,54 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color:#6c757d;">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/monitoring" class="text-decoration-none" style="color:#6c757d;">Bookings</a></li>
+        <li class="breadcrumb-item active" style="color:#1A0A2E; font-weight:500;">Booking Details</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div *ngIf="loading" class="text-center text-muted py-5">Loading booking details...</div>
+
+  <div *ngIf="!loading && notFound" class="alert alert-warning text-start">
+    No booking found with this id. It may have been removed, or the hotel it belongs to could not be resolved.
+  </div>
+
+  <ng-container *ngIf="!loading && booking">
+    <div class="mb-4 text-start">
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Booking Details – {{ booking.bookingCustomId }}</h1>
+      <p class="text-secondary small mb-0">Read-only real-time master booking specifications overview.</p>
+    </div>
+
+    <div class="card border bg-white p-4 shadow-sm text-start mx-auto" style="border-radius:16px; max-width:900px;">
+      <h4 class="font-serif fw-bold text-purple mb-3">
+        {{ booking.customerName }}
+        <span class="badge small" [ngClass]="statusBadgeClass" style="font-size:0.75rem;">{{ booking.status }}</span>
+      </h4>
+      <hr>
+      <div class="row g-3 small">
+        <div class="col-sm-4 text-secondary">Branch / Location</div>
+        <div class="col-sm-8 text-dark fw-semibold">{{ booking.hotelName }}</div>
+
+        <div class="col-sm-4 text-secondary">Room Type</div>
+        <div class="col-sm-8 text-dark">{{ booking.roomTypeName }}</div>
+
+        <div class="col-sm-4 text-secondary">Duration of Stay</div>
+        <div class="col-sm-8 text-dark">{{ booking.checkInDate | slice:0:10 }} to {{ booking.checkOutDate | slice:0:10 }} ({{ nights }} Nights)</div>
+
+        <div class="col-sm-4 text-secondary">Total Amount</div>
+        <div class="col-sm-8 text-dark fw-semibold">₹{{ booking.amount | number:'1.0-0' }}</div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mt-4 mb-3">
+      <a routerLink="/admin/monitoring" class="btn btn-outline-secondary px-4"><i class="bi bi-arrow-left me-2"></i>Back to Monitoring</a>
+      <button class="btn btn-outline-purple px-4" (click)="print()"><i class="bi bi-printer me-2"></i>Print Details</button>
+    </div>
+  </ng-container>
+</div>
+</div>

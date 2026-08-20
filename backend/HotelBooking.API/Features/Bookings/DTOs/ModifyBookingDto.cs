@@ -18,6 +18,14 @@ public class ModifyBookingDto : IValidatableObject
     // (multi-tab) submission is rejected instead of silently overwriting a newer state.
     public string? RowVersion { get; set; }
 
+    // TC001 fix: a Booking has no guest-count column at all (occupancy is only ever checked
+    // transiently at hotel-search/creation time against RoomType.Capacity, never persisted onto
+    // the booking row), so guest count is genuinely NOT a modifiable property of an existing
+    // booking — this field exists purely as a server-side guard so a caller that sends one anyway
+    // (bypassing the Angular UI) gets an explicit rejection instead of it being silently ignored.
+    // It is never persisted or used for pricing.
+    public int? GuestCount { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (CheckInDate.Date < DateTime.UtcNow.Date)

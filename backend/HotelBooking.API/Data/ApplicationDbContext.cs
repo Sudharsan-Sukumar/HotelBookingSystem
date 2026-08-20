@@ -30,6 +30,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<RevocationToken> RevocationTokens { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    public DbSet<SecurityAuditLog> SecurityAuditLogs { get; set; } = null!;
 
     // Hotels & Rooms
     public DbSet<Hotel> Hotels { get; set; } = null!;
@@ -42,6 +43,7 @@ public class ApplicationDbContext : DbContext
 
     // Bookings & Payments
     public DbSet<Booking> Bookings { get; set; } = null!;
+    public DbSet<HotelBooking.API.Features.Bookings.Models.BookingStatusHistory> BookingStatusHistory { get; set; } = null!;
     public DbSet<BookingRoom> BookingRooms { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
     public DbSet<Refund> Refunds { get; set; } = null!;
@@ -50,13 +52,17 @@ public class ApplicationDbContext : DbContext
     // Operations & CMS
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<SystemSetting> SystemSettings { get; set; } = null!;
+    public DbSet<SeasonalPolicy> SeasonalPolicies { get; set; } = null!;
+    public DbSet<GeneralPolicy> GeneralPolicies { get; set; } = null!;
     public DbSet<Promotion> Promotions { get; set; } = null!;
     public DbSet<HeroContent> HeroContents { get; set; } = null!;
     public DbSet<AboutContent> AboutContents { get; set; } = null!;
     public DbSet<ContactContent> ContactContents { get; set; } = null!;
     public DbSet<HelpArticle> HelpArticles { get; set; } = null!;
     public DbSet<DatabaseBackup> DatabaseBackups { get; set; } = null!;
-    
+    public DbSet<HotelBooking.API.Common.Models.IdempotencyRecord> IdempotencyRecords { get; set; } = null!;
+    public DbSet<HotelBooking.API.Common.Models.FailedEmail> FailedEmails { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -116,6 +122,10 @@ public class ApplicationDbContext : DbContext
             .Property(rt => rt.RowVersion)
             .IsRowVersion();
 
+        modelBuilder.Entity<Review>()
+            .Property(r => r.RowVersion)
+            .IsRowVersion();
+
         // Query Optimization: Non-Clustered Indexes
         modelBuilder.Entity<Hotel>()
             .HasIndex(h => h.Location);
@@ -160,6 +170,18 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RevocationToken>()
             .HasIndex(rt => rt.Token)
             .IsUnique();
+
+        // Idempotency-Key Persistence - unique index enforces one stored response per key and backs the middleware's replay lookup.
+        modelBuilder.Entity<HotelBooking.API.Common.Models.IdempotencyRecord>()
+            .HasIndex(ir => ir.Key)
+            .IsUnique();
+
+        // Security audit log retrieval by recency (admin view) and by event type (e.g. count failed logins).
+        modelBuilder.Entity<SecurityAuditLog>()
+            .HasIndex(s => s.Timestamp);
+
+        modelBuilder.Entity<SecurityAuditLog>()
+            .HasIndex(s => new { s.EventType, s.Timestamp });
 
         // Foreign Key Configurations
         modelBuilder.Entity<Booking>()

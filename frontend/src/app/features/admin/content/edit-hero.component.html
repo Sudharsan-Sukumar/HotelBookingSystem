@@ -1,0 +1,40 @@
+<div class="text-start">
+  <h6 class="font-serif fw-bold text-purple mb-1">Hero Banner</h6>
+  <p class="text-secondary small mb-3">Configure primary landing visual heading, subheading and background image.</p>
+
+  <div *ngIf="loading" class="text-center text-muted py-4 small">Loading&hellip;</div>
+
+  <form #heroForm="ngForm" (ngSubmit)="onSubmit(heroForm)" novalidate *ngIf="!loading">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label small fw-semibold">Main Heading *</label>
+        <input type="text" name="heading" class="form-control form-control-sm" [(ngModel)]="heading" (ngModelChange)="pushPreview()" maxlength="200" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label small fw-semibold">Sub Heading *</label>
+        <input type="text" name="subheading" class="form-control form-control-sm" [(ngModel)]="subheading" (ngModelChange)="pushPreview()" maxlength="300" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label small fw-semibold">Banner Image URL *</label>
+        <input type="text" name="backgroundImageUrl" class="form-control form-control-sm" [(ngModel)]="backgroundImageUrl" (ngModelChange)="pushPreview()" maxlength="500" required>
+
+        <div class="d-flex align-items-center gap-3 mt-2">
+          <img *ngIf="backgroundImageUrl" [src]="resolveImageUrl(backgroundImageUrl)" alt="Current banner preview" class="border rounded" style="width: 96px; height: 60px; object-fit: cover;">
+
+          <div>
+            <label for="heroImageFile" class="btn btn-outline-purple btn-sm mb-0" [class.disabled]="uploading">
+              <i class="bi bi-upload me-1"></i>{{ uploading ? 'Uploading…' : 'Choose Image From Device' }}
+            </label>
+            <input id="heroImageFile" type="file" accept="image/jpeg,image/png" class="d-none" (change)="onFileSelected($event)" [disabled]="uploading">
+            <div class="text-muted small mt-1">JPG or PNG, up to 5MB.</div>
+            <div class="text-danger small mt-1" *ngIf="uploadError">{{ uploadError }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button type="submit" class="btn btn-purple btn-sm" [disabled]="saving"><i class="bi bi-save me-1"></i> Publish Content</button>
+    </div>
+  </form>
+</div>

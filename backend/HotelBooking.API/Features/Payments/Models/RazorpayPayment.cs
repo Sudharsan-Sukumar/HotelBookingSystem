@@ -45,4 +45,10 @@ public class RazorpayPayment
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    // Payment Session Snapshot — captures the admin-configured "IsUpiEnabled" toggle AS IT WAS at
+    // link-creation time, so a later admin toggle can never retroactively change what an already
+    // in-flight payment session is presented as having offered. Null for payments created before
+    // this snapshot existed.
+    public bool? IsUpiEnabledSnapshot { get; set; }
 }

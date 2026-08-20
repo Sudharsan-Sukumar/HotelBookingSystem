@@ -21,7 +21,7 @@ public class SystemSettingService : ISystemSettingService
     public async Task<IEnumerable<SystemSettingDto>> GetAllSettingsAsync()
     {
         return await _context.SystemSettings
-            .Select(s => new SystemSettingDto { Key = s.Key, Value = s.Value })
+            .Select(s => new SystemSettingDto { Key = s.Key, Value = s.Value, UpdatedAt = s.UpdatedAt })
             .ToListAsync();
     }
 
@@ -29,7 +29,7 @@ public class SystemSettingService : ISystemSettingService
     {
         var setting = await _context.SystemSettings.FirstOrDefaultAsync(s => s.Key == key);
         if (setting == null) return null;
-        return new SystemSettingDto { Key = setting.Key, Value = setting.Value };
+        return new SystemSettingDto { Key = setting.Key, Value = setting.Value, UpdatedAt = setting.UpdatedAt };
     }
 
     public async Task<bool> UpdateSettingAsync(string key, SystemSettingDto dto)

@@ -1,0 +1,124 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color:#6c757d;">Home</a></li>
+      <li class="breadcrumb-item active" style="color:#1A0A2E; font-weight:500;">Review Moderation</li>
+    </ol>
+  </nav>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Review Moderation</h1>
+    <p class="text-secondary small mb-0">Select a hotel to review guest feedback and remove inappropriate reviews.</p>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-4">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size:1.25rem;"><i class="bi bi-chat-square-text-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Reviews for Selected Hotel</span>
+          <strong class="fs-5 text-dark">{{ reviews.length }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size:1.25rem;"><i class="bi bi-star-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Average Rating</span>
+          <strong class="fs-5 text-dark">{{ averageRating | number:'1.1-1' }} / 5</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size:1.25rem;"><i class="bi bi-buildings"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Hotels Available</span>
+          <strong class="fs-5 text-dark">{{ hotels.length }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOTEL PICKER -->
+  <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius:12px;">
+    <div class="row g-2 align-items-end text-start">
+      <div class="col-md-6">
+        <label class="form-label small fw-semibold text-purple">Hotel</label>
+        <select class="form-select form-select-sm" [(ngModel)]="selectedHotelId" (ngModelChange)="onHotelChange()">
+          <option *ngFor="let h of hotels" [value]="h.id">{{ h.name }} ({{ h.city }})</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-purple btn-sm w-100" (click)="loadReviews()">Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS TABLE -->
+  <div class="card border shadow-sm bg-white p-3 mb-4" style="border-radius:12px;">
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr>
+            <th>Review ID</th><th>Booking</th><th>Customer ID</th><th>Rating</th>
+            <th>Comment</th><th>Manager Response</th><th>Submitted</th><th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reviews">
+            <td><strong>{{ r.id }}</strong></td>
+            <td>#{{ r.bookingId }}</td>
+            <td>#{{ r.customerId }}</td>
+            <td><span class="badge bg-warning text-dark">{{ r.rating }} <i class="bi bi-star-fill"></i></span></td>
+            <td class="text-truncate" style="max-width: 220px;">{{ r.comment || '-' }}</td>
+            <td class="text-truncate" style="max-width: 180px;">{{ r.managerResponse || '-' }}</td>
+            <td>{{ r.createdAt | date:'medium' }} IST</td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-danger py-0 px-2" (click)="requestDelete(r)"><i class="bi bi-trash-fill"></i> Remove</button>
+            </td>
+          </tr>
+          <tr *ngIf="isLoadingReviews">
+            <td colspan="8" class="text-center py-4 text-muted">Loading...</td>
+          </tr>
+          <tr *ngIf="!isLoadingReviews && !reviews.length">
+            <td colspan="8" class="text-center py-4 text-muted">No reviews for this hotel.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Review (Moderation) Modal -->
+<div class="custom-modal-backdrop" *ngIf="showDeleteModal">
+  <div class="custom-modal modal-sm">
+    <div class="modal-header border-bottom-0 pb-0 d-flex justify-content-between align-items-start p-3">
+      <h5 class="font-serif fw-bold text-purple mt-2 mb-0">Remove Review</h5>
+      <button type="button" class="btn-close" (click)="cancelDelete()" aria-label="Close"></button>
+    </div>
+    <form (ngSubmit)="confirmDelete()">
+      <div class="modal-body pt-2 px-3">
+        <p class="text-secondary small">Removing review #{{ deleteTarget?.id }}. This action cannot be undone.</p>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-purple">Reason *</label>
+          <textarea class="form-control form-control-sm" rows="3" [(ngModel)]="deleteReason" name="deleteReason" placeholder="Explain why this review is being removed..."></textarea>
+          <div class="text-danger mt-1 small" *ngIf="deleteReasonError">{{ deleteReasonError }}</div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0 p-3">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelDelete()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="isDeleting">
+          <span *ngIf="!isDeleting">Confirm Remove</span>
+          <span *ngIf="isDeleting">Removing...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

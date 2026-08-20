@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using HotelBooking.API.Features.CMS.DTOs;
 using HotelBooking.API.Features.CMS.Services;
+using HotelBooking.API.Common.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HotelBooking.API.Common.Models;
@@ -19,11 +20,13 @@ public class ContentController : ControllerBase
 {
     private readonly ISiteContentService _siteContentService;
     private readonly IHelpArticleService _helpArticleService;
+    private readonly IFileUploadService _fileUploadService;
 
-    public ContentController(ISiteContentService siteContentService, IHelpArticleService helpArticleService)
+    public ContentController(ISiteContentService siteContentService, IHelpArticleService helpArticleService, IFileUploadService fileUploadService)
     {
         _siteContentService = siteContentService;
         _helpArticleService = helpArticleService;
+        _fileUploadService = fileUploadService;
     }
 
     private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? "0");
@@ -38,6 +41,26 @@ public class ContentController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ApiResponse<object?>.ErrorResponse("Validation failed."));
         return Ok(ApiResponse<HeroContentResponseDto>.SuccessResponse(await _siteContentService.UpdateHeroAsync(dto, GetUserId()), "Hero content updated successfully."));
+    }
+
+    // Lets the Admin pick an image file from their local machine for the Hero banner instead of
+    // typing a URL by hand. Only uploads and returns the resulting URL — saving it against the
+    // Hero record still goes through the existing PUT above, unchanged.
+    [HttpPost("hero/image")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UploadHeroImage([FromForm] HeroImageUploadDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ApiResponse<object?>.ErrorResponse("Validation failed."));
+
+        try
+        {
+            var url = await _fileUploadService.SaveImageAsync(dto.File, "images/hero", maxSizeMb: 5);
+            return Ok(ApiResponse<string>.SuccessResponse(url, "Hero image uploaded successfully."));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<object?>.ErrorResponse(ex.Message));
+        }
     }
 
     // ── About section ────────────────────────────────────────────────────────

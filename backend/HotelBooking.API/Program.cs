@@ -27,6 +27,7 @@ using Microsoft.OpenApi.Models;
 using HotelBooking.API.Common.Filters;
 using HotelBooking.API.Features.Bookings.Rules;
 using HotelBooking.API.Common.Services;
+using HotelBooking.API.Features.AI.Services;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -57,13 +58,7 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ForcePasswordChangeFilter>();
 });
 
-// QA Defect (Medium): [ApiController]'s built-in automatic model-validation response runs BEFORE
-// any action filter gets a chance — including ValidationFilterAttribute above — so every
-// [Required]/[RegularExpression]/IValidatableObject failure was short-circuited straight to ASP.NET
-// Core's raw ProblemDetails shape ({type,title,status,errors}), never reaching the ApiResponse<T>
-// envelope every other endpoint in this API uses. This overrides that default factory so model-state
-// failures come back in the SAME ApiResponse<object?> shape as every hand-written BadRequest(...)
-// elsewhere, aggregating field errors the same way ValidationFilterAttribute already does.
+
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -78,13 +73,12 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
     };
 });
 
-// Dev-only CORS so the standalone (localStorage-based) Phase 2 frontend can call
-// the Razorpay order/verify endpoints. Tighten to specific origins before production.
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendDev", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -94,7 +88,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// API Hardening: Rate Limiting (100 req/min per IP)
+// API Hardening: Rate Limiting (100 req/min per IP globally, plus stricter named policies
+// for brute-force/abuse-sensitive endpoints applied via [EnableRateLimiting("...")] below).
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -107,12 +102,42 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 2,
                 Window = TimeSpan.FromMinutes(1)
             }));
-            
+
+    // Login: 5 attempts/minute/IP — tight enough to slow credential stuffing, loose enough
+    // that a user mistyping their password a few times isn't locked out.
+    options.AddPolicy("auth-login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Register/OTP/password-reset: 3 attempts/minute/IP — these trigger an email/SMTP send
+    // or create a new account, so abuse here is both a cost and a spam vector.
+    options.AddPolicy("auth-otp", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 3,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 // Add Application Services (from our Extensions)
 builder.Services.AddApplicationServices();
+
+// Heartbeat Health Check - exposes PaymentReconciliationService's last successful tick via ASP.NET Core's built-in health checks so an operator can detect a silently-wedged background loop before customers notice stuck payments.
+builder.Services.AddHealthChecks()
+    .AddCheck<HotelBooking.API.Common.Services.ReconciliationHealthCheck>("payment_reconciliation");
 
 // Swagger / OpenAPI setup
 builder.Services.AddEndpointsApiExplorer();
@@ -122,12 +147,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("Manager", new OpenApiInfo { Title = "The Elegant Enclave's Booking Application — Manager API", Version = "v1" });
     c.SwaggerDoc("Admin", new OpenApiInfo { Title = "The Elegant Enclave's Booking Application — Admin API", Version = "v1" });
 
-    // AuthController is grouped under "Customer" by default (its class-level GroupName), which
-    // meant Admin/Manager users had to jump to the Customer doc just to log in, then switch docs
-    // and paste the token by hand. Instead of duplicating the login/logout implementation per
-    // role, keep the single AuthController and just make its Login/Logout actions visible inside
-    // every role's own document too — same underlying endpoint, reused as-is, just discoverable
-    // from wherever the user actually is.
+
     c.DocInclusionPredicate((docName, apiDesc) =>
     {
         var descriptor = apiDesc.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
@@ -203,6 +223,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
 
+// Dependency Injection — wires interface-to-implementation bindings for all Admin/Manager/Customer services.
 // Register Services
 builder.Services.AddScoped<HotelBooking.API.Users.Services.IAdminUserService, HotelBooking.API.Users.Services.AdminUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -213,9 +234,12 @@ builder.Services.AddScoped<IRefundService, RefundService>();
 builder.Services.AddScoped<IRoomTypeService, RoomTypeService>();
 
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<HotelBooking.API.Users.Services.ISecurityAuditLogService, HotelBooking.API.Users.Services.SecurityAuditLogService>();
 
+// Options Pattern — binds the "Razorpay" config section to a strongly-typed RazorpayOptions via IOptions<T>.
 builder.Services.Configure<HotelBooking.API.Features.Payments.Services.RazorpayOptions>(
     builder.Configuration.GetSection(HotelBooking.API.Features.Payments.Services.RazorpayOptions.SectionName));
+// Circuit Breaker + Retry (Polly) — retries transient Razorpay HTTP failures, then trips the circuit after repeated faults.
 builder.Services.AddHttpClient<HotelBooking.API.Features.Payments.Services.IRazorpayApiClient,
     HotelBooking.API.Features.Payments.Services.RazorpayApiClient>()
     .SetHandlerLifetime(TimeSpan.FromMinutes(5))
@@ -224,10 +248,29 @@ builder.Services.AddHttpClient<HotelBooking.API.Features.Payments.Services.IRazo
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))))
     .AddPolicyHandler(HttpPolicyExtensions
         .HandleTransientHttpError()
-        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)))
+    // Explicit HttpClient Timeout - without one, a Razorpay call that never times out at the socket level can hang indefinitely, sidestepping Polly's retry/circuit-breaker policies which only trigger on a completed faulted response.
+    .ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(15));
 builder.Services.AddScoped<HotelBooking.API.Features.Payments.Services.IRazorpayPaymentService,
     HotelBooking.API.Features.Payments.Services.RazorpayPaymentService>();
+// Heartbeat Pattern - singleton tracker records the reconciliation loop's last successful tick for the /health check below.
+builder.Services.AddSingleton<HotelBooking.API.Common.Services.IReconciliationHealthTracker, HotelBooking.API.Common.Services.ReconciliationHealthTracker>();
 builder.Services.AddHostedService<HotelBooking.API.Features.Payments.Services.PaymentReconciliationService>();
+// Abandoned Payment-Session Cleanup - periodically auto-cancels bookings whose payment session expired and was never completed, closing the "booking lock never expires" gap.
+builder.Services.AddHostedService<HotelBooking.API.Features.Bookings.Services.AbandonedBookingCleanupService>();
+// Audit Log Retention - nightly purge of AuditLogs (365-day retention) and SecurityAuditLogs (90-day retention).
+builder.Services.AddHostedService<HotelBooking.API.Users.Services.AuditLogRetentionService>();
+
+builder.Services.Configure<OpenRouterOptions>(builder.Configuration.GetSection(OpenRouterOptions.SectionName));
+builder.Services.AddHttpClient<IOpenRouterClient, OpenRouterClient>()
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))))
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+builder.Services.AddScoped<IAiChatService, AiChatService>();
 
 builder.Services.AddSingleton<IPricingRuleService, PricingRuleEngine>();
 builder.Services.AddScoped<IReportService, ReportService>();
@@ -238,10 +281,16 @@ builder.Services.AddSingleton<HotelBooking.API.Common.Services.IImageCompression
 builder.Services.AddScoped<IGalleryService, GalleryService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 
+// Options Pattern — binds the "Smtp" section (User Secrets/env vars only — never appsettings.json) to a strongly-typed SmtpOptions via IOptions<T>.
+builder.Services.Configure<HotelBooking.API.Common.Services.SmtpOptions>(
+    builder.Configuration.GetSection(HotelBooking.API.Common.Services.SmtpOptions.SectionName));
+
+// Producer-Consumer Pattern — controllers enqueue emails via IEmailQueue; BackgroundEmailService drains it on a hosted worker thread.
 // Register Background Email Service
 builder.Services.AddSingleton<BackgroundEmailQueue>();
 builder.Services.AddSingleton<HotelBooking.API.Common.Services.IEmailQueue>(sp => sp.GetRequiredService<BackgroundEmailQueue>());
-builder.Services.AddSingleton<HotelBooking.API.Common.Services.IEmailSender, HotelBooking.API.Common.Services.SimulatedEmailSender>();
+// Real SMTP delivery (Brevo) — was SimulatedEmailSender (Task.Delay only, no email ever sent).
+builder.Services.AddSingleton<HotelBooking.API.Common.Services.IEmailSender, HotelBooking.API.Common.Services.SmtpEmailSender>();
 builder.Services.AddHostedService<BackgroundEmailService>();
 
 // Register Background Notification Service
@@ -252,6 +301,8 @@ builder.Services.AddHostedService<HotelBooking.API.Features.CMS.Services.Backgro
 // Configure Webhook Policies
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
+builder.Services.AddScoped<ISeasonalPolicyService, SeasonalPolicyService>();
+builder.Services.AddScoped<IGeneralPolicyService, GeneralPolicyService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
 builder.Services.AddScoped<ISiteContentService, SiteContentService>();
 builder.Services.AddScoped<IHelpArticleService, HelpArticleService>();
@@ -271,7 +322,9 @@ builder.Services.AddScoped<IRoomTypeService, RoomTypeService>();
 builder.Services.AddScoped<ITokenAuthorizationService, TokenAuthorizationService>();
 
 // JWT Authentication Setup
-var secret = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyThatIsVeryLongAndSecure12345!";
+// Fail-Fast Startup Validation - refuses to boot with a silently-known hardcoded signing key; Jwt:Secret must be explicitly configured.
+var secret = builder.Configuration["Jwt:Secret"]
+    ?? throw new InvalidOperationException("Jwt:Secret configuration is required.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -348,6 +401,25 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Same "fail loudly at startup" idea as the Razorpay check above — a missing SMTP login means
+// every OTP/verification/reset email will silently never arrive otherwise.
+{
+    var smtpOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<HotelBooking.API.Common.Services.SmtpOptions>>().Value;
+    var smtpLogger = app.Services.GetRequiredService<ILogger<Program>>();
+
+    if (string.IsNullOrWhiteSpace(smtpOptions.Host) || string.IsNullOrWhiteSpace(smtpOptions.Login) || string.IsNullOrWhiteSpace(smtpOptions.Password))
+    {
+        smtpLogger.LogWarning(
+            "SMTP is not configured (Smtp:Host/Smtp:Login/Smtp:Password missing). " +
+            "OTP/verification/reset emails will fail to send until these are set via User Secrets or environment variables.");
+    }
+    else
+    {
+        smtpLogger.LogInformation("SMTP configured: {Host}:{Port}, login {Login}.", smtpOptions.Host, smtpOptions.Port, smtpOptions.Login);
+    }
+}
+
+// Middleware Pattern — request pipeline where each component (exception handling, idempotency) wraps the next.
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<IdempotencyMiddleware>();
@@ -364,14 +436,26 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Local dev note: always run this API with `dotnet run --launch-profile http` (the default
+// profile) alongside the Angular dev server. The Angular environment.ts points at the plain
+// http://localhost:5031 origin; if this API is started with `--launch-profile https` instead,
+// this redirect sends every http:// request (including CORS preflight OPTIONS calls) to https://,
+// and browsers refuse to follow a redirect on a preflight request — every API call then fails
+// with ERR_INVALID_REDIRECT/CORS errors that look like a backend outage but are just this profile
+// mismatch. See launchSettings.json's "http" profile.
 app.UseHttpsRedirection();
+
+
+app.UseStaticFiles();
 
 app.UseCors("FrontendDev");
 
 app.UseRateLimiter(); // API Hardening
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

@@ -45,6 +45,11 @@ public class BookingsController : ControllerBase
         {
             return BadRequest(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
+        // Concurrency Exception Passthrough - mirrors ModifyBooking's existing 409 mapping for a genuine RowVersion/Serializable conflict, instead of falling through to the generic InvalidOperationException-to-Conflict catch below.
+        catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+        {
+            return Conflict(ApiResponse<object?>.ErrorResponse("The selected room or booking state has changed. Please refresh and try again."));
+        }
         catch (Exception ex) when (TransientDbFailure.IsTransient(ex))
         {
             // QA Defect (High), defense-in-depth: BookingService.CreateBookingAsync already retries/
@@ -96,6 +101,14 @@ public class BookingsController : ControllerBase
         {
             return NotFound(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+        {
+            // Must precede the InvalidOperationException catch below: this is a genuine multi-tab
+            // conflict (the client's RowVersion is stale), and the Angular modify-step3 component's
+            // reload-prompt UX only triggers on a 409 — a plain InvalidOperationException/400 here
+            // would silently fall back to the generic error message with no reload button.
+            return Conflict(ApiResponse<object?>.ErrorResponse("This booking was changed elsewhere since you loaded it. Please reload and try again."));
+        }
         catch (Exception ex) when (TransientDbFailure.IsTransient(ex))
         {
             // Same defense-in-depth as CreateBooking above — must precede the InvalidOperationException
@@ -138,9 +151,17 @@ public class BookingsController : ControllerBase
         {
             return NotFound(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+        {
+            return Conflict(ApiResponse<object?>.ErrorResponse("The booking state was modified by another transaction. Please try again."));
+        }
+        catch (Exception ex) when (TransientDbFailure.IsTransient(ex))
+        {
+            return Conflict(ApiResponse<object?>.ErrorResponse("The booking state was modified by another transaction. Please try again."));
+        }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
-} 
+}

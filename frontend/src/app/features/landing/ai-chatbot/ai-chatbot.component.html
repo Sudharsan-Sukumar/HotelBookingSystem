@@ -1,0 +1,59 @@
+<!-- Floating launcher button -->
+<button
+  type="button"
+  class="ai-fab"
+  [class.ai-fab-open]="isOpen"
+  (click)="toggleOpen()"
+  aria-label="Open Elegant Enclave Assistant"
+>
+  <i class="bi" [ngClass]="isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'"></i>
+</button>
+
+<!-- Chat panel -->
+<div class="ai-panel" *ngIf="isOpen" role="dialog" aria-label="Elegant Enclave Assistant chat">
+  <div class="ai-panel-header">
+    <div class="d-flex align-items-center gap-2">
+      <span class="ai-avatar"><i class="bi bi-stars"></i></span>
+      <div>
+        <div class="ai-title">Elegant Enclave Assistant</div>
+        <div class="ai-subtitle">Ask about hotels, rooms &amp; bookings</div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-1">
+      <button type="button" class="ai-icon-btn" (click)="clearConversation()" title="Clear conversation" aria-label="Clear conversation">
+        <i class="bi bi-arrow-counterclockwise"></i>
+      </button>
+      <button type="button" class="ai-icon-btn" (click)="close()" title="Close" aria-label="Close chat">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="ai-panel-body" #messagesEl>
+    <div class="ai-bubble ai-bubble-assistant">{{ welcomeMessage }}</div>
+
+    <div *ngFor="let m of messages" class="ai-bubble" [ngClass]="{
+      'ai-bubble-user': m.role === 'user',
+      'ai-bubble-assistant': m.role === 'assistant',
+      'ai-bubble-error': m.isError
+    }">{{ m.content }}</div>
+
+    <div class="ai-bubble ai-bubble-assistant ai-typing" *ngIf="loading">
+      <span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>
+    </div>
+  </div>
+
+  <div class="ai-panel-footer">
+    <textarea
+      class="ai-input"
+      rows="1"
+      placeholder="Type your question..."
+      [(ngModel)]="draft"
+      (keydown)="onKeydown($event)"
+      [disabled]="loading"
+    ></textarea>
+    <button type="button" class="ai-send-btn" (click)="send()" [disabled]="loading || !draft.trim()" aria-label="Send message">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+</div>

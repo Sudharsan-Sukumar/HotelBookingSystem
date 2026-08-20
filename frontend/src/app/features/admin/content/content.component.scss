@@ -1,0 +1,109 @@
+@use '../admin-shared.scss';
+
+:host {
+  display: block;
+}
+
+.kpi-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.nav-tabs-premium {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+
+  .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &.active {
+      color: #1A0A2E;
+      font-weight: 600;
+      border-bottom: 2px solid #D4AF37;
+      background: transparent;
+    }
+  }
+}
+
+// Split-screen: editor left, live preview right — both always visible on Content Management.
+.content-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.content-editor-pane {
+  min-width: 0;
+}
+
+.content-preview-pane {
+  min-width: 0;
+  background-color: #fff;
+  border: 1px solid rgba(26, 10, 46, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  // Sticky so the preview stays in view while the admin scrolls a long editor form — its own
+  // scrolling is independent of both this and the outer admin page scroll.
+  position: sticky;
+  top: 1rem;
+  height: calc(100vh - 8rem);
+  max-height: 900px;
+  overflow: hidden;
+}
+
+.preview-pane-header {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid rgba(26, 10, 46, 0.1);
+  flex-shrink: 0;
+}
+
+.preview-pane-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f8f7f4;
+}
+
+// The guarded landing page is read-only: keep it visible and scrollable but signal
+// non-interactivity via cursor only — clicks/submits are actually blocked in the component.
+.preview-guard {
+  cursor: default;
+
+  ::ng-deep {
+    a, button, input, select, textarea {
+      cursor: default;
+    }
+  }
+}
+
+// Below large screens, stack: editor first, then preview underneath — never a cramped
+// side-by-side squeeze.
+@media (max-width: 991.98px) {
+  .content-split {
+    grid-template-columns: 1fr;
+  }
+
+  .content-preview-pane {
+    position: static;
+    height: 70vh;
+    max-height: 700px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .content-preview-pane {
+    height: 60vh;
+  }
+}

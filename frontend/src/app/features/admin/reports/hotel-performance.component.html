@@ -1,0 +1,121 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color:#6c757d;">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/reports" class="text-decoration-none" style="color:#6c757d;">Reports</a></li>
+        <li class="breadcrumb-item active" style="color:#1A0A2E; font-weight:500;">Hotel Performance</li>
+      </ol>
+    </nav>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-purple" routerLink="/admin/reports">Revenue Analytics</button>
+      <button class="btn btn-purple active">Hotel Performance</button>
+      <button class="btn btn-outline-purple" routerLink="/admin/reports/booking-analytics">Bookings</button>
+      <button class="btn btn-outline-purple" routerLink="/admin/reports/user-analytics">Users</button>
+    </div>
+  </div>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Hotel Performance Analytics</h1>
+    <p class="text-secondary small mb-0">Track and compare performance of all hotel branches.</p>
+  </div>
+
+  <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius:12px;">
+    <div class="row g-2 align-items-end text-start">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold text-purple">Start Date</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="filterStartDate">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold text-purple">End Date</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="filterEndDate">
+      </div>
+      <div class="col-md-3">
+        <div class="dropdown d-inline-block w-100">
+          <button class="btn btn-purple btn-sm w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-download me-1"></i> Export</button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><button class="dropdown-item small" (click)="exportPDF()">Export as PDF</button></li>
+            <li><button class="dropdown-item small" (click)="exportExcel()">Export as Excel</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-outline-purple btn-sm w-50" (click)="resetFilters()">Reset</button>
+        <button class="btn btn-purple btn-sm w-50" (click)="applyFilters()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size:1.25rem;"><i class="bi bi-building-fill-check"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Best Branch</span>
+          <strong class="fs-5 text-dark">{{ kpiBestBranch }}</strong>
+          <span class="small text-muted d-block" style="font-size:0.65rem;">₹{{ kpiBestBranchRevenue | number:'1.0-0' }} revenue</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size:1.25rem;"><i class="bi bi-percent"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Occupancy Rate</span>
+          <strong class="fs-5 text-dark">{{ kpiOccRate }}%</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 w-100">
+        <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size:1.25rem;"><i class="bi bi-calendar-check"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size:0.7rem;">Total Bookings</span>
+          <strong class="fs-5 text-dark">{{ kpiTotalBookings }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border shadow-sm bg-white p-3" style="border-radius:12px;">
+    <h5 class="font-serif fw-bold text-purple text-start mb-3">Branch Performance Overview</h5>
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr><th>Branch</th><th>Occupancy %</th><th>Revenue</th><th>Bookings</th><th>Cancellation Rate</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let st of pagedRows">
+            <td><strong>{{ st.hotelName }}</strong></td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span>{{ st.occupancyRate | number:'1.0-1' }}%</span>
+                <div class="progress flex-grow-1" style="height:4px; width:60px;">
+                  <div class="progress-bar" [style.width.%]="st.occupancyRate" style="background-color:#8A2BE2;"></div>
+                </div>
+              </div>
+            </td>
+            <td>₹{{ st.revenue | number:'1.0-0' }}</td>
+            <td>{{ st.bookingsCount }}</td>
+            <td>{{ st.cancellationRate | number:'1.0-1' }}%</td>
+          </tr>
+          <tr *ngIf="pagedRows.length === 0"><td colspan="5" class="text-center text-muted">No hotel data available.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+      <select class="form-select form-select-sm" style="width:70px;" [ngModel]="itemsPerPage" (ngModelChange)="onPageSizeChange($event)">
+        <option [value]="2">2</option><option [value]="5">5</option><option [value]="10">10</option>
+      </select>
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" *ngFor="let p of pageRange()" [class.active]="p===currentPage">
+          <button class="page-link" (click)="goToPage(p)">{{ p }}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>

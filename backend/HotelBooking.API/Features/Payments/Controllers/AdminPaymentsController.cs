@@ -1,3 +1,5 @@
+using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using HotelBooking.API.Common.Models;
 using HotelBooking.API.Features.Payments.DTOs;
@@ -20,6 +22,12 @@ public class AdminPaymentsController : ControllerBase
         _razorpayPaymentService = razorpayPaymentService;
     }
 
+    private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? "0");
+
+    // Admin is view-only over payments — no manual payment entry point here. If Razorpay is
+    // unreachable, the fallback lives entirely in the customer-facing flow (payment-portal's
+    // gatewayUnavailable/sessionExpired states); admins must never be able to key in a payment
+    // themselves.
     [HttpGet]
     public async Task<IActionResult> GetAllTransactions([FromQuery] int? bookingId, [FromQuery] string? status)
     {

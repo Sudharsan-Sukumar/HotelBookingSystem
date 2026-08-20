@@ -1,0 +1,117 @@
+<div class="room-selection-page">
+  <app-navbar></app-navbar>
+
+  <header class="container px-xl-5 py-4 mt-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="room-selection-title m-0">
+          {{ hotel ? ('Select Room Type at ' + hotel.name) : 'Select Room Type' }}
+        </h1>
+        <p class="room-selection-sub text-muted m-0">Choose available packages in {{ branchName }} Enclave branch</p>
+      </div>
+      <a [routerLink]="backToHotelHref" class="btn btn-back-to-hotel d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i> Back to Hotel
+      </a>
+    </div>
+  </header>
+
+  <main class="container px-xl-5 pb-5">
+    <div class="table-category-header d-none d-md-flex align-items-center mb-3">
+      <div class="col-4 ps-4"><i class="bi bi-building me-2 text-warning"></i>Room Category</div>
+      <div class="col-2 text-center"><i class="bi bi-people me-2 text-warning"></i>Capacity</div>
+      <div class="col-2 text-center"><i class="bi bi-tag me-2 text-warning"></i>Rate / Night</div>
+      <div class="col-2 text-center"><i class="bi bi-house-check me-2 text-warning"></i>Rooms Left</div>
+      <div class="col-2 text-center"><i class="bi bi-gear me-2 text-warning"></i>Action</div>
+    </div>
+
+    <div class="d-flex flex-column gap-4">
+      <div class="alert alert-danger" *ngIf="notFound">Hotel not found.</div>
+      <div class="alert alert-warning" *ngIf="!notFound && noRooms">No rooms available for this hotel.</div>
+
+      <article class="room-card border rounded bg-white overflow-hidden" *ngFor="let vm of rooms" [id]="'room_' + vm.roomType.id">
+        <div class="row align-items-center p-3 border-bottom g-3">
+          <div class="col-md-4 d-flex align-items-center gap-3">
+            <span class="room-icon-badge text-warning fs-4"><i class="bi bi-door-closed"></i></span>
+            <h3 class="room-card-title m-0 fw-bold">{{ vm.roomType.name }} Room</h3>
+          </div>
+          <div class="col-6 col-md-2 text-md-center">
+            <span class="d-inline-block d-md-none small text-muted text-uppercase me-2">Capacity:</span>
+            <span class="fw-semibold text-dark"><i class="bi bi-people me-1"></i> {{ vm.roomType.capacity }} Guests</span>
+          </div>
+          <div class="col-6 col-md-2 text-md-center">
+            <span class="d-inline-block d-md-none small text-muted text-uppercase me-2">Rate:</span>
+            <span class="fw-bold text-dark fs-5">{{ vm.formattedPrice }}</span>
+          </div>
+          <div class="col-6 col-md-2 text-md-center">
+            <span class="d-inline-block d-md-none small text-muted text-uppercase me-2">Left:</span>
+            <span class="text-success fw-bold">{{ vm.roomType.totalRooms }} rooms</span>
+          </div>
+          <div class="col-6 col-md-2 text-md-center">
+            <button class="btn btn-select-room w-100 py-2 btn-primary" (click)="selectRoom(vm)">
+              Select Room <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3 bg-light">
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge bg-secondary text-white"><i class="bi bi-info-circle me-1"></i> {{ vm.roomType.description }}</span>
+          </div>
+
+          <div [id]="'carouselRoom' + vm.roomType.id" class="carousel slide carousel-fade" data-bs-ride="false" style="border-radius: 8px; overflow: hidden; height: 350px;">
+            <div class="carousel-indicators">
+              <button type="button" [attr.data-bs-target]="'#carouselRoom' + vm.roomType.id" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" [attr.data-bs-target]="'#carouselRoom' + vm.roomType.id" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" [attr.data-bs-target]="'#carouselRoom' + vm.roomType.id" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner h-100">
+              <div class="carousel-item active h-100">
+                <img [src]="vm.images[0]" class="d-block w-100 h-100" style="object-fit: cover;" [alt]="vm.roomType.name + ' Image 1'">
+              </div>
+              <div class="carousel-item h-100">
+                <img [src]="vm.images[1]" class="d-block w-100 h-100" style="object-fit: cover;" [alt]="vm.roomType.name + ' Image 2'">
+              </div>
+              <div class="carousel-item h-100">
+                <img [src]="vm.images[2]" class="d-block w-100 h-100" style="object-fit: cover;" [alt]="vm.roomType.name + ' Image 3'">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carouselRoom' + vm.roomType.id" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carouselRoom' + vm.roomType.id" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="info-badges-card p-4 mt-5 d-flex justify-content-between align-items-center flex-wrap gap-4 text-start">
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge-icon-circular"><i class="bi bi-info-circle"></i></span>
+        <div>
+          <strong class="d-block text-dark">All our rooms are designed for your comfort and luxury</strong>
+          <span class="small text-muted">Enjoy premium amenities, elegant interiors, and world-class hospitality.</span>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-4 text-nowrap">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-shield-check text-warning fs-5"></i>
+          <span class="small fw-semibold text-secondary">Best Rate<br>Guarantee</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-wifi text-warning fs-5"></i>
+          <span class="small fw-semibold text-secondary">Complimentary<br>WiFi</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-telephone-inbound text-warning fs-5"></i>
+          <span class="small fw-semibold text-secondary">24/7 Guest<br>Support</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>

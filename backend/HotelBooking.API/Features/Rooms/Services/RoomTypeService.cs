@@ -71,6 +71,7 @@ public class RoomTypeService : IRoomTypeService
         };
     }
 
+    // Caching Pattern — serves the Customer hotel-details room list from IMemoryCache to skip a DB hit on repeat requests.
     public async Task<IEnumerable<RoomTypeResponseDto>> GetRoomTypesByHotelAsync(int hotelId)
     {
         var cacheKey = RoomTypesByHotelCacheKey(hotelId);
@@ -266,5 +267,30 @@ public class RoomTypeService : IRoomTypeService
         }
 
         return true;
+    }
+
+    public async Task<int> GetAvailableRoomCountAsync(int hotelId, int roomTypeId, DateTime checkIn, DateTime checkOut)
+    {
+        var roomType = await _context.RoomTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Id == roomTypeId && rt.HotelId == hotelId);
+
+        if (roomType == null || !roomType.IsActive || roomType.IsUnderMaintenance)
+            return 0;
+
+        var isBlocked = await _context.BlockedDates
+            .AnyAsync(bd => bd.RoomTypeId == roomTypeId && bd.StartDate < checkOut && bd.EndDate > checkIn);
+        if (isBlocked)
+            return 0;
+
+        var bookedRoomsCount = await _context.Bookings
+            .Where(b => b.HotelId == hotelId &&
+                        b.RoomTypeId == roomTypeId &&
+                        b.Status != "Cancelled" &&
+                        b.CheckInDate < checkOut &&
+                        b.CheckOutDate > checkIn)
+            .SumAsync(b => (int?)b.NumberOfRooms) ?? 0;
+
+        return Math.Max(0, roomType.TotalRooms - bookedRoomsCount);
     }
 }

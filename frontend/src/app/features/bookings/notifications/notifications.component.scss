@@ -1,0 +1,227 @@
+@import "../../../../scss/abstracts/variables";
+
+// Auth brand-specific coloring
+$brand-dark-purple: #1A0A2E;
+$brand-surface: #120820;
+$brand-hover: #2E1560;
+$brand-gold: #D4AF37;
+$brand-soft-gold: #EFD98C;
+$bg-ivory: #FAF8F4;
+
+.notifications-page {
+  background-color: $bg-ivory;
+  font-family: $font-family-sans-serif;
+  color: $text-primary;
+}
+
+.header-icon-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background-color: $brand-dark-purple;
+  color: $brand-gold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.notifications-title {
+  font-family: $font-family-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: $brand-dark-purple;
+}
+
+.notifications-sub {
+  font-size: 0.95rem;
+}
+
+.btn-mark-all {
+  background-color: #FFFFFF;
+  color: $brand-dark-purple;
+  border: 1px solid rgba($brand-dark-purple, 0.25);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $brand-gold;
+    color: $brand-gold;
+  }
+}
+
+.sidebar-card {
+  border-color: rgba($brand-gold, 0.12) !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+}
+
+.sidebar-nav {
+  .sidebar-link {
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-primary;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: rgba($brand-dark-purple, 0.04);
+      color: $brand-dark-purple;
+    }
+
+    &.active {
+      background-color: rgba($brand-dark-purple, 0.06);
+      color: $brand-dark-purple;
+    }
+
+    .badge {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .bg-gold-light {
+      background-color: rgba($brand-gold, 0.15);
+    }
+  }
+}
+
+.custom-select {
+  height: 44px;
+  border-color: #D0CCD5;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: $brand-dark-purple;
+
+  &:focus {
+    border-color: $brand-gold;
+    box-shadow: 0 0 0 3px rgba($brand-gold, 0.15);
+  }
+}
+
+.notification-card {
+  border-color: rgba($brand-gold, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(26,10,46,0.03);
+  }
+
+  .icon-avatar-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+
+    &.green { background-color: #E2F6EA; color: #1F8B4C; }
+    &.blue { background-color: #EBF5FF; color: #1E40AF; }
+    &.gold { background-color: rgba(212, 175, 55, 0.1); color: #D4AF37; }
+  }
+
+  .notif-title {
+    font-size: 1.2rem;
+    color: $brand-dark-purple;
+    font-weight: 600;
+  }
+
+  .btn-action-notif {
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+
+    &.btn-green {
+      background-color: #FFFFFF;
+      color: #1F8B4C;
+      border: 1px solid rgba(#1F8B4C, 0.3);
+
+      &:hover {
+        background-color: #E2F6EA;
+      }
+    }
+
+    &.btn-blue {
+      background-color: #FFFFFF;
+      color: #1E40AF;
+      border: 1px solid rgba(#1E40AF, 0.3);
+
+      &:hover {
+        background-color: #EBF5FF;
+      }
+    }
+
+    &.btn-gold {
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+  }
+
+  .bg-green-light { background-color: #E2F6EA; }
+  .bg-blue-light { background-color: #EBF5FF; }
+  .bg-gold-light { background-color: rgba(212, 175, 55, 0.15); }
+
+  .unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+
+    &.green { background-color: #1F8B4C; }
+    &.blue { background-color: #1E40AF; }
+    &.gold { background-color: #D4AF37; }
+  }
+}
+
+.bottom-support-card {
+  border-color: rgba($brand-gold, 0.15) !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+
+  .help-badge-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba($brand-gold, 0.12);
+    color: $brand-gold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  .card-title {
+    font-family: $font-family-serif;
+    font-size: 1.35rem;
+  }
+
+  .btn-contact-support {
+    background-color: #FFFFFF;
+    color: $brand-dark-purple;
+    border: 1px solid rgba($brand-dark-purple, 0.25);
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    height: 38px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: $brand-gold;
+      color: $brand-gold;
+    }
+  }
+}
+
+.profile-card {
+  border-color: rgba($brand-gold, 0.12) !important;
+}

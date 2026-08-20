@@ -1,12 +1,12 @@
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using HotelBooking.API.Features.Payments.DTOs;
 using HotelBooking.API.Features.Payments.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HotelBooking.API.Common.Models;
-using HotelBooking.API.Common.Services;
 
 namespace HotelBooking.API.Features.Payments.Controllers;
 
@@ -38,35 +38,13 @@ public class RefundsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(ex.Message);
+            // BUG-001 fix: see ReviewsController for the full explanation — Forbid(ex.Message)
+            // misuses the authentication-scheme overload instead of returning a 403 response body.
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
 
-    [HttpPost("admin/override")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AdminOverrideRefund([FromBody] AdminRefundOverrideDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ApiResponse<object?>.ErrorResponse("Validation failed."));
-
-        try
-        {
-            var refund = await _refundService.AdminOverrideRefundAsync(dto, GetUserId());
-            return Ok(ApiResponse<RefundResponseDto>.SuccessResponse(refund, "Refund override applied successfully."));
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ApiResponse<object?>.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex) when (TransientDbFailure.IsTransient(ex))
-        {
-            // Same defense-in-depth as BookingsController.CreateBooking/ModifyBooking — must precede
-            // the InvalidOperationException catch below since that's the actual wrapper type EF uses.
-            return Conflict(ApiResponse<object?>.ErrorResponse("This refund could not be processed due to a conflicting operation. Please try again."));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ApiResponse<object?>.ErrorResponse(ex.Message));
-        }
-    }
+    // No admin refund-override endpoint — refunds are only ever created by the customer-facing
+    // cancellation/modification flow itself (BookingService.CancelBookingAsync etc.). Admin stays
+    // view-only here (GetRefundsForBooking above); manually issuing a refund is not an admin action.
 }

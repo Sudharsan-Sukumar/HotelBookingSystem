@@ -1,0 +1,266 @@
+<!-- FOOTER -->
+<footer class="custom-footer" style="padding: 5rem 3rem 2rem;">
+  <div class="row g-4 text-start align-items-start">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
+      <h2 class="footer-brand-title">
+        <img src="/assets/images/logo.png" alt="Elegant Enclave logo" class="brand-logo-img me-2">
+        Elegant<span>Enclave</span>
+      </h2>
+      <p class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 1px; color: #D4AF37 !important; margin-top: 1.5rem;">About Us</p>
+      <p class="footer-desc" style="margin-top: 0.5rem;">At ElegantEnclave, we believe every guest deserves comfort without compromise. From quick reservations to luxurious accommodations, we deliver a seamless experience designed around your travel needs.</p>
+      <div class="mt-4">
+        <p class="text-white fw-bold mb-2 small text-uppercase">Social Links</p>
+        <div class="social-links d-flex align-items-center">
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="YouTube profile link"><i class="bi bi-youtube"></i></a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram profile link"><i class="bi bi-instagram"></i></a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook profile link"><i class="bi bi-facebook"></i></a>
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="X twitter profile link"><i class="bi bi-twitter-x"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
+      <h3 class="footer-heading">Information</h3>
+      <ul class="footer-links">
+        <li><a routerLink="/">Home</a></li>
+        <li><a routerLink="/hotels/search">Hotels</a></li>
+        <li><a routerLink="/hotels/search">Rooms & Suites</a></li>
+      </ul>
+    </div>
+
+    <div class="col-xl-2 col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
+      <h3 class="footer-heading">Services</h3>
+      <ul class="contact-info-list d-flex flex-column gap-3">
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-envelope text-warning"></i> {{ contactEmail }}</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-telephone text-warning"></i> {{ contactPhone }}</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-geo-alt text-warning"></i> Chennai - Coimbatore - Salem</li>
+        <li class="d-flex align-items-start gap-2"><i class="bi bi-clock text-warning"></i> Available 24/7</li>
+      </ul>
+    </div>
+
+    <div class="col-xl-2 col-lg-3 col-md-6 col-12 mb-4 mb-lg-0 text-start">
+      <h3 class="footer-heading">Our Locations</h3>
+      <div class="map-container-wrapper mb-3" style="width: 100%; max-width: 300px; transition: height 0.3s ease; position: relative;">
+        <div *ngIf="!mapInitialized" class="d-flex align-items-center justify-content-center border rounded p-2" style="background-color: rgba(255,255,255,0.05); border-color: rgba(212,175,55,0.3) !important; height: 60px; cursor: pointer;" (click)="onMapPlaceholderClick()" title="Click to view interactive map in footer">
+          <span class="fs-4 text-warning me-2"><i class="bi bi-map-fill"></i></span>
+          <div class="lh-sm">
+            <span class="text-white-50 d-block fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; line-height: 1;">View Interactive Map</span>
+            <span class="text-muted small" style="font-size: 0.6rem;">Click once to load map</span>
+          </div>
+        </div>
+        <div id="footerMap" [class.d-none]="!mapInitialized" class="border rounded" style="width: 100%; height: 180px; z-index: 1; border-color: rgba(212,175,55,0.3) !important;" aria-label="Interactive map showing Elegant Enclave branches"></div>
+      </div>
+      <div class="small mt-2" style="max-width: 300px; margin: 0 auto;">
+        <span class="text-white-50 d-block mb-2 small fw-semibold text-uppercase">Our Branches</span>
+        <div class="d-flex flex-column gap-2 text-start">
+          <a href="javascript:void(0)" (click)="openLargeMapModal('Salem')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Salem</a>
+          <a href="javascript:void(0)" (click)="openLargeMapModal('Coimbatore')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Coimbatore</a>
+          <a href="javascript:void(0)" (click)="openLargeMapModal('Chennai')" class="map-branch-link text-warning d-inline-flex align-items-center gap-1 small text-decoration-none"><i class="bi bi-geo-alt-fill"></i> Chennai</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-2 col-md-6 col-12">
+      <h3 class="footer-heading">Quick Help</h3>
+      <div class="help-widget-card" style="width: 100%; max-width: 330px;">
+        <div class="help-img-wrapper">
+          <img src="/assets/images/footer_help.png" alt="Luxury Hotel lobby seating">
+        </div>
+        <div class="help-content">
+          <h4 class="help-title">Need Assistance?</h4>
+          <p class="help-text">Our Guest Relations team is ready to help make your stay exceptional.</p>
+          <button class="btn-contact-reception" type="button" data-bs-toggle="modal" data-bs-target="#receptionContactModal"><i class="bi bi-telephone-outbound"></i> Contact Reception</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom-bar">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+        <p class="mb-0">&copy; 2026 The Elegant Enclave. All Rights Reserved.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <div class="bottom-links">
+          <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal">Privacy Policy</a>
+          <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#termsConditionsModal">Terms & Conditions</a>
+          <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#cancellationPolicyModal">Modification Policy</a>
+          <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#refundPolicyModal">Cancellation & Refund Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- PRIVACY POLICY MODAL — content now managed by Admin (General Policies) instead of hardcoded -->
+<div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">{{ generalPolicies.Privacy?.title || 'Privacy Policy' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary policy-content-body" style="line-height: 1.6;" [innerHTML]="generalPolicies.Privacy?.content"></div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMS & CONDITIONS MODAL — content now managed by Admin (General Policies) instead of hardcoded -->
+<div class="modal fade" id="termsConditionsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">{{ generalPolicies.Terms?.title || 'Terms & Conditions' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary policy-content-body" style="line-height: 1.6;" [innerHTML]="generalPolicies.Terms?.content"></div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODIFICATION POLICY MODAL — content now managed by Admin (General Policies) instead of hardcoded -->
+<div class="modal fade" id="cancellationPolicyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">{{ generalPolicies.Modification?.title || 'Modification Policy' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary policy-content-body" style="line-height: 1.6; max-height: 400px; overflow-y: auto;" [innerHTML]="generalPolicies.Modification?.content"></div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CANCELLATION & REFUND POLICY MODAL — content now managed by Admin (General Policies) instead of hardcoded -->
+<div class="modal fade" id="refundPolicyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">{{ generalPolicies.CancellationRefund?.title || 'Cancellation & Refund Policy' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary policy-content-body" style="line-height: 1.6;" [innerHTML]="generalPolicies.CancellationRefund?.content"></div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECEPTION CONTACT MODAL -->
+<div class="modal fade" id="receptionContactModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">Contact Reception</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">
+        <p class="mb-3 text-dark">Our guest relations team is available 24/7. Connect directly with our front desk receptionist via phone or email:</p>
+        <div class="d-flex flex-column gap-3 mb-2 text-dark">
+          <div class="p-3 bg-white rounded border d-flex align-items-center gap-3">
+            <span class="fs-4 text-warning"><i class="bi bi-telephone-fill"></i></span>
+            <div>
+              <strong class="d-block small">Direct Phone Number:</strong>
+              <a href="javascript:void(0)" (click)="startReceptionCall()" class="text-decoration-none fw-semibold" style="color: #1A0A2E;">+91 98765 43210</a>
+            </div>
+          </div>
+          <div class="p-3 bg-white rounded border d-flex align-items-center gap-3">
+            <span class="fs-4 text-warning"><i class="bi bi-envelope-fill"></i></span>
+            <div>
+              <strong class="d-block small">Reception Support Email:</strong>
+              <a href="javascript:void(0)" (click)="openEmailClient()" class="text-decoration-none fw-semibold" style="color: #1A0A2E;">reception&#64;elegantenclave.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">Dismiss</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECEPTION CALL SIMULATION MODAL -->
+<div class="modal fade" id="receptionCallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-body">
+        <div *ngIf="callState === 'progress'">
+          <h5 class="modal-title font-serif fw-bold mb-1" style="color: #1A0A2E; font-size: 1.25rem;">Calling Reception...</h5>
+          <p class="text-muted small mb-4">Connecting to Front Desk Reception</p>
+          <div class="d-flex align-items-center justify-content-center my-4" style="position: relative; height: 120px;">
+            <div class="call-avatar-icon d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background-color: #D4AF37; color: #1A0A2E; border-radius: 50%; font-size: 2rem;">
+              <i class="bi bi-telephone-outbound-fill"></i>
+            </div>
+          </div>
+          <p class="small text-secondary mb-4">{{ callDurationLabel }}</p>
+          <button type="button" class="btn btn-danger btn-sm px-4 py-2" (click)="cancelCall()" style="border-radius: 8px;">Cancel Call</button>
+        </div>
+
+        <div *ngIf="callState === 'result'">
+          <span class="fs-1 text-danger d-block mb-3"><i class="bi bi-telephone-x-fill"></i></span>
+          <h5 class="font-serif fw-bold text-danger mb-2">Reception Unavailable</h5>
+          <p class="small text-muted mb-4">Please try again later or contact us by email.</p>
+          <div class="d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-secondary btn-sm px-3 py-2" data-bs-dismiss="modal" (click)="cancelCall()" style="border-radius: 8px;">Close</button>
+            <button type="button" class="btn btn-warning btn-sm px-3 py-2 fw-bold" (click)="openEmailClient()" style="background-color: #D4AF37; border: none; border-radius: 8px;">Send Email Instead</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LARGE INTERACTIVE MAP MODAL -->
+<div class="modal fade" id="largeMapModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content" style="background-color: #1A0A2E;">
+      <div class="modal-header border-0 p-3" style="background-color: #110620; border-bottom: 1px solid rgba(212,175,55,0.2) !important;">
+        <h5 class="modal-title text-warning fw-bold"><i class="bi bi-map me-2"></i>Elegant Enclave Branch Locations</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0 position-relative" style="height: calc(100vh - 60px);">
+        <div class="row g-0 h-100">
+          <div class="col-lg-8 h-100 position-relative">
+            <div id="largeMapContainer" style="width: 100%; height: 100%;"></div>
+          </div>
+          <div class="col-lg-4 bg-dark-purple p-4 d-none d-lg-block overflow-auto text-white text-start" style="background-color: #1A0A2E; border-left: 1px solid rgba(212,175,55,0.2);">
+            <ng-container *ngIf="selectedBranchDetail; else noBranch">
+              <img [src]="selectedBranchDetail.img" class="img-fluid rounded mb-3" style="max-height: 220px; width: 100%; object-fit: cover; border: 1px solid #D4AF37;" [alt]="selectedBranchDetail.name">
+              <h3 class="text-warning mb-1 fw-bold">{{ selectedBranchDetail.name }}</h3>
+              <p class="text-white-50 mb-3"><i class="bi bi-star-fill text-warning me-1"></i> {{ selectedBranchDetail.rating }} Rating</p>
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem;">Address</strong>
+                  <span class="small text-secondary">{{ selectedBranchDetail.address }}</span>
+                </div>
+                <div>
+                  <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem;">Contact Phone</strong>
+                  <span class="small text-secondary">{{ selectedBranchDetail.phone }}</span>
+                </div>
+                <div>
+                  <strong class="text-warning d-block small text-uppercase" style="font-size: 0.7rem;">Available Room Types</strong>
+                  <span class="small text-secondary">{{ selectedBranchDetail.rooms }}</span>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noBranch>
+              <h4 class="text-warning mb-3">Select a branch to view details</h4>
+              <p class="text-secondary">Click on any marker on the map or choose a branch to explore property details.</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

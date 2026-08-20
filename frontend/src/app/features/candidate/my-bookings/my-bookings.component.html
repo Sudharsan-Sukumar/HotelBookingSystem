@@ -1,0 +1,328 @@
+<app-navbar></app-navbar>
+
+<div class="my-bookings-page">
+
+  <header class="container-fluid px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <h1 class="my-bookings-title m-0">My Personal Reservations</h1>
+    <p class="my-bookings-sub text-muted m-0">Track active, upcoming, completed or cancelled status of your bookings.</p>
+  </header>
+
+  <main class="container-fluid px-xl-5 pb-5">
+
+    <!-- Filters row -->
+    <div class="filter-row-container p-3 mb-4 bg-white rounded border d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <select [(ngModel)]="statusFilterValue" class="form-select custom-select-filter" style="width: auto; min-width: 190px;">
+          <option value="all">All Bookings</option>
+          <option value="Pending Payment">Pending Payment</option>
+          <option value="Pending Additional Payment">Pending Additional Payment</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="CheckedIn">Checked In</option>
+          <option value="CheckedOut">Checked Out</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <button class="btn text-white py-2 px-3 fw-semibold small" style="background-color: #1A0A2E; border-radius: 8px; font-size: 0.85rem;" type="button" (click)="applyFilters()">Apply</button>
+        <button class="btn text-warning py-2 px-3 fw-semibold small" style="border: 1px dashed rgba(212, 175, 55, 0.4); background: transparent; border-radius: 8px; font-size: 0.85rem;" type="button" (click)="resetFilters()">Reset</button>
+      </div>
+      <div class="search-filter-box col-md-4">
+        <div class="input-group search-group-input border rounded">
+          <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" class="form-control border-0" placeholder="Search by booking ID or hotel...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading / error states -->
+    <div *ngIf="isLoading" class="text-center py-5 text-muted">
+      <div class="spinner-border text-warning mb-3" role="status"></div>
+      <div>Loading your reservations...</div>
+    </div>
+
+    <div *ngIf="!isLoading && loadError" class="alert alert-danger text-center">{{ loadError }}</div>
+
+    <!-- Booking Table -->
+    <div class="table-card-wrapper bg-white rounded border overflow-hidden mb-4" *ngIf="!isLoading && !loadError">
+      <table class="table my-bookings-table align-middle text-start mb-0">
+        <thead>
+          <tr>
+            <th>Booking Ref ID</th>
+            <th>Hotel / Room Type</th>
+            <th>Check-In Date</th>
+            <th>Check-Out Date</th>
+            <th>Total Bill</th>
+            <th class="text-center">Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="paginatedRows.length === 0">
+            <td colspan="7" class="text-center py-5 text-muted">
+              <div class="mb-3 fs-5">No reservations found for this status.</div>
+              <a routerLink="/hotels/search" class="btn btn-confirm-pay px-4 py-2" style="background-color: #1A0A2E; color: white; border-radius: 8px;">Book a Room</a>
+            </td>
+          </tr>
+
+          <tr *ngFor="let row of paginatedRows">
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                <div class="ref-texts">
+                  <span class="booking-ref-number d-block text-dark fw-bold">{{ row.booking.bookingCustomId }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <strong class="d-block text-dark">{{ row.booking.hotelName }}</strong>
+              <span class="small text-muted">{{ row.booking.roomTypeName }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-calendar-event text-warning fs-5"></i>
+                <span class="fw-semibold text-dark d-block">{{ row.booking.checkInDate | date:'mediumDate' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-calendar-check text-warning fs-5"></i>
+                <span class="fw-semibold text-dark d-block">{{ row.booking.checkOutDate | date:'mediumDate' }}</span>
+              </div>
+            </td>
+            <td>
+              <strong class="d-block text-dark font-serif fs-6">{{ row.formattedTotal }}</strong>
+            </td>
+            <td class="text-center">
+              <span [class]="row.badgeClass">{{ row.displayStatus }}</span>
+            </td>
+            <td class="text-end">
+              <div class="d-flex flex-column align-items-end">
+                <button class="btn btn-action-view py-2 px-3 mb-2 d-inline-flex align-items-center justify-content-center gap-2" (click)="onViewDetails(row.booking)">
+                  View Details <i class="bi bi-chevron-right"></i>
+                </button>
+
+                <button *ngIf="row.canPay" class="btn btn-confirm-pay py-2 px-3 mb-2 d-inline-flex align-items-center justify-content-center gap-2" style="background-color: #1A0A2E; color: #FFFFFF;" (click)="onCompletePayment(row.booking)">
+                  <i class="bi bi-credit-card"></i> Complete Payment
+                </button>
+
+                <button *ngIf="row.canModify" class="btn btn-action-outline-modify py-2 px-3 mb-2 d-inline-flex align-items-center justify-content-center gap-2" (click)="onModifyClick(row.booking.id)">
+                  Modify Booking <i class="bi bi-pencil-square"></i>
+                </button>
+                <button *ngIf="row.modifyLocked" class="btn btn-action-outline-modify py-2 px-3 mb-2 d-inline-flex align-items-center justify-content-center gap-2"
+                        disabled title="Modification locked — check-in is less than 24 hours away" style="opacity:0.55; cursor:not-allowed;">
+                  <i class="bi bi-lock-fill me-1"></i> Modify Booking
+                </button>
+
+                <button *ngIf="row.canCancel" class="btn btn-action-outline-cancel py-2 px-3 mb-2 d-inline-flex align-items-center justify-content-center gap-2" (click)="onCancelClick(row.booking)">
+                  <i class="bi bi-trash"></i> Cancel Booking
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="table-pagination-footer p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2 text-start">
+        <span class="small text-muted">
+          {{ totalFiltered === 0 ? 'Showing 0 to 0 of 0 bookings' : ('Showing ' + (startIndex + 1) + ' to ' + endIndex + ' of ' + totalFiltered + ' bookings') }}
+        </span>
+        <div class="pagination-controls d-flex align-items-center gap-2">
+          <button class="btn btn-pagination-arrow" type="button" [disabled]="currentPage === 1" (click)="prevPage()"><i class="bi bi-chevron-left"></i></button>
+          <span *ngFor="let p of pageNumbers" class="btn-pagination-number" [class.active]="p === currentPage" style="cursor:pointer;" (click)="goToPage(p)">{{ p }}</span>
+          <button class="btn btn-pagination-arrow" type="button" [disabled]="currentPage === totalPages" (click)="nextPage()"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="small text-muted">Rows per page:</span>
+          <select class="form-select select-rows-count py-1" [(ngModel)]="rowsPerPage" (ngModelChange)="onRowsPerPageChange()">
+            <option [ngValue]="5">5</option>
+            <option [ngValue]="7">7</option>
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="25">25</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help card -->
+    <article class="help-desc-card p-4 d-flex justify-content-between align-items-center flex-wrap gap-4 text-start">
+      <div class="d-flex align-items-center gap-3">
+        <span class="help-badge-circle"><i class="bi bi-info-circle"></i></span>
+        <div>
+          <h4 class="help-card-title m-0 text-dark">Can't find your booking?</h4>
+          <span class="small text-muted">Make sure you're logged in with the same account used while making the reservation.</span>
+        </div>
+      </div>
+      <button class="btn btn-contact-support py-2 px-4">Need Help? Contact Support</button>
+    </article>
+
+  </main>
+</div>
+
+<!-- Cancellation Modal -->
+<div class="modal fade" id="cancelConfirmModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content custom-modal-content border-0 p-3">
+
+      <!-- Panel 1: Reason -->
+      <div *ngIf="cancelPanel === 'reason'">
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h5 class="modal-title font-serif text-dark fw-bold fs-4">Cancel Reservation</h5>
+            <p class="text-secondary small mb-0">Please tell us why you are cancelling your reservation.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start pt-3">
+          <div class="mb-3">
+            <label class="form-label text-dark fw-bold small">Reason for Cancellation <span class="text-danger">*</span></label>
+            <select [(ngModel)]="cancelReasonSelect" class="form-select custom-select-filter w-100">
+              <option value="">Select a cancellation reason</option>
+              <option value="plans">Change of travel plans</option>
+              <option value="other_hotel">Found another hotel</option>
+              <option value="price">Price is too high</option>
+              <option value="personal">Personal reasons</option>
+              <option value="emergency">Emergency</option>
+              <option value="duplicate">Duplicate booking</option>
+              <option value="other">Other</option>
+            </select>
+            <span class="invalid-feedback text-danger small mt-1" [class.d-none]="!cancelReasonErrVisible">Please select a cancellation reason.</span>
+          </div>
+
+          <div class="info-alert-notice p-3 rounded bg-light border d-flex gap-3 align-items-start">
+            <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+            <div class="small text-secondary">
+              <strong>According to our cancellation policy,</strong>
+              <p class="mb-0 mt-1">You are eligible for a 90% refund. 10% cancellation charges will be deducted.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 gap-2">
+          <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto;" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-confirm-cancel py-2 px-4 text-white" style="background-color: #E02424;" (click)="proceedToCancel()">Proceed to Cancel</button>
+        </div>
+      </div>
+
+      <!-- Panel 2: Confirm -->
+      <div *ngIf="cancelPanel === 'confirm'">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title font-serif text-dark fw-bold fs-4">Confirm Cancellation</h5>
+        </div>
+        <div class="modal-body text-start pt-3">
+          <p class="text-secondary small">You are about to cancel your reservation.</p>
+          <div class="ref-badge py-1 px-3 mb-3 rounded bg-light-ivory text-dark font-serif fw-bold">Booking Reference: {{ currentCancelBooking?.bookingCustomId }}</div>
+          <strong class="d-block text-dark mb-1">Are you sure you want to continue?</strong>
+        </div>
+        <div class="modal-footer border-0 pt-0 gap-2">
+          <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto;" (click)="backToReason()">Back</button>
+          <button type="button" class="btn btn-confirm-cancel py-2 px-4 text-white" style="background-color: #E02424;" (click)="confirmCancellation()">Confirm Cancellation</button>
+        </div>
+      </div>
+
+      <!-- Panel 3: Loading -->
+      <div *ngIf="cancelPanel === 'loading'" class="text-center py-5">
+        <div class="spinner-border text-danger mb-4" role="status" style="width: 3rem; height: 3rem;"></div>
+        <h5 class="text-dark fw-bold font-serif mb-2">Cancelling your reservation...</h5>
+        <p class="text-muted small">Processing refund... Please wait...</p>
+      </div>
+
+      <!-- Panel 4: Success -->
+      <div *ngIf="cancelPanel === 'success' && cancelResult" class="text-start">
+        <div class="text-center mb-4">
+          <span class="success-icon-badge mx-auto mb-3 d-flex align-items-center justify-content-center" style="background-color: #E2F6EA; color: #1F8B4C;"><i class="bi bi-check-lg"></i></span>
+          <h5 class="modal-title font-serif text-dark fw-bold fs-4">Reservation Cancelled</h5>
+          <p class="text-secondary small mt-2">{{ cancelResult.message }}</p>
+        </div>
+
+        <h6 class="text-dark fw-bold mb-2 small">Cancellation Summary</h6>
+        <div class="p-3 bg-light rounded border small d-flex flex-column gap-2 mb-3">
+          <div class="d-flex justify-content-between"><span class="text-muted">Booking Reference</span><span class="text-dark fw-bold">{{ cancelResult.ref }}</span></div>
+          <div class="d-flex justify-content-between"><span class="text-muted">Original Payment</span><span class="text-dark fw-bold">₹{{ cancelResult.original | number:'1.0-0' }}</span></div>
+          <div class="d-flex justify-content-between"><span class="text-muted">Refund Status</span><span [class]="cancelResult.statusClass">{{ cancelResult.status }}</span></div>
+        </div>
+
+        <div class="info-alert-notice p-3 rounded bg-light border d-flex gap-3 align-items-start mb-4">
+          <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+          <div class="small text-secondary">
+            <strong>Important Note</strong>
+            <p class="mb-0 mt-1">If eligible, your refund will be credited through your original mode of payment or your wallet. Depending on your bank or payment provider, it may take a few business days to reflect.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 p-0 gap-2">
+          <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto;" data-bs-dismiss="modal">View My Bookings</button>
+          <a routerLink="/" class="btn btn-confirm-cancel py-2 px-4 text-white" style="background-color: #E02424; text-decoration: none;">Return Home</a>
+        </div>
+      </div>
+
+      <!-- Panel 5: Error -->
+      <div *ngIf="cancelPanel === 'error'" class="text-center py-4">
+        <span class="success-icon-badge mx-auto mb-3 d-flex align-items-center justify-content-center" style="background-color: #FDF2F2; color: #E02424;"><i class="bi bi-exclamation-triangle"></i></span>
+        <h5 class="text-dark fw-bold font-serif mb-2">Cancellation Failed</h5>
+        <p class="text-secondary small mb-4">{{ cancelErrorMsg }}</p>
+        <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto;" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content custom-modal-content border-0 p-3" style="border-radius: 16px;">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h5 class="modal-title font-serif text-dark fw-bold fs-4">Reservation Details</h5>
+          <p class="text-secondary small mb-0">Dynamic real-time specifications overview of your stay.</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start pt-3 small" style="font-size: 0.9rem;" *ngIf="detailsBooking">
+        <div class="row g-3">
+          <div class="col-md-4 text-center">
+            <img src="/assets/images/hotel_salem.png" alt="Hotel Face" class="img-fluid rounded border shadow-sm w-100" style="max-height: 180px; object-fit: cover;">
+          </div>
+          <div class="col-md-8">
+            <h5 class="fw-bold text-dark mb-1 font-serif fs-5">{{ detailsBooking.hotelName }}</h5>
+            <p class="text-muted mb-3"><i class="bi bi-door-open-fill text-warning me-1"></i>{{ detailsBooking.roomTypeName }}</p>
+            <div class="row g-2">
+              <div class="col-6"><strong>Booking ID:</strong> <span class="text-purple fw-semibold">{{ detailsBooking.bookingCustomId }}</span></div>
+              <div class="col-6"><strong>Status:</strong> <span [class]="detailsRow()?.badgeClass">{{ detailsBooking.status }}</span></div>
+              <div class="col-6"><strong>Rooms:</strong> {{ detailsBooking.numberOfRooms }}</div>
+              <div class="col-6"><strong>ID Proof:</strong> {{ detailsBooking.idProofType || 'N/A' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <h6 class="fw-bold text-dark border-bottom pb-1"><i class="bi bi-calendar3 text-warning me-2"></i>Stay Schedule</h6>
+            <div class="lh-sm">
+              <div class="py-1"><strong>Check-In:</strong> {{ detailsBooking.checkInDate | date:'mediumDate' }}</div>
+              <div class="py-1"><strong>Check-Out:</strong> {{ detailsBooking.checkOutDate | date:'mediumDate' }}</div>
+              <div class="py-1" *ngIf="detailsBooking.specialRequests"><strong>Special Requests:</strong> {{ detailsBooking.specialRequests }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold text-dark border-bottom pb-1"><i class="bi bi-credit-card text-warning me-2"></i>Billing Specifications</h6>
+            <div class="lh-sm">
+              <div class="py-1"><strong>Base Cost:</strong> {{ detailsBooking.baseCost | currency:'INR':'symbol':'1.2-2':'en-IN' }}</div>
+              <div class="py-1"><strong>Tax:</strong> {{ detailsBooking.taxAmount | currency:'INR':'symbol':'1.2-2':'en-IN' }}</div>
+              <div class="py-1" *ngIf="detailsBooking.walletAmountUsed"><strong>Wallet Used:</strong> {{ detailsBooking.walletAmountUsed | currency:'INR':'symbol':'1.2-2':'en-IN' }}</div>
+              <div class="py-1"><strong>Grand Total:</strong> {{ detailsBooking.totalAmount | currency:'INR':'symbol':'1.2-2':'en-IN' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+        <button type="button" class="btn text-white py-2 px-3 fw-semibold small" style="background-color: #1A0A2E; border-radius: 8px; font-size: 0.85rem;" [disabled]="!detailsRow()?.canDownloadInvoice" [title]="!detailsRow()?.canDownloadInvoice ? 'Invoice available only for confirmed or completed bookings' : ''" (click)="downloadTicket()"><i class="bi bi-download me-1"></i> Download Invoice</button>
+        <button type="button" class="btn btn-action-outline-cancel py-2 px-4" style="width: auto; height: auto;" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-candidate-policy-modal></app-candidate-policy-modal>
+
+<app-footer></app-footer>

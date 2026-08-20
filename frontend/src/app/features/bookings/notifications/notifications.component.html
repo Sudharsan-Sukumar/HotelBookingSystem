@@ -1,0 +1,154 @@
+<div class="notifications-page">
+
+  <app-navbar></app-navbar>
+
+  <!-- TOP HEADER SECTION -->
+  <header class="container px-xl-5 py-4 mt-2 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3 text-start">
+      <div>
+        <h1 class="notifications-title m-0">System Alert Notifications</h1>
+        <p class="notifications-sub text-muted m-0">Real-time updates regarding your bookings and payments.</p>
+      </div>
+    </div>
+    <button *ngIf="isLoggedIn" class="btn btn-mark-all py-2 px-3 d-flex align-items-center gap-2" (click)="markAllRead()">
+      <i class="bi bi-check2"></i> Mark all as read
+    </button>
+  </header>
+
+  <!-- LOGGED OUT STATE -->
+  <main *ngIf="!isLoggedIn" class="container px-xl-5 pb-5">
+    <div class="profile-card bg-white p-5 rounded border text-center shadow-sm my-4">
+      <div class="mb-4 text-warning" style="font-size: 3rem;"><i class="bi bi-shield-lock"></i></div>
+      <h3 class="font-serif text-dark mb-3">Login to View Notifications</h3>
+      <p class="text-muted mb-4 small">You must be logged in to view your system alert notifications and messages.</p>
+      <a routerLink="/auth/login" class="btn btn-confirm-pay px-4 py-2" style="background-color: #1A0A2E; color: white; border-radius: 8px;">Login to Continue</a>
+    </div>
+  </main>
+
+  <!-- WORKSPACE CONTAINER -->
+  <main *ngIf="isLoggedIn" class="container px-xl-5 pb-5">
+    <div class="row g-4 text-start">
+
+      <!-- Left sidebar filters -->
+      <aside class="col-lg-3">
+        <div class="sidebar-card bg-white p-4 rounded border d-flex flex-column gap-4">
+          <nav class="sidebar-nav d-flex flex-column gap-1">
+            <button type="button" class="sidebar-link d-flex justify-content-between align-items-center" [class.active]="activeCategory === 'all'" (click)="setCategory('all')">
+              <span><i class="bi bi-layers me-2 text-warning"></i>All Notifications</span>
+              <span class="badge bg-gold-light text-warning">{{ countAll }}</span>
+            </button>
+            <button type="button" class="sidebar-link d-flex justify-content-between align-items-center" [class.active]="activeCategory === 'booking'" (click)="setCategory('booking')">
+              <span><i class="bi bi-calendar-event me-2 text-muted"></i>Bookings</span>
+              <span class="badge bg-light text-muted">{{ countBookings }}</span>
+            </button>
+            <button type="button" class="sidebar-link d-flex justify-content-between align-items-center" [class.active]="activeCategory === 'payment'" (click)="setCategory('payment')">
+              <span><i class="bi bi-credit-card me-2 text-muted"></i>Payments</span>
+              <span class="badge bg-light text-muted">{{ countPayments }}</span>
+            </button>
+            <button type="button" class="sidebar-link d-flex justify-content-between align-items-center" [class.active]="activeCategory === 'promotion'" (click)="setCategory('promotion')">
+              <span><i class="bi bi-tag me-2 text-muted"></i>Promotions</span>
+              <span class="badge bg-light text-muted">{{ countPromotions }}</span>
+            </button>
+          </nav>
+
+          <!-- Date Filters -->
+          <div class="date-filter-block">
+            <strong class="small text-muted text-uppercase d-block mb-2"><i class="bi bi-calendar"></i> Filter by Date</strong>
+            <select class="form-select custom-select" [(ngModel)]="dateFilter">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+            </select>
+          </div>
+
+          <!-- Sort Filter -->
+          <div class="sort-filter-block mb-3">
+            <strong class="small text-muted text-uppercase d-block mb-2"><i class="bi bi-sort-down"></i> Sort by</strong>
+            <select class="form-select custom-select" [(ngModel)]="sortOrder">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+
+          <!-- Apply / Reset Actions Row -->
+          <div class="d-flex flex-column gap-2">
+            <button type="button" class="btn btn-confirm-pay w-100 py-2 btn-sm" style="background-color: #1A0A2E; color: white;" (click)="applyFilters()">Apply Filters</button>
+            <button type="button" class="btn btn-action-outline-cancel w-100 py-2 btn-sm" (click)="resetFilters()">Reset Filters</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right column content alerts -->
+      <section class="col-lg-9 d-flex flex-column gap-3">
+
+        <h3 class="font-serif text-dark fs-5 m-0 mb-1">{{ titleGroupLabel }}</h3>
+
+        <div *ngIf="isLoading" class="text-center py-4 text-muted">
+          <div class="spinner-border text-warning mb-2" role="status"></div>
+          <div>Loading notifications...</div>
+        </div>
+
+        <div *ngIf="!isLoading && loadError" class="alert alert-danger text-center">{{ loadError }}</div>
+
+        <ng-container *ngIf="!isLoading && !loadError">
+        <article *ngFor="let notif of visibleNotifications" class="notification-card bg-white p-4 rounded border">
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <span class="icon-avatar-badge"
+                    [class.green]="notif.category === 'booking'"
+                    [class.blue]="notif.category === 'payment'"
+                    [class.gold]="notif.category === 'promotion'">
+                <i class="bi"
+                   [class.bi-check-circle]="notif.category === 'booking'"
+                   [class.bi-credit-card]="notif.category === 'payment'"
+                   [class.bi-tag-fill]="notif.category === 'promotion'"></i>
+              </span>
+            </div>
+            <div class="col col-md-7 ps-md-3">
+              <h4 class="notif-title m-0 text-dark font-serif">{{ notif.title }}</h4>
+              <p class="small text-muted mt-1 mb-3">{{ notif.message }}</p>
+              <button type="button" class="btn btn-action-notif py-2 px-4"
+                      [class.btn-green]="notif.category === 'booking'"
+                      [class.btn-blue]="notif.category === 'payment'"
+                      [class.btn-gold]="notif.category === 'promotion'"
+                      (click)="markOneRead(notif.id)">{{ notif.actionText }}</button>
+            </div>
+            <div class="col-12 col-md-3 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-center align-items-md-end gap-3 mt-3 mt-md-0">
+              <div class="notif-meta">
+                <span class="badge fw-bold px-3 py-1 rounded-pill d-inline-block mb-2"
+                      [class.bg-green-light]="notif.category === 'booking'"
+                      [class.text-success]="notif.category === 'booking'"
+                      [class.bg-blue-light]="notif.category === 'payment'"
+                      [class.text-primary]="notif.category === 'payment'"
+                      [class.bg-gold-light]="notif.category === 'promotion'"
+                      [class.text-warning]="notif.category === 'promotion'">{{ notif.category | titlecase }}</span>
+                <span class="small text-muted d-block">{{ notif.createdAt | date:'short' }} IST</span>
+              </div>
+              <span *ngIf="!notif.isRead" class="unread-dot"
+                    [class.green]="notif.category === 'booking'"
+                    [class.blue]="notif.category === 'payment'"
+                    [class.gold]="notif.category === 'promotion'"></span>
+            </div>
+          </div>
+        </article>
+
+        <p *ngIf="visibleNotifications.length === 0" class="text-muted text-center py-4">No notifications match the selected filters.</p>
+        </ng-container>
+
+        <!-- Bottom help support card -->
+        <article class="bottom-support-card bg-white p-4 rounded border mt-3 d-flex justify-content-between align-items-center flex-wrap gap-4">
+          <div class="d-flex align-items-center gap-3">
+            <span class="help-badge-circle"><i class="bi bi-telephone"></i></span>
+            <div>
+              <h4 class="card-title font-serif text-dark m-0">Need Help?</h4>
+              <p class="small text-muted mb-0">Our support team is here to assist you with any queries or concerns.</p>
+            </div>
+          </div>
+          <button class="btn btn-contact-support py-2 px-4">Contact Support</button>
+        </article>
+
+      </section>
+
+    </div>
+  </main>
+
+</div>

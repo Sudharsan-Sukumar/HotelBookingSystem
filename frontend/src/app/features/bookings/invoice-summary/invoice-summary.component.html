@@ -1,0 +1,236 @@
+<div class="invoice-summary-page" *ngIf="loaded">
+  <app-navbar></app-navbar>
+
+  <header class="container px-xl-5 py-4 mt-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <span class="booking-tag small text-uppercase text-warning fw-bold mb-1 d-block">&bull; Booking Confirmation</span>
+        <h1 class="invoice-summary-title m-0">Reservation Invoice Summary</h1>
+        <p class="invoice-summary-sub text-muted m-0">Review your booking details before proceeding to payment</p>
+      </div>
+      <a routerLink="/bookings/guest-details" class="btn btn-back-to-form d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i> Back to Booking Form
+      </a>
+    </div>
+  </header>
+
+  <main class="container px-xl-5 pb-5">
+    <div class="invoice-card overflow-hidden">
+
+      <div class="invoice-card-header p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3 text-start">
+          <span class="header-icon-badge"><i class="bi bi-file-earmark-text"></i></span>
+          <div>
+            <strong class="d-block small text-warning text-uppercase letter-spacing-1">Invoice Details</strong>
+            <h2 class="invoice-header-title text-white m-0">Invoice Details Summary</h2>
+          </div>
+        </div>
+        <span class="status-badge"><i class="bi bi-hourglass-split me-1"></i> Awaiting payment</span>
+      </div>
+
+      <div class="row g-0 p-4 border-bottom text-start">
+        <div class="col-md-3 col-lg-2">
+          <img [src]="hotel?.imageUrl || '/assets/images/hotel_cbe.png'" alt="Hotel facade" class="invoice-hotel-img rounded mb-3 mb-md-0">
+        </div>
+        <div class="col-md-9 col-lg-10 ps-md-4 d-flex flex-column justify-content-center">
+          <h3 class="hotel-display-name m-0">{{ hotel?.name || 'Elegant Enclave' }}</h3>
+          <p class="hotel-display-branch text-muted mb-3">{{ branchName }} Branch - {{ roomType }}</p>
+          <div class="d-flex align-items-center gap-2 booking-id-row">
+            <i class="bi bi-person-badge text-warning fs-5"></i>
+            <div>
+              <strong class="small text-muted text-uppercase d-block mb-0">Booking ID</strong>
+              <span class="fw-bold text-dark fs-6">{{ bookingId }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-bottom">
+        <h4 class="section-badge-title mb-4"><i class="bi bi-calendar3 me-2 text-warning"></i>Stay Details</h4>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-3">
+            <div class="detail-info-block p-3 d-flex align-items-center gap-3 text-start">
+              <span class="block-icon"><i class="bi bi-calendar-check"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase">Check-In</strong>
+                <span class="fw-bold d-block text-dark">{{ checkinFormatted }}</span>
+                <span class="small text-muted">{{ checkinDayName }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="detail-info-block p-3 d-flex align-items-center gap-3 text-start">
+              <span class="block-icon"><i class="bi bi-calendar-x"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase">Check-Out</strong>
+                <span class="fw-bold d-block text-dark">{{ checkoutFormatted }}</span>
+                <span class="small text-muted">{{ checkoutDayName }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="detail-info-block p-3 d-flex align-items-center gap-3 text-start">
+              <span class="block-icon"><i class="bi bi-moon"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase">Stay Duration</strong>
+                <span class="fw-bold d-block text-dark">{{ nights }} Night{{ nights > 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="detail-info-block p-3 d-flex align-items-center gap-3 text-start">
+              <span class="block-icon"><i class="bi bi-people"></i></span>
+              <div>
+                <strong class="small text-muted text-uppercase">Guests</strong>
+                <span class="fw-bold d-block text-dark">{{ guestTotalCount }} Guest{{ guestTotalCount > 1 ? 's' : '' }}</span>
+                <span class="small text-muted">{{ rooms }} Room{{ rooms > 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-bottom text-start">
+        <div class="row g-4">
+          <div class="col-md-6 border-end">
+            <h4 class="section-badge-title mb-3" style="font-size:1.1rem; color:#1A0A2E;"><i class="bi bi-person-bounding-box me-2 text-warning"></i>Guest Information</h4>
+            <p class="mb-2"><strong>Primary Guest:</strong> {{ primaryGuest.name || 'N/A' }}</p>
+            <p class="mb-2"><strong>Contact Number:</strong> {{ primaryGuest.phone || 'N/A' }}</p>
+            <p class="mb-2"><strong>Email Address:</strong> {{ primaryGuest.email || 'N/A' }}</p>
+            <p class="mb-2"><strong>ID Verification:</strong> {{ primaryGuest.idType || 'N/A' }} - {{ primaryGuest.idNumber || 'N/A' }}</p>
+            <p class="mb-0"><strong>Special Requests:</strong> {{ specialRequestsText }}</p>
+          </div>
+          <div class="col-md-6">
+            <h4 class="section-badge-title mb-3" style="font-size:1.1rem; color:#1A0A2E;"><i class="bi bi-door-open me-2 text-warning"></i>Room Information</h4>
+            <p class="mb-2"><strong>Room Type:</strong> {{ roomType }}</p>
+            <p class="mb-2"><strong>Room Capacity:</strong> {{ roomCapacityText }}</p>
+            <p class="mb-2"><strong>Rate per Night:</strong> Rs. {{ pricePerNight.toLocaleString() }}</p>
+            <p class="mb-2"><strong>Room Status:</strong> Confirmed</p>
+            <p class="mb-0"><strong>Hotel Address:</strong> {{ hotel?.location || 'Salem / Coimbatore / Chennai Branch' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-bottom text-start">
+        <h4 class="section-badge-title mb-4"><i class="bi bi-receipt me-2 text-warning"></i>Billing Breakdown</h4>
+        <div class="d-flex justify-content-between align-items-center py-2">
+          <span class="text-secondary fw-semibold">{{ baseRoomChargeLabel }}</span>
+          <span class="fw-bold text-dark">Rs. {{ baseAmount.toLocaleString() }}.00</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center py-2">
+          <span class="text-secondary fw-semibold">Taxes &amp; fees (18% GST)</span>
+          <span class="fw-bold text-dark">Rs. {{ gst.toLocaleString() }}.00</span>
+        </div>
+
+        <div class="total-bill-bar p-3 mt-3 d-flex justify-content-between align-items-center rounded">
+          <span class="text-white fw-bold uppercase">Total bill amount</span>
+          <span class="total-bill-value text-warning font-serif">Rs. {{ total.toLocaleString() }}.00</span>
+        </div>
+      </div>
+
+      <div class="p-4 border-bottom text-start">
+        <h4 class="section-badge-title mb-4"><i class="bi bi-credit-card me-2 text-warning"></i>Select Payment Method</h4>
+        <div class="row g-3">
+          <div class="col-md-3 col-6">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3"
+                 [class.selected-method]="selectedPaymentMethod === 'UPI'" (click)="selectPaymentMethod('UPI')">
+              <input type="radio" name="paymentMethod" id="payUpi" value="UPI" class="form-check-input cursor-pointer" [checked]="selectedPaymentMethod === 'UPI'">
+              <label for="payUpi" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-qr-code text-warning fs-5"></i> UPI
+              </label>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3"
+                 [class.selected-method]="selectedPaymentMethod === 'Credit Card'" (click)="selectPaymentMethod('Credit Card')">
+              <input type="radio" name="paymentMethod" id="payCreditCard" value="Credit Card" class="form-check-input cursor-pointer" [checked]="selectedPaymentMethod === 'Credit Card'">
+              <label for="payCreditCard" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-credit-card-2-front text-warning fs-5"></i> Credit Card
+              </label>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3"
+                 [class.selected-method]="selectedPaymentMethod === 'Debit Card'" (click)="selectPaymentMethod('Debit Card')">
+              <input type="radio" name="paymentMethod" id="payDebitCard" value="Debit Card" class="form-check-input cursor-pointer" [checked]="selectedPaymentMethod === 'Debit Card'">
+              <label for="payDebitCard" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-credit-card text-warning fs-5"></i> Debit Card
+              </label>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="payment-method-card p-3 border rounded cursor-pointer d-flex align-items-center gap-3"
+                 [class.selected-method]="selectedPaymentMethod === 'Net Banking'" (click)="selectPaymentMethod('Net Banking')">
+              <input type="radio" name="paymentMethod" id="payNetBanking" value="Net Banking" class="form-check-input cursor-pointer" [checked]="selectedPaymentMethod === 'Net Banking'">
+              <label for="payNetBanking" class="form-check-label fw-semibold text-dark m-0 cursor-pointer d-flex align-items-center gap-2">
+                <i class="bi bi-bank text-warning fs-5"></i> Net Banking
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-check mt-3 text-start">
+          <input class="form-check-input" type="checkbox" id="useWalletBalance" [(ngModel)]="useWalletBalance" name="useWalletBalance">
+          <label class="form-check-label small text-secondary" for="useWalletBalance">
+            Apply any available wallet credit (from previous cancellation refunds) towards this payment
+          </label>
+        </div>
+        <div class="text-danger small mt-2" [class.d-none]="!paymentMethodError">Please select a payment method to proceed.</div>
+      </div>
+
+      <div class="p-4 bg-light-ivory d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3 text-start col-md-7">
+          <span class="terms-icon-circle"><i class="bi bi-shield-check"></i></span>
+          <span class="small text-secondary">By proceeding you agree to our <strong class="text-dark">booking terms &amp; cancellation policy</strong></span>
+        </div>
+        <button class="btn btn-proceed-payment py-3 px-5 text-nowrap d-flex align-items-center gap-2" (click)="onProceedToPayment()">
+          Proceed to Payment <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="row g-3 justify-content-between mt-5 text-start">
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-shield-check"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Secure Booking</strong>
+            <span class="small text-muted">Your data is safe and encrypted</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-award"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Best Price Guarantee</strong>
+            <span class="small text-muted">Get the best rates, always</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-calendar-event"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Flexible Cancellation</strong>
+            <span class="small text-muted">Plans that adapt to you</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-telephone-inbound"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">24/7 Guest Support</strong>
+            <span class="small text-muted">We're here for you anytime</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <app-footer></app-footer>
+
+  <app-booking-policy-modal (continue)="onPolicyContinue()"></app-booking-policy-modal>
+</div>

@@ -1,0 +1,343 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item active">Room Types</li>
+    </ol>
+  </nav>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Room Types Management</h1>
+    <p class="text-secondary small mb-0">Manage global room types, capacity constraints, and base pricing structures.</p>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-list-stars"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Room Types</span>
+          <strong class="fs-5 text-dark">{{ kpiTotalTypes }}</strong>
+          <span class="small text-muted d-block" style="font-size: 0.65rem;">Active templates</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-people-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Capacity</span>
+          <strong class="fs-5 text-dark">{{ kpiCapacity }} Guests</strong>
+          <span class="small text-muted d-block" style="font-size: 0.65rem;">Cumulative max limit</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-door-closed-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Units</span>
+          <strong class="fs-5 text-dark">{{ kpiUnits }} Rooms</strong>
+          <span class="small text-muted d-block" style="font-size: 0.65rem;">Assigned physical rooms</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3">
+        <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-tags-fill"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size: 0.7rem;">Avg Base Price</span>
+          <strong class="fs-5 text-dark">Rs. {{ kpiAvgPrice | number }}</strong>
+          <span class="small text-muted d-block" style="font-size: 0.65rem;">Across all categories</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER & ROW -->
+  <div class="card p-3 border mb-4 bg-white shadow-sm" style="border-radius: 12px;">
+    <div class="row g-2 align-items-end text-start">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold text-purple">Search</label>
+        <input type="text" class="form-control form-control-sm" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event); onSearchInput()" placeholder="Search by name or ID...">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-purple">Filter by Branch</label>
+        <select class="form-select form-select-sm" [ngModel]="branchFilter()" (ngModelChange)="branchFilter.set($event)">
+          <option value="all">All Branches</option>
+          <option value="Salem">Salem</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Chennai">Chennai</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-purple">Filter by Status</label>
+        <select class="form-select form-select-sm" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="all">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Disabled">Disabled</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-outline-purple btn-sm w-50" (click)="resetFilters()">Reset</button>
+        <button class="btn btn-purple btn-sm w-50" (click)="applyFilters()">Apply</button>
+      </div>
+      <div class="col-md-3 text-end">
+        <!-- Manager-only action: RoomTypesController POST requires [Authorize(Roles = "Manager")]
+             with ownership checks; an Admin token gets 403. Button intentionally hidden, not removed. -->
+        <button *ngIf="false" class="btn btn-purple btn-sm" (click)="openAddModal()"><i class="bi bi-plus-lg me-1"></i> Add Room Type</button>
+        <span class="small text-muted fst-italic">Creating room types is a Manager-only action.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card border shadow-sm bg-white p-3" style="border-radius: 12px;">
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr>
+            <th>Room ID</th>
+            <th>Room Name</th>
+            <th>Hotel</th>
+            <th>Max Capacity</th>
+            <th>Base Price</th>
+            <th>Units</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="pagedTypes().length === 0">
+            <td colspan="8" class="text-center py-4 text-muted">No room types found.</td>
+          </tr>
+          <tr *ngFor="let rt of pagedTypes()">
+            <td><strong>{{ rt.id }}</strong></td>
+            <td>{{ rt.name }}</td>
+            <td>{{ rt.hotelName }}</td>
+            <td>{{ rt.maxCapacity }} Guests</td>
+            <td>Rs. {{ rt.basePrice | number }}</td>
+            <td>{{ unitLabel(rt) }}</td>
+            <td>
+              <span *ngIf="rt.status === 'Active'" class="badge bg-success">Active</span>
+              <span *ngIf="rt.status !== 'Active'" class="badge bg-danger">Disabled</span>
+            </td>
+            <td class="text-end text-nowrap">
+              <!-- Manager-only actions (see note above the table); hidden for Admin, not removed. -->
+              <span *ngIf="false">
+                <button class="btn btn-sm btn-outline-purple py-0 px-2 me-1" (click)="openEditModal(rt.id)"><i class="bi bi-pencil-fill me-1"></i>Edit</button>
+                <button *ngIf="rt.status === 'Active'" class="btn btn-sm btn-outline-danger py-0 px-2" (click)="toggleStatus(rt.id, 'Disabled')">Disable</button>
+                <button *ngIf="rt.status !== 'Active'" class="btn btn-sm btn-outline-success py-0 px-2" (click)="toggleStatus(rt.id, 'Active')">Activate</button>
+              </span>
+              <span class="small text-muted fst-italic">Manager-only</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2" *ngIf="filteredTypes().length > 0">
+      <div class="d-flex align-items-center gap-2">
+        <span class="small text-muted">Show:</span>
+        <select class="form-select form-select-sm" style="width: 70px;" [ngModel]="rowsPerPage()" (ngModelChange)="onPageSizeChange($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+        <span class="small text-muted">{{ paginationInfo() }}</span>
+      </div>
+      <nav class="pe-5">
+        <ul class="pagination pagination-sm mb-0 admin-pagination">
+          <li class="page-item" [class.disabled]="currentPage() === 1">
+            <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage() - 1)">Previous</a>
+          </li>
+          <li class="page-item" *ngFor="let p of pageNumbers()" [class.active]="p === currentPage()">
+            <a class="page-link" href="javascript:void(0)" (click)="goToPage(p)">{{ p }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+            <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage() + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-backdrop-custom" *ngIf="showAddModal()">
+  <div class="modal-dialog-custom modal-lg-custom">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold text-purple" style="font-size: 1.25rem;">Add Room Type</h5>
+        <button type="button" class="btn-close" (click)="closeAddModal()"></button>
+      </div>
+      <div class="modal-body text-start">
+        <form #addRoomTypeForm="ngForm" novalidate (ngSubmit)="submitAdd()">
+          <div class="mb-3 text-danger small">* denotes that the field is mandatory</div>
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Room Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="addForm.name" name="addName" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Capacity <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.maxCapacity" name="addMaxCapacity" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Adults <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.maxAdults" name="addMaxAdults" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Children <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.maxChildren" name="addMaxChildren" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Status</label>
+              <select class="form-select form-select-sm" [(ngModel)]="addForm.status" name="addStatus">
+                <option value="Active">Active</option>
+                <option value="Disabled">Disabled</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Base Price <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.basePrice" name="addBasePrice" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Weekend Price</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.weekendPrice" name="addWeekendPrice">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Holiday Price</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="addForm.holidayPrice" name="addHolidayPrice">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Number of Beds <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="addForm.beds" name="addBeds" required>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Amenities</label>
+              <div class="d-flex gap-2 flex-wrap mt-1">
+                <span *ngFor="let a of amenityOptions" class="badge rounded-pill border p-2" style="cursor: pointer;"
+                      [class.bg-primary]="isAmenitySelected('add', a)" [class.text-white]="isAmenitySelected('add', a)" [class.text-dark]="!isAmenitySelected('add', a)"
+                      (click)="toggleAmenity('add', a)">{{ a }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 text-end">
+            <button type="button" class="btn btn-outline-purple btn-sm" (click)="closeAddModal()">Cancel</button>
+            <button type="submit" class="btn btn-purple btn-sm ms-2"><i class="bi bi-plus-lg me-1"></i> Create Room Type</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop-custom" *ngIf="showEditModal()">
+  <div class="modal-dialog-custom modal-lg-custom">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold text-purple" style="font-size: 1.25rem;">Edit Room Type</h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+      <div class="modal-body text-start">
+        <form #editRoomTypeForm="ngForm" novalidate (ngSubmit)="submitEdit()">
+          <div class="mb-3 text-danger small">* denotes that the field is mandatory</div>
+          <div class="alert alert-warning small py-2 mb-3" *ngIf="priceChanged()">Note: Changing the base price will only affect future bookings. Existing bookings remain unchanged.</div>
+
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Room Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="editForm.name" name="editName" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Capacity <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.maxCapacity" name="editMaxCapacity" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Adults <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.maxAdults" name="editMaxAdults" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Max Children <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.maxChildren" name="editMaxChildren" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Status</label>
+              <select class="form-select form-select-sm" [(ngModel)]="editForm.status" name="editStatus">
+                <option value="Active">Active</option>
+                <option value="Disabled">Disabled</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Base Price <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.basePrice" name="editBasePrice" (ngModelChange)="onEditPriceChange()" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Number of Beds <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="editForm.beds" name="editBeds" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Room Size (sq ft)</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.roomSize" name="editRoomSize">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Display Order</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="editForm.displayOrder" name="editDisplayOrder">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="editForm.description" name="editDescription"></textarea>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Amenities</label>
+              <div class="d-flex gap-2 flex-wrap mt-1">
+                <span *ngFor="let a of ['WiFi', 'Television', 'AC', 'Mini Fridge', 'Balcony', 'Workspace']" class="badge rounded-pill border p-2" style="cursor: pointer;"
+                      [class.bg-primary]="isAmenitySelected('edit', a)" [class.text-white]="isAmenitySelected('edit', a)" [class.text-dark]="!isAmenitySelected('edit', a)"
+                      (click)="toggleAmenity('edit', a)">{{ a }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="disableFromEditModal()">Disable</button>
+            <div>
+              <button type="button" class="btn btn-outline-purple btn-sm" (click)="closeEditModal()">Cancel</button>
+              <button type="submit" class="btn btn-purple btn-sm ms-2"><i class="bi bi-save me-1"></i> Save Changes</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM APK DIALOG CONFIRMATION MODAL -->
+<div class="modal-backdrop-custom" *ngIf="showConfirmModal()">
+  <div class="modal-dialog-custom">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px; box-shadow: 0 8px 30px rgba(26,10,46,0.15);">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">Confirm System Action</h5>
+        <button type="button" class="btn-close" (click)="closeConfirmModal()"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">{{ confirmMessage() }}</div>
+      <div class="modal-footer border-0 pt-0 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-purple btn-sm py-2 px-4" style="border-radius: 8px;" (click)="closeConfirmModal()">Cancel</button>
+        <button type="button" class="btn btn-purple btn-sm py-2 px-4" style="background-color: #1A0A2E; color: white; border: none; border-radius: 8px;" (click)="runConfirmedAction()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

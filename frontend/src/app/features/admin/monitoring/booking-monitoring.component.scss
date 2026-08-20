@@ -1,0 +1,31 @@
+@import '../admin-shared';
+
+.nav-tabs .nav-link.active {
+  border-bottom: 2px solid #1A0A2E;
+}
+
+.page-link {
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog-custom {
+  width: 100%;
+  max-width: 500px;
+  margin: 1.75rem;
+}

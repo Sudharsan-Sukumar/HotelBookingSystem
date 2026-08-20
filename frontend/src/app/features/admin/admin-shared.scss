@@ -1,0 +1,243 @@
+// Shared styling for all admin pages.
+// Ported from features/User/Admin/admin.css (global rules relevant to
+// migrated pages) plus admin-sidebar.css layout variables.
+// Import this partial into each admin page component's own .scss with:
+//   @use '../admin-shared' as *;
+// or copy relevant class rules directly since Angular view encapsulation
+// scopes component styles by default.
+
+.admin-body {
+  background-color: #f8f7f4;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.825rem;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.text-purple {
+  color: #1a0a2e;
+}
+
+.bg-purple {
+  background-color: #1a0a2e;
+}
+
+.kpi-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.health-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 10px 0;
+}
+
+.health-row:last-child {
+  border-bottom: none;
+}
+
+/* Legacy single-row top nav variant (not the primary sidebar chrome, kept
+   for parity with admin.css in case any migrated page still references it). */
+.manager-top-nav {
+  min-height: 72px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  background-color: #1a0a2e;
+  border-bottom: 2px solid #d4af37;
+}
+
+.manager-top-nav .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.manager-top-nav .nav-link i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.manager-top-nav .nav-link:hover {
+  color: #d4af37;
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+.manager-top-nav .nav-link.active,
+.manager-top-nav .nav-link.active:hover,
+.manager-top-nav .nav-link.active:focus {
+  color: #1a0a2e;
+  font-weight: 700;
+  background-color: #d4af37;
+  border: 1px solid #d4af37;
+}
+
+.manager-premium-table th,
+.table th {
+  background-color: rgba(0, 0, 0, 0.02);
+  font-weight: 600;
+  color: #1a0a2e;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+}
+
+.table-responsive {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.btn-purple {
+  background-color: #1a0a2e;
+  color: #fff;
+  border: 1px solid #1a0a2e;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+.btn-purple:hover {
+  background-color: #d4af37;
+  color: #1a0a2e;
+  border-color: #d4af37;
+}
+
+.btn-outline-purple {
+  background-color: transparent;
+  color: #1a0a2e;
+  border: 1px solid #1a0a2e;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  padding: 0.25rem 0.75rem;
+}
+.btn-outline-purple:hover {
+  background-color: #1a0a2e;
+  color: #fff;
+}
+
+/* Pagination */
+.admin-pagination .page-item .page-link {
+  color: #1a0a2e;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  margin: 0 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.admin-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+  background-color: rgba(26, 10, 46, 0.05);
+  transform: translateY(-1px);
+}
+.admin-pagination .page-item.active .page-link {
+  background-color: #1a0a2e;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(26, 10, 46, 0.2);
+}
+.admin-pagination .page-item.disabled .page-link {
+  color: #a0a0a0;
+  background-color: transparent;
+}
+
+/* Reports one-time tooltip popup */
+.reports-tooltip-popup {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1a0a2e;
+  color: #ffffff;
+  border: 1.5px solid #d4af37;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1060;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.reports-tooltip-popup.show-tooltip {
+  opacity: 1;
+}
+
+/* Backup flow animations */
+@keyframes flowData {
+  0% {
+    left: 0%;
+    opacity: 0.1;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0.1;
+  }
+}
+
+@keyframes pulseNode {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.pulse-ring {
+  animation: pulseNode 2s infinite ease-out;
+}
+
+.restore-data-packet {
+  animation: flowData 2s infinite linear reverse;
+}
+
+.data-packet {
+  animation: flowData 1s infinite linear;
+}
+
+/* Standard admin page layout wrapper (matches the two-column d-flex shell) */
+.admin-layout {
+  min-height: 100vh;
+}
+
+.admin-content {
+  min-width: 0;
+}

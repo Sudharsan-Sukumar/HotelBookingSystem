@@ -1,0 +1,245 @@
+// Ported from HotelBookingSystem_Phase2/features/hotels/hotel_details.css
+.hotel-details-page {
+  background-color: #F8F6F2;
+  font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+  color: #1A0A2E;
+}
+
+.hotel-details-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1A0A2E;
+}
+
+.hotel-details-sub {
+  font-size: 0.95rem;
+}
+
+.btn-back-to-hotels {
+  background-color: #FFFFFF;
+  color: #1A0A2E;
+  border: 1px solid rgba(26, 10, 46, 0.2);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.25rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #D4AF37;
+    color: #D4AF37;
+  }
+}
+
+.hero-gallery-container {
+  height: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+
+  .main-gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.4s ease;
+  }
+
+  .gallery-arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba(26, 10, 46, 0.85);
+    color: #FFFFFF;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 5;
+
+    &:hover {
+      background-color: #D4AF37;
+      color: #1A0A2E;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+    }
+
+    &.left-arrow {
+      left: 1.5rem;
+    }
+
+    &.right-arrow {
+      right: 1.5rem;
+    }
+  }
+}
+
+.thumbnail-gallery-row .thumbnail-card {
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover, &.active {
+    opacity: 1;
+    border-color: #D4AF37;
+    transform: scale(1.02);
+  }
+}
+
+.details-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(26, 10, 46, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+
+  .card-icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #1A0A2E;
+    color: #D4AF37;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+  }
+
+  .card-section-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 1.45rem;
+    color: #1A0A2E;
+  }
+}
+
+.overview-list {
+  list-style: none;
+  margin: 0;
+
+  li {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+
+    i {
+      font-size: 1.2rem;
+      margin-top: 0.1rem;
+    }
+
+    div {
+      line-height: 1.4;
+
+      strong {
+        display: block;
+        color: #6B6476;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.15rem;
+      }
+
+      span {
+        font-weight: 500;
+        color: #1A0A2E;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.amenity-mini-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.amenity-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6B6476;
+}
+
+@media (min-width: 768px) {
+  .border-start-md {
+    border-left: 1px dashed rgba(212, 175, 55, 0.25);
+    padding-left: 3rem;
+  }
+}
+
+.bottom-cta-banner {
+  background-color: #1A0A2E;
+  border-radius: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  .cta-banner-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+
+  .cta-banner-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 1.45rem;
+  }
+
+  .cta-banner-sub {
+    font-size: 0.9rem;
+  }
+
+  .btn-book-now {
+    background-color: #D4AF37;
+    color: #1A0A2E;
+    border: none;
+    border-radius: 12px;
+    padding: 0.9rem 2rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #EFD98C;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+      color: #1A0A2E;
+    }
+  }
+}
+
+@media (max-width: 991.98px) {
+  .hero-gallery-container {
+    height: 320px;
+  }
+}

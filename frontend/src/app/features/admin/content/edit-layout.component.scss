@@ -1,0 +1,14 @@
+@use '../admin-shared.scss';
+
+:host {
+  display: block;
+}
+
+.draggable-section-item {
+  border: 1px solid rgba(26, 10, 46, 0.1);
+  transition: background-color 0.2s;
+}
+
+.draggable-section-item:hover {
+  background-color: rgba(26, 10, 46, 0.02);
+}

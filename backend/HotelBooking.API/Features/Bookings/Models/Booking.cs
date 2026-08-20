@@ -37,7 +37,11 @@ public class Booking
     [MaxLength(50)]
     public string IDProofType { get; set; } = string.Empty; // Aadhar Card, Passport, Driver's License, PAN
 
-    [MaxLength(50)]
+    // Stores a BCrypt hash of the guest's ID proof number, never the plain value (bcrypt hashes are
+    // always 60 chars; 255 leaves headroom without ever needing another width migration). Hash it
+    // with BookingService.HashIdProofNumber before assigning; verify with VerifyIdProofNumber — the
+    // original value is not recoverable and must never be stored or logged elsewhere.
+    [MaxLength(255)]
     public string IDProofNumber { get; set; } = string.Empty;
 
     [Column(TypeName = "decimal(18,2)")]

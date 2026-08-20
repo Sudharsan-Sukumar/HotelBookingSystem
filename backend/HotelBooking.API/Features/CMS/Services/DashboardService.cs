@@ -15,6 +15,12 @@ public class DashboardService : IDashboardService
         _context = context;
     }
 
+    // IST is a fixed UTC+5:30 offset with no daylight-saving rules, so a plain offset add is exact
+    // and avoids relying on a "Asia/Kolkata"/"India Standard Time" TimeZoneInfo id that differs
+    // between Windows and Linux hosts. CreatedAt is stored as UTC (DateTime.UtcNow at insert time).
+    private static System.DateTime ToIst(System.DateTime utc) => utc.AddHours(5).AddMinutes(30);
+
+    // Facade — combines user, revenue, promotion, and backup data from four tables into one summary DTO.
     public async Task<AdminDashboardDto> GetSummaryAsync()
     {
         var totalUsers = await _context.Users.CountAsync(u => u.Status == "Active");
@@ -27,7 +33,9 @@ public class DashboardService : IDashboardService
             TotalActiveUsers = totalUsers,
             TotalRevenue = totalRevenue,
             ActivePromotionsCount = activePromotions,
-            LastBackupStatus = lastBackup != null ? $"{lastBackup.Status} at {lastBackup.CreatedAt}" : "No backups found"
+            LastBackupStatus = lastBackup != null
+                ? $"{lastBackup.Status} at {ToIst(lastBackup.CreatedAt):dd-MM-yyyy HH:mm:ss} IST"
+                : "No backups found"
         };
     }
 }

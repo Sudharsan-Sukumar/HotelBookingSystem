@@ -23,6 +23,7 @@ public interface IRazorpayApiClient
 // Thrown when Razorpay is unreachable (network failure or the Polly circuit breaker has tripped
 // after repeated failures) so callers can fall back to a friendly "try again shortly" response
 // instead of surfacing a raw HTTP/transport error.
+// Custom Exception Hierarchy — distinguishes a transient gateway outage from a permanent credentials problem for callers.
 public class RazorpayUnavailableException : Exception
 {
     public RazorpayUnavailableException(string message, Exception? inner = null) : base(message, inner) { }
@@ -43,6 +44,7 @@ public class RazorpayPaymentLinkResult
     public string ShortUrl { get; set; } = string.Empty;
 }
 
+// Adapter Pattern — wraps Razorpay's raw HTTP/JSON contract behind a typed IRazorpayApiClient interface.
 public class RazorpayApiClient : IRazorpayApiClient
 {
     private readonly HttpClient _httpClient;
@@ -80,6 +82,7 @@ public class RazorpayApiClient : IRazorpayApiClient
         {
             response = await _httpClient.PostAsJsonAsync("payment_links", payload);
         }
+        // Circuit Breaker (Polly) — catches BrokenCircuitException to fail fast with a friendly message once Razorpay calls have tripped the breaker.
         catch (BrokenCircuitException ex)
         {
             throw new RazorpayUnavailableException("Payment gateway is temporarily unavailable after repeated failures. Please try again in a minute.", ex);
@@ -121,6 +124,7 @@ public class RazorpayApiClient : IRazorpayApiClient
         {
             response = await _httpClient.GetAsync($"payment_links/{paymentLinkId}");
         }
+        // Circuit Breaker (Polly) — catches BrokenCircuitException to fail fast with a friendly message once Razorpay calls have tripped the breaker.
         catch (BrokenCircuitException ex)
         {
             throw new RazorpayUnavailableException("Payment gateway is temporarily unavailable after repeated failures. Please try again in a minute.", ex);

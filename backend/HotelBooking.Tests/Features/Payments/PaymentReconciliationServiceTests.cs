@@ -47,7 +47,8 @@ public class PaymentReconciliationServiceTests
         _provider = services.BuildServiceProvider();
 
         _reconciliationService = new PaymentReconciliationService(
-            _provider.GetRequiredService<IServiceScopeFactory>(), NullLogger<PaymentReconciliationService>.Instance);
+            _provider.GetRequiredService<IServiceScopeFactory>(), NullLogger<PaymentReconciliationService>.Instance,
+            new HotelBooking.API.Common.Services.ReconciliationHealthTracker());
 
         // Seed via a throwaway scope so nothing here stays tracked in a long-lived context —
         // every assertion below opens its OWN fresh scope/context to read back real committed
@@ -147,7 +148,10 @@ public class PaymentReconciliationServiceTests
         {
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var payment = await context.RazorpayPayments.FirstAsync(p => p.Id == _paymentId);
-            payment.CreatedAt = DateTime.UtcNow.AddMinutes(-2); // well within a normal payment session
+            // StaleThreshold is 60s (tightened from a much longer window so a missed webhook still
+            // gets reconciled within the frontend's own polling window — see
+            // PaymentReconciliationService's own comment) — 20s keeps this comfortably under that.
+            payment.CreatedAt = DateTime.UtcNow.AddSeconds(-20); // well within a normal payment session
             await context.SaveChangesAsync();
         }
 

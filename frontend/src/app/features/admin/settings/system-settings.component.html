@@ -1,0 +1,80 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">System Settings</li>
+      </ol>
+    </nav>
+    <a routerLink="/admin/content" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Content</a>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+    <div>
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">System Settings</h1>
+      <p class="text-secondary small mb-0">Manage backend key/value configuration settings.</p>
+    </div>
+    <button class="btn btn-purple btn-sm" (click)="openAdd()" *ngIf="!showAddForm"><i class="bi bi-plus-lg me-1"></i> Add Setting</button>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto mb-4" style="border-radius: 16px; max-width: 900px;" *ngIf="showAddForm">
+    <h5 class="font-serif fw-bold text-purple mb-3">New Setting</h5>
+    <form #addForm="ngForm" (ngSubmit)="onAddSubmit(addForm)" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Key *</label>
+          <input type="text" name="newKey" class="form-control form-control-sm" [(ngModel)]="newKey" pattern="^[a-zA-Z0-9\s]+$" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Value *</label>
+          <input type="text" name="newValue" class="form-control form-control-sm" [(ngModel)]="newValue" required>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelAdd()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm" [disabled]="saving"><i class="bi bi-save me-1"></i> Create Setting</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card border bg-white shadow-sm" style="border-radius: 16px;">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr class="text-secondary small">
+            <th>Key</th>
+            <th>Value</th>
+            <th>Last Updated</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of settings">
+            <td class="fw-semibold text-purple">{{ s.key }}</td>
+            <td>
+              <span *ngIf="editingKey !== s.key">{{ s.value }}</span>
+              <input *ngIf="editingKey === s.key" type="text" class="form-control form-control-sm" [(ngModel)]="editValue" [ngModelOptions]="{standalone: true}">
+            </td>
+            <td class="small text-secondary">{{ s.updatedAt ? (s.updatedAt | date:'medium') : '—' }}</td>
+            <td class="text-end">
+              <ng-container *ngIf="editingKey !== s.key">
+                <button class="btn btn-outline-purple btn-sm py-0 px-2" (click)="startEdit(s)"><i class="bi bi-pencil"></i></button>
+              </ng-container>
+              <ng-container *ngIf="editingKey === s.key">
+                <button class="btn btn-purple btn-sm py-0 px-2 me-1" [disabled]="savingKey === s.key" (click)="saveEdit(s)"><i class="bi bi-check-lg"></i></button>
+                <button class="btn btn-outline-purple btn-sm py-0 px-2" (click)="cancelEdit()"><i class="bi bi-x-lg"></i></button>
+              </ng-container>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && settings.length === 0">
+            <td colspan="4" class="text-center text-muted py-4">No settings configured yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>

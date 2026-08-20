@@ -1,0 +1,35 @@
+<!-- APK-STYLE TOAST -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1080; width: 100%; max-width: 350px;">
+  <div class="toast align-items-center text-white bg-dark border-0 shadow" [class.show]="ui.toastVisible()" role="alert" style="border-radius: 12px; background-color: #120820 !important; border: 1px solid rgba(212,175,55,0.3) !important;" [style.display]="ui.toastVisible() ? 'block' : 'none'">
+    <div class="d-flex p-2">
+      <div class="toast-body d-flex align-items-center gap-2 small">
+        <span class="text-warning"><i class="bi bi-info-circle-fill"></i></span>
+        <span>{{ ui.toastMessage() }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRM MODAL -->
+<div class="social-modal" [class.show]="ui.logoutModalVisible()" aria-hidden="true" role="dialog">
+  <div class="social-modal-backdrop" (click)="ui.cancelLogout()"></div>
+  <div class="social-modal-content">
+    <div class="social-modal-header text-center mb-3">
+      <span class="modal-gold-icon" style="background-color: rgba(220, 53, 69, 0.1); color: #DC3545; width: 56px; height: 56px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.5rem; border: 1px solid rgba(220, 53, 69, 0.2);"><i class="bi bi-box-arrow-right"></i></span>
+      <h2 class="modal-title font-serif" style="color: #1A0A2E; font-size: 1.25rem; font-weight: bold; margin-top: 12px;">Confirm Logout</h2>
+    </div>
+    <div class="social-modal-body text-center mb-4">
+      <p class="modal-msg" style="color: #6C757D; font-size: 0.85rem;">Are you sure you want to end your session and logout from Elegant Enclave?</p>
+    </div>
+    <div class="social-modal-footer d-flex gap-3 justify-content-center">
+      <button class="btn btn-modal-cancel" [disabled]="loggingOut" (click)="ui.cancelLogout()" style="border: 1px solid #1A0A2E; color: #1A0A2E; background: transparent; padding: 6px 20px; border-radius: 8px; font-weight: 500; font-size: 0.85rem;">Cancel</button>
+      <button class="btn btn-modal-continue" [disabled]="loggingOut" (click)="confirmLogout()" style="background-color: #DC3545; color: white; border: none; padding: 6px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">{{ loggingOut ? 'Logging out…' : 'Logout' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING BACK-TO-TOP -->
+<button class="floating-back-to-top" [class.show]="showBackToTop" (click)="scrollToTop()" aria-label="Back to Top" title="Back to Top"
+  style="position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; background-color: #D4AF37; border-radius: 50%; z-index: 99999; border: none;">
+  <i class="bi bi-arrow-up"></i>
+</button>

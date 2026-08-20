@@ -1,0 +1,183 @@
+<div class="guest-details-page" *ngIf="ready">
+  <app-navbar></app-navbar>
+
+  <header class="container px-xl-5 pt-3 pb-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="guest-details-title m-0">Confirm Registration Stay Details</h1>
+        <p class="guest-details-sub text-muted m-0">Provide check-in/check-out logs and request forms. <br>
+          Fields marked with <span class="text-danger">*</span> are mandatory.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container px-xl-5 pb-5">
+    <div class="guest-details-card p-4 p-md-5">
+      <form id="stayDetailsForm" novalidate (ngSubmit)="onSubmit()">
+
+        <!-- SECTION 1: Guest Details -->
+        <div class="form-section-block mb-5">
+          <div class="d-flex align-items-center gap-3 mb-4 text-start">
+            <span class="card-icon-badge"><i class="bi bi-people"></i></span>
+            <div>
+              <h2 class="card-section-title m-0">Guest Details</h2>
+              <p class="small text-muted m-0">Enter the total number of guests for this booking.</p>
+            </div>
+          </div>
+
+          <div class="mb-3 text-start">
+            <label for="guestCount" class="form-label">Guest Count <span class="text-danger">*</span></label>
+            <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-people text-muted"></i></span>
+              <input type="number" id="guestCount" class="form-control border-start-0" placeholder="Total guests count"
+                     required min="1" [max]="maxOccupancy" aria-required="true"
+                     [(ngModel)]="guestCount" name="guestCount" (input)="validateForm()" (change)="validateForm()">
+              <span class="input-group-text bg-light-ivory text-muted small fw-semibold">{{ capacityBadgeText }}</span>
+            </div>
+            <div class="text-danger small mt-1" [class.d-none]="!guestErrorMsg">{{ guestErrorMsg }}</div>
+          </div>
+
+          <div class="mb-3 text-start">
+            <label for="guestPhone" class="form-label">Contact Phone Number <span class="text-danger">*</span></label>
+            <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-telephone text-muted"></i></span>
+              <input type="tel" id="guestPhone" class="form-control border-start-0" placeholder="10-digit mobile number"
+                     required aria-required="true" maxlength="10"
+                     [(ngModel)]="guestPhone" name="guestPhone" (input)="validateForm()" (change)="validateForm()">
+            </div>
+            <div class="text-danger small mt-1" [class.d-none]="!guestPhoneError">{{ guestPhoneError }}</div>
+          </div>
+
+          <div class="mb-3 text-start">
+            <label for="guestName" class="form-label">Primary Guest Name <span class="text-danger">*</span></label>
+            <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" id="guestName" class="form-control border-start-0" required
+                     [(ngModel)]="guestName" name="guestName" (input)="validateForm()" (change)="validateForm()">
+            </div>
+          </div>
+
+          <div class="mb-3 text-start">
+            <label for="guestEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+            <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+              <input type="email" id="guestEmail" class="form-control border-start-0" required
+                     [(ngModel)]="guestEmail" name="guestEmail" (input)="validateForm()" (change)="validateForm()">
+            </div>
+          </div>
+
+          <div class="row g-4 text-start mb-3">
+            <div class="col-md-6">
+              <label for="guestIdType" class="form-label">ID Type <span class="text-danger">*</span></label>
+              <select id="guestIdType" class="form-select custom-input-group p-2" required
+                      [(ngModel)]="guestIdType" name="guestIdType" (change)="onIdTypeChange()">
+                <option value="">Select ID Type</option>
+                <option value="Aadhar Card">Aadhar Card</option>
+                <option value="Passport">Passport</option>
+                <option value="Driver's License">Driver's License</option>
+                <option value="PAN">PAN</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="guestIdNumber" class="form-label">ID Number <span class="text-danger">*</span></label>
+              <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-card-text text-muted"></i></span>
+                <input type="text" id="guestIdNumber" class="form-control border-start-0" [placeholder]="idNumberPlaceholder" required
+                       [(ngModel)]="guestIdNumber" name="guestIdNumber" (input)="onIdNumberInput()">
+              </div>
+              <div class="text-danger small mt-1" [class.d-none]="!guestIdNumberError">{{ guestIdNumberError }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: Stay Dates -->
+        <div class="form-section-block mb-5">
+          <div class="d-flex align-items-center gap-3 mb-4 text-start">
+            <span class="card-icon-badge"><i class="bi bi-calendar3"></i></span>
+            <div>
+              <h2 class="card-section-title m-0">Stay Dates</h2>
+              <p class="small text-muted m-0">Select your preferred check-in and check-out dates.</p>
+            </div>
+          </div>
+
+          <div class="row g-4 text-start">
+            <div class="col-md-5">
+              <label for="checkinDate" class="form-label">Stay Check-In Date <span class="text-danger">*</span></label>
+              <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-check text-muted"></i></span>
+                <input type="date" id="checkinDate" class="form-control border-start-0" required aria-required="true" [min]="todayStr"
+                       [(ngModel)]="checkinDate" name="checkinDate" (change)="onCheckinChange()">
+              </div>
+              <div class="text-danger small mt-1" style="font-size: 0.75rem;" [class.d-none]="!checkinErrorMsg">{{ checkinErrorMsg }}</div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex align-items-center justify-content-center pt-4">
+              <span class="dates-divider-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+            <div class="col-md-5">
+              <label for="checkoutDate" class="form-label">Stay Check-Out Date <span class="text-danger">*</span></label>
+              <div class="input-group d-flex flex-nowrap align-items-center custom-input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-x text-muted"></i></span>
+                <input type="date" id="checkoutDate" class="form-control border-start-0" required aria-required="true"
+                       [(ngModel)]="checkoutDate" name="checkoutDate" (change)="validateForm()">
+              </div>
+              <div class="text-danger small mt-1" style="font-size: 0.75rem;" [class.d-none]="!checkoutErrorMsg">{{ checkoutErrorMsg }}</div>
+            </div>
+          </div>
+          <div class="text-danger small mt-2 text-start" [class.d-none]="!dateErrorMsg">{{ dateErrorMsg }}</div>
+        </div>
+
+        <!-- SECTION 3: Special Requests (Optional) -->
+        <div class="form-section-block mb-5">
+          <div class="d-flex align-items-center gap-3 mb-4 text-start">
+            <span class="card-icon-badge"><i class="bi bi-bell"></i></span>
+            <div>
+              <h2 class="card-section-title m-0">Special Requests (Optional)</h2>
+              <p class="small text-muted m-0">Let us know if you have any special requests or preferences.</p>
+            </div>
+          </div>
+
+          <div class="mb-3 text-start position-relative">
+            <div class="input-group d-flex flex-nowrap align-items-start custom-input-group pt-1">
+              <span class="input-group-text bg-white border-end-0 pt-2"><i class="bi bi-pencil text-muted"></i></span>
+              <textarea id="specialRequests" class="form-control border-start-0 pt-2" rows="4" maxlength="300"
+                        placeholder="Specify room location, extra bedding, early check-in, etc. (Max 300 characters)"
+                        [(ngModel)]="specialRequests" name="specialRequests"></textarea>
+            </div>
+            <div class="text-end text-muted small mt-1">{{ charCounterText }}</div>
+          </div>
+        </div>
+
+        <!-- Informational alert row -->
+        <div class="info-alert-card p-4 d-flex justify-content-between align-items-center flex-wrap gap-4 text-start mb-5">
+          <div class="d-flex align-items-center gap-3 col-lg-8">
+            <span class="alert-icon-circular"><i class="bi bi-info-circle"></i></span>
+            <div>
+              <strong class="d-block text-dark">We're here to make your stay perfect</strong>
+              <span class="small text-muted">Our team will do our best to accommodate your requests and ensure a memorable experience.</span>
+            </div>
+          </div>
+          <div class="col-lg-3 text-end d-none d-lg-block">
+            <img src="/assets/images/stay_info_banner.jpg" alt="Luxury stay banner" class="info-banner-img">
+          </div>
+        </div>
+
+        <!-- BOTTOM CTA SUBMIT BAR -->
+        <div class="bottom-cta-banner p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-3 text-start">
+            <span class="cta-banner-icon"><i class="bi bi-calendar-check"></i></span>
+            <div>
+              <h3 class="cta-banner-title text-white m-0">Ready to confirm your stay?</h3>
+              <p class="cta-banner-sub text-white-50 m-0">Review your details and proceed to view booking summary.</p>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-book-now d-flex align-items-center gap-2" [disabled]="!formValid">
+            Confirm Booking &amp; View Summary <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>

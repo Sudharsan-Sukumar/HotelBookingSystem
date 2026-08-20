@@ -1,0 +1,189 @@
+<app-navbar></app-navbar>
+
+<div class="modify-booking-page">
+  <!-- TOP HEADER SECTION -->
+  <header class="container px-xl-5 pt-2 pb-1 mt-0 text-start">
+    <div class="mb-2">
+      <a routerLink="/candidate/my-bookings" class="btn-back-to-bookings btn btn-sm d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+    <h1 class="modify-title m-0">Modify Booking</h1>
+    <p class="modify-sub text-muted m-0">Update your stay details in just a few simple steps.</p>
+  </header>
+
+  <main class="container px-xl-5 pb-5">
+    <div class="d-flex flex-column gap-4">
+
+      <!-- Progress stepper -->
+      <section class="progress-stepper-card bg-white p-4 text-start">
+        <div class="row align-items-center justify-content-between text-start">
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num active">1</span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Update Stay</strong>
+              <span class="step-sub text-muted small">Dates, Guests &amp; Room</span>
+            </div>
+          </div>
+          <div class="col-md-1 d-none d-md-block px-0"><div class="step-line active"></div></div>
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num">2</span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Review Changes</strong>
+              <span class="step-sub text-muted small">Check new prices &amp; details</span>
+            </div>
+          </div>
+          <div class="col-md-1 d-none d-md-block px-0"><div class="step-line"></div></div>
+          <div class="col-md-3 d-flex align-items-center gap-3">
+            <span class="step-num">3</span>
+            <div>
+              <strong class="step-title d-block text-dark small uppercase">Confirm</strong>
+              <span class="step-sub text-muted small">Pay difference (if any)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <ng-container *ngIf="booking; else notFound">
+
+        <!-- Current Booking Summary -->
+        <section class="current-summary-card bg-white p-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 border-bottom pb-3 mb-4">
+            <div class="d-flex align-items-center gap-2">
+              <span class="summary-badge-icon"><i class="bi bi-briefcase"></i></span>
+              <h2 class="summary-title m-0">Current Booking Summary</h2>
+            </div>
+            <span class="ref-badge small py-1 px-3 rounded">Booking Reference: {{ booking.id }}</span>
+          </div>
+
+          <div class="row g-3 text-start">
+            <div class="col-md-3">
+              <div class="info-block p-3 d-flex align-items-center gap-3">
+                <span class="block-icon"><i class="bi bi-calendar-check"></i></span>
+                <div>
+                  <strong class="small text-muted text-uppercase d-block mb-1">Check-in</strong>
+                  <span class="fw-bold d-block text-dark">{{ booking.checkInDate | date:'mediumDate' }}</span>
+                  <span class="small text-muted">{{ booking.checkInDay }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="info-block p-3 d-flex align-items-center gap-3">
+                <span class="block-icon"><i class="bi bi-calendar-x"></i></span>
+                <div>
+                  <strong class="small text-muted text-uppercase d-block mb-1">Check-out</strong>
+                  <span class="fw-bold d-block text-dark">{{ booking.checkOutDate | date:'mediumDate' }}</span>
+                  <span class="small text-muted">{{ booking.checkOutDay }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="info-block p-3 d-flex align-items-center gap-3">
+                <span class="block-icon"><i class="bi bi-people"></i></span>
+                <div>
+                  <strong class="small text-muted text-uppercase d-block mb-1">Rooms</strong>
+                  <span class="fw-bold d-block text-dark">{{ booking.numberOfRooms }} Room(s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="info-block p-3 d-flex align-items-center gap-3">
+                <span class="block-icon"><i class="bi bi-door-open"></i></span>
+                <div>
+                  <strong class="small text-muted text-uppercase d-block mb-1">Room Type</strong>
+                  <span class="fw-bold d-block text-dark">{{ booking.roomTypeName }}</span>
+                  <span class="small text-muted">{{ booking.hotelName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Update Stay Details Form -->
+        <section class="update-form-card bg-white p-4 p-md-5 text-start">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="form-badge-icon"><i class="bi bi-calendar-range"></i></span>
+            <div>
+              <h2 class="form-section-title m-0">Update Your Stay Details</h2>
+              <p class="small text-muted m-0">Make the changes you want for your upcoming stay.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="onSubmit()" novalidate>
+            <div class="alert alert-danger py-2 mb-4 small" *ngIf="generalError">
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-lock-fill text-danger mt-1" *ngIf="formDisabled"></i>
+                <div>
+                  <strong *ngIf="formDisabled">Modification Not Available</strong><br *ngIf="formDisabled">
+                  <span>{{ generalError }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="datesSelectionSection">
+              <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                  <label for="checkinDate" class="form-label text-dark fw-bold">Check-in Date <span class="text-danger">*</span></label>
+                  <div class="input-group custom-input-group">
+                    <input type="date" id="checkinDate" class="form-control" [min]="todayIso"
+                           [(ngModel)]="checkinDate" name="checkinDate" [disabled]="formDisabled"
+                           (change)="onDateOrGuestsChanged()" required>
+                  </div>
+                  <span class="small mt-1 text-danger d-block" *ngIf="checkinError">{{ checkinError }}</span>
+                </div>
+                <div class="col-md-4">
+                  <label for="checkoutDate" class="form-label text-dark fw-bold">Check-out Date <span class="text-danger">*</span></label>
+                  <div class="input-group custom-input-group">
+                    <input type="date" id="checkoutDate" class="form-control" [min]="checkinDate || todayIso"
+                           [(ngModel)]="checkoutDate" name="checkoutDate" [disabled]="formDisabled"
+                           (change)="onDateOrGuestsChanged()" required>
+                  </div>
+                  <span class="small mt-1 text-danger d-block" *ngIf="checkoutError">{{ checkoutError }}</span>
+                </div>
+                <div class="col-md-4">
+                  <label for="selectGuests" class="form-label text-dark fw-bold">Guests</label>
+                  <select id="selectGuests" class="form-select custom-select" [(ngModel)]="guests" name="guests" disabled>
+                    <option [ngValue]="guests">Up to {{ maxGuestsForSelection }} Guest{{ maxGuestsForSelection > 1 ? 's' : '' }} (fixed)</option>
+                  </select>
+                  <span class="small mt-1 d-block" [class.text-warning]="guestsErrorIsWarning" [class.text-danger]="!guestsErrorIsWarning" *ngIf="guestsError">{{ guestsError }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TC001 fix: guest count is not a stored/modifiable property of a Booking
+                 (Features/Bookings/DTOs/ModifyBookingDto.cs has no RoomTypeId/NumberOfRooms field
+                 either) — the selector above is now permanently disabled and shows the room type's
+                 actual capacity (fetched below), instead of the previous editable 1-10 dropdown
+                 that had no relationship to the booked room's real occupancy limit. -->
+
+            <div class="info-alert-notice p-3 mb-5 d-flex align-items-center gap-3 rounded">
+              <span class="notice-icon-circle"><i class="bi bi-info-circle"></i></span>
+              <div>
+                <strong class="text-primary-dark d-block">Important</strong>
+                <span class="small text-secondary">Only stay dates can be modified for an existing booking. Room type and guest count cannot be changed once booked.<br><strong>* denotes that the field is mandatory</strong></span>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 align-items-center flex-wrap">
+              <button type="button" class="btn btn-action-reset py-3 px-5" (click)="resetForm()" [disabled]="formDisabled">Reset</button>
+              <button type="submit" class="btn btn-action-check py-3 px-5 d-flex align-items-center gap-2"
+                      [disabled]="formDisabled || !isValidState">
+                {{ submitLabel }} <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+          </form>
+        </section>
+
+      </ng-container>
+
+      <ng-template #notFound>
+        <div class="alert alert-danger text-center" *ngIf="generalError">
+          {{ generalError }}
+          <br><br>
+          <a routerLink="/candidate/my-bookings" class="btn btn-purple">Return to My Bookings</a>
+        </div>
+      </ng-template>
+
+    </div>
+  </main>
+</div>

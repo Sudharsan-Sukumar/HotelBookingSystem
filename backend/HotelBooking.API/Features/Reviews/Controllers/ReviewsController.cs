@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using HotelBooking.API.Common.Models;
 using HotelBooking.API.Features.Reviews.DTOs;
 using HotelBooking.API.Features.Reviews.Models;
@@ -43,7 +44,13 @@ public class ReviewsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(ex.Message);
+            // BUG-001 fix: Forbid(ex.Message) passes the message as an AUTHENTICATION SCHEME NAME
+            // (that overload is Forbid(params string[] authenticationSchemes)), not a response
+            // body — it made ASP.NET Core look for a scheme literally named after the exception
+            // text and throw an unrelated "No authentication handler is registered" error instead
+            // of returning a clean 403. StatusCode(403, ...) with the ApiResponse envelope is the
+            // correct equivalent of every other error path in this controller.
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object?>.ErrorResponse(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
@@ -88,7 +95,13 @@ public class ReviewsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(ex.Message);
+            // BUG-001 fix: Forbid(ex.Message) passes the message as an AUTHENTICATION SCHEME NAME
+            // (that overload is Forbid(params string[] authenticationSchemes)), not a response
+            // body — it made ASP.NET Core look for a scheme literally named after the exception
+            // text and throw an unrelated "No authentication handler is registered" error instead
+            // of returning a clean 403. StatusCode(403, ...) with the ApiResponse envelope is the
+            // correct equivalent of every other error path in this controller.
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
 
@@ -107,7 +120,13 @@ public class ReviewsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(ex.Message);
+            // BUG-001 fix: Forbid(ex.Message) passes the message as an AUTHENTICATION SCHEME NAME
+            // (that overload is Forbid(params string[] authenticationSchemes)), not a response
+            // body — it made ASP.NET Core look for a scheme literally named after the exception
+            // text and throw an unrelated "No authentication handler is registered" error instead
+            // of returning a clean 403. StatusCode(403, ...) with the ApiResponse envelope is the
+            // correct equivalent of every other error path in this controller.
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
 

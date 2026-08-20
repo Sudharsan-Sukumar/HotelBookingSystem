@@ -1,0 +1,105 @@
+// Trimmed port of Manager/dashboard.css — only the rules actually used by
+// the migrated manager components (nav, kpi cards, tables, badges, room
+// availability tiles). Sidebar/branch-selector rules were dropped since this
+// app has no left sidebar (nav is horizontal only).
+
+.manager-body {
+  background-color: #FAF8F4 !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: #1A0A2E !important;
+}
+
+// Manager top-nav (brand, nav links, dropdowns, profile avatar) is now styled in its own
+// manager-top-nav.component.scss — those rules never actually applied here since Angular scopes
+// an imported stylesheet to the importing component's own template, not into a child component's
+// internal DOM. Kept out of this file to avoid the same color values being defined twice.
+
+.main-content-workspace { min-height: calc(100vh - 72px) !important; }
+.font-serif, .welcome-heading, .fs-5 { font-family: 'Playfair Display', serif !important; }
+.welcome-heading { font-size: 1.85rem !important; font-weight: 700 !important; color: #1A0A2E !important; }
+.welcome-sub { font-size: .85rem !important; }
+
+.text-purple { color: #1A0A2E !important; }
+.bg-purple { background-color: #1A0A2E !important; }
+.btn-purple { background-color: #1A0A2E !important; color: #D4AF37 !important; border: 1px solid #D4AF37 !important; }
+.btn-purple:hover { background-color: #2E1560 !important; color: #D4AF37 !important; }
+.btn-outline-purple { color: #1A0A2E !important; border: 1px solid #1A0A2E !important; background: transparent !important; }
+.btn-outline-purple:hover { background-color: #1A0A2E !important; color: #D4AF37 !important; }
+
+// Readability pass: the raw Bootstrap defaults these Hotel Management pages inherited had two
+// contrast problems — (1) .text-secondary (bootstrap gray-600, ~4.6:1 on white) and .text-muted
+// (purple @ 75% opacity) rendered as two different, both-slightly-washed-out grays for what's
+// meant to be the same "secondary info" role, and (2) borders/dividers (#E2E4E8) were nearly
+// invisible against the page's off-white background, so cards and list rows didn't visually
+// separate. Unify both to values that meet WCAG AA (>=4.5:1) against white/#FAF8F4.
+.text-secondary, .text-muted {
+  color: #5B5468 !important; // ~4.9:1 on white — was gray-600 (~4.6:1) / purple@75% (inconsistent)
+}
+
+.card, .card.border, .kpi-card {
+  border-color: #DCD3C0 !important; // was #E2E4E8 / #ECE6D8 — barely visible on #FAF8F4
+}
+
+.form-control, .form-select {
+  border-color: #C9BFA8 !important;
+  color: #1A0A2E !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25) !important; // themed focus ring instead of Bootstrap's default blue
+}
+.form-label { color: #1A0A2E !important; font-weight: 600 !important; }
+
+// List rows used by Blocked Dates / Pricing Overrides (plain <ul class="list-unstyled">) had no
+// background separation at all between entries, relying solely on a near-invisible border.
+.list-unstyled li {
+  border-bottom-color: #E4DCC8 !important;
+  padding-left: .5rem !important;
+  padding-right: .5rem !important;
+  border-radius: 6px !important;
+}
+.list-unstyled li:hover {
+  background-color: #FAF8F4 !important;
+}
+
+.kpi-card {
+  background-color: #FFFFFF !important; border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(26,10,46,.05) !important;
+  border-left: 4px solid #D4AF37 !important;
+  border-top: 1px solid #DCD3C0 !important; border-right: 1px solid #DCD3C0 !important; border-bottom: 1px solid #DCD3C0 !important;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(26,10,46,.1) !important;
+}
+
+// The room-type/availability tiles and the availability-legend badges used Bootstrap's
+// `.badge.bg-light.text-dark.border` combo, whose default border (#dee2e6) was nearly invisible
+// on this page's off-white background.
+.badge.bg-light {
+  border-color: #DCD3C0 !important;
+  color: #1A0A2E !important;
+}
+.kpi-card .kpi-icon { width: 44px !important; height: 44px !important; border-radius: 50% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 1.25rem !important; }
+.kpi-card .kpi-icon.purple { background-color: rgba(46,21,96,.08) !important; color: #2E1560 !important; }
+.kpi-card .kpi-icon.green { background-color: #E2F6EA !important; color: #1F8B4C !important; }
+.kpi-card .kpi-icon.blue { background-color: #EBF5FF !important; color: #1E40AF !important; }
+.kpi-card .kpi-icon.orange { background-color: #FEF08A !important; color: #854D0E !important; }
+.kpi-card .kpi-icon.red { background-color: #FDE8E8 !important; color: #F05252 !important; }
+.kpi-card .kpi-icon.gold { background-color: rgba(212,175,55,.12) !important; color: #D4AF37 !important; }
+
+.manager-premium-table th { font-weight: 600 !important; text-transform: uppercase !important; font-size: .75rem !important; color: #1A0A2E !important; background-color: #FAF8F4 !important; border-bottom: 2px solid #DCD3C0 !important; }
+.manager-premium-table td { border-bottom: 1px solid #DCD3C0 !important; color: #1A0A2E !important; }
+.manager-premium-table tbody tr:hover { background-color: #FAF8F4 !important; }
+
+.bg-success-light { background-color: rgba(25,135,84,.1) !important; }
+.bg-warning-light { background-color: rgba(255,193,7,.1) !important; }
+.bg-info-light { background-color: rgba(13,110,253,.1) !important; }
+
+.btn-action-quick { background-color: #FFFFFF !important; color: #1A0A2E !important; border-color: #ECE6D8 !important; font-weight: 600 !important; font-size: .85rem !important; }
+.btn-action-quick:hover { background-color: rgba(212,175,55,.08) !important; border-color: #D4AF37 !important; }
+
+.legend-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+.table-responsive { width: 100% !important; overflow-x: auto !important; }

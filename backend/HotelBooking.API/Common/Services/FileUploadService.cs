@@ -33,6 +33,33 @@ public class FileUploadService : IFileUploadService
         if (Array.IndexOf(AllowedExtensions, ext) < 0)
             throw new ArgumentException("Invalid file format. Only JPG, JPEG, and PNG are allowed.");
 
+        // MIME Type Validation (Magic Bytes) - verifies the real file signature instead of trusting the extension, then rewinds the stream so downstream copy/resize logic still reads from the start.
+        // Fail-Closed Stream Read - a genuine I/O exception while reading the signature bytes (not just a too-small file naturally failing the match) must not bubble up as an unhandled 500; treat it the same as a failed signature match and reject the upload.
+        using (var headerStream = file.OpenReadStream())
+        {
+            try
+            {
+                var header = new byte[4];
+                int bytesRead = await headerStream.ReadAsync(header.AsMemory(0, header.Length));
+                bool isJpeg = bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
+                bool isPng = bytesRead >= 4 && header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47;
+
+                if (!isJpeg && !isPng)
+                    throw new ArgumentException("Invalid file format. Only JPG, JPEG, and PNG are allowed.");
+
+                if (headerStream.CanSeek)
+                    headerStream.Seek(0, SeekOrigin.Begin);
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Invalid file format. Only JPG, JPEG, and PNG are allowed.");
+            }
+        }
+
         var uploadsFolder = Path.Combine(WebRoot, subfolder);
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);

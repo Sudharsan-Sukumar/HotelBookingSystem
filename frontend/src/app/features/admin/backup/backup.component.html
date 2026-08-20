@@ -1,0 +1,303 @@
+<div class="d-flex admin-layout admin-body">
+  <app-admin-top-nav></app-admin-top-nav>
+
+  <div class="flex-grow-1 d-flex flex-column bg-light admin-content">
+    <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom sticky-top shadow-sm">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0 font-serif fw-bold text-dark">Backup &amp; Recovery</h5>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a routerLink="/admin/notifications" class="position-relative text-dark p-2" style="text-decoration: none;">
+          <i class="bi bi-bell-fill fs-5 text-warning"></i>
+        </a>
+      </div>
+    </header>
+
+    <div class="container-fluid px-4 py-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+          <li class="breadcrumb-item active" style="color: #1a0a2e; font-weight: 500;">Backup &amp; Recovery</li>
+        </ol>
+      </nav>
+
+      <div class="mb-4 text-start">
+        <h1 class="font-serif fw-bold text-purple h2 mb-1">Backup &amp; Recovery</h1>
+        <p class="text-secondary small mb-0">Manage system backups, database recovery archives, and storage allocations.</p>
+      </div>
+
+      <!-- SUMMARY CARDS -->
+      <div class="row g-3 mb-4 text-start">
+        <div class="col-md-3">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3">
+            <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Last Backup</span>
+              <strong class="fs-5 text-dark">{{ kpiLastBackup }}</strong>
+              <span class="small text-muted d-block" style="font-size: 0.65rem;">{{ kpiLastBackupDate }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3">
+            <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Last Backup Status</span>
+              <strong class="fs-5 text-dark">{{ kpiLastStatus }}</strong>
+              <span class="small text-muted d-block" style="font-size: 0.65rem;">Most recent run</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3">
+            <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-pie-chart-fill"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Last Backup File</span>
+              <strong class="fs-5 text-dark" style="font-size: 0.85rem;">{{ kpiLastBackupDate }}</strong>
+              <span class="small text-muted d-block" style="font-size: 0.65rem;">Latest archive name</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3">
+            <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-database-fill-check"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Backups</span>
+              <strong class="fs-5 text-dark">{{ kpiTotalBackups }}</strong>
+              <span class="small text-muted d-block" style="font-size: 0.65rem;">Retained for 30 days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION ROW & SECURE BANNER -->
+      <div class="row g-3 mb-4 align-items-center text-start">
+        <div class="col-md-6 d-flex gap-2 flex-wrap">
+          <button class="btn btn-purple btn-sm" (click)="openCreateBackupConfirm()"><i class="bi bi-plus-lg me-1"></i> Create Backup Now</button>
+          <button class="btn btn-outline-purple btn-sm" (click)="loadBackups()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
+        </div>
+        <div class="col-md-6 text-end">
+          <div class="alert alert-info py-2 px-3 mb-0 small d-inline-block">
+            <i class="bi bi-shield-fill-check me-1 text-primary"></i> Backups are encrypted and stored securely.
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="card p-3 border mb-4 bg-white shadow-sm">
+        <div class="row g-2 align-items-end text-start">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-purple">Filter by Type</label>
+            <select class="form-select form-select-sm" [(ngModel)]="filterType">
+              <option value="all">All Types</option>
+              <option value="Scheduled">Scheduled</option>
+              <option value="Manual">Manual</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold text-purple">Date Range</label>
+            <div class="input-group input-group-sm">
+              <input type="date" class="form-control" [(ngModel)]="filterDateStart">
+              <span class="input-group-text">to</span>
+              <input type="date" class="form-control" [(ngModel)]="filterDateEnd">
+            </div>
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-outline-purple btn-sm w-50" (click)="resetFilters()">Reset</button>
+            <button class="btn btn-purple btn-sm w-50" (click)="applyFilters()">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TABLE -->
+      <div class="card border shadow-sm bg-white p-3 mb-4">
+        <div class="table-responsive text-start">
+          <table class="table align-middle manager-premium-table small mb-0">
+            <thead>
+              <tr>
+                <th>Backup ID</th>
+                <th>Type</th>
+                <th>Date &amp; Time</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Includes</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of pagedBackups">
+                <td><strong>{{ b.backupId }}</strong></td>
+                <td><span class="badge bg-secondary-light text-secondary">{{ b.backupType }}</span></td>
+                <td>{{ b.createdAt | date:'medium' }} IST</td>
+                <td>{{ b.size }}</td>
+                <td>
+                  <span class="badge" [ngClass]="b.status === 'Failed' ? 'bg-danger' : 'bg-success'">{{ b.status }}</span>
+                </td>
+                <td>{{ b.fileName }}</td>
+                <td class="text-end text-nowrap">
+                  <button class="btn btn-sm btn-outline-purple py-0 px-2" (click)="requestRestore(b)"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+                </td>
+              </tr>
+              <tr *ngIf="isLoading">
+                <td colspan="7" class="text-center py-4 text-muted">Loading...</td>
+              </tr>
+              <tr *ngIf="!isLoading && !pagedBackups.length">
+                <td colspan="7" class="text-center py-4 text-muted">No backup history available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2" *ngIf="showPagination">
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted">Show:</span>
+            <select class="form-select form-select-sm" style="width: 70px;" [ngModel]="rowsPerPage" (ngModelChange)="onPageSizeChange($event)">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span class="small text-muted">Showing {{ startItem }} to {{ endItem }} of {{ filteredBackups.length }} entries</span>
+          </div>
+          <nav class="pe-5">
+            <ul class="pagination pagination-sm mb-0 admin-pagination">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link text-purple" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" *ngFor="let p of paginationPages" [class.active]="currentPage === p">
+                <a class="page-link" [class.text-purple]="currentPage !== p" href="javascript:void(0)" (click)="changePage(p)">{{ p }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link text-purple" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center mt-5" style="background-color: #1a0a2e; border-top: 2px solid #d4af37;">
+      <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- Confirm Create Backup Modal -->
+<div class="custom-modal-backdrop" *ngIf="showConfirmCreateModal">
+  <div class="custom-modal modal-sm">
+    <div class="modal-body text-center p-4">
+      <i class="bi bi-question-circle-fill text-warning" style="font-size: 3rem;"></i>
+      <h5 class="mt-3 mb-2 font-serif fw-bold text-dark">Create Backup</h5>
+      <p class="text-secondary small mb-4">Create a new system backup now?</p>
+      <div class="d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm px-4" (click)="cancelCreateBackup()">Cancel</button>
+        <button type="button" class="btn btn-purple btn-sm px-4" (click)="confirmCreateBackup()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Confirmation Modal -->
+<div class="custom-modal-backdrop" *ngIf="showRestoreConfirmModal">
+  <div class="custom-modal">
+    <div class="modal-header border-bottom-0 pb-0 d-flex justify-content-between align-items-start p-3">
+      <h5 class="font-serif fw-bold text-purple mt-2 mb-0">Restore System Backup</h5>
+      <button type="button" class="btn-close" (click)="cancelRestoreConfirm()" aria-label="Close"></button>
+    </div>
+    <form (ngSubmit)="submitRestoreConfirm()">
+      <div class="modal-body pt-2 px-3">
+        <div class="alert alert-warning d-flex gap-2 p-3 mb-3 small">
+          <i class="bi bi-exclamation-triangle-fill fs-5 text-warning"></i>
+          <div>
+            <strong>Warning: System Restore</strong>
+            <div class="text-dark-50">Restoring will revert all system data to the selected backup. Any data created after this backup will be permanently lost.</div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-light rounded mb-3 small">
+          <div class="row g-2">
+            <div class="col-6 text-secondary">Backup</div>
+            <div class="col-6 text-dark fw-bold">{{ restoreTargetLabel }}</div>
+          </div>
+        </div>
+
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="chkRestoreConsent" [(ngModel)]="restoreConsent" name="restoreConsent">
+          <label class="form-check-label text-secondary small" for="chkRestoreConsent">
+            I understand this action will overwrite current system data and cannot be undone.
+          </label>
+          <div class="text-danger mt-1 small" *ngIf="restoreConsentError">
+            <i class="bi bi-exclamation-square-fill me-1"></i> {{ restoreConsentError }}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0 p-3">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancelRestoreConfirm()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i> Confirm Restore</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Full-Screen Backup Progress Overlay -->
+<div class="progress-fullscreen" *ngIf="isBackingUp">
+  <div class="d-flex flex-column align-items-center justify-content-center text-center text-white p-4 h-100">
+    <div class="d-flex align-items-center gap-5 mb-5 position-relative">
+      <div class="cloud-node p-4 rounded-circle" style="background-color: rgba(212, 175, 55, 0.1); border: 2px solid #d4af37;">
+        <i class="bi bi-database text-warning" style="font-size: 3.5rem;"></i>
+      </div>
+      <div class="transfer-pipeline position-relative" style="width: 150px; height: 4px; background-color: rgba(255,255,255,0.1); border-radius: 2px;"></div>
+      <div class="cloud-node p-4 rounded-circle" style="background-color: rgba(212, 175, 55, 0.1); border: 2px solid #d4af37;">
+        <i class="bi bi-cloud-arrow-up text-warning" style="font-size: 3.5rem;"></i>
+      </div>
+    </div>
+    <div class="position-relative mb-4" style="width: 160px; height: 160px;">
+      <svg class="w-100 h-100" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+        <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.08)" stroke-width="6" fill="transparent" />
+        <circle cx="50" cy="50" r="40" stroke="#d4af37" stroke-width="6" fill="transparent" stroke-dasharray="251.2"
+          [attr.stroke-dashoffset]="251.2 - (251.2 * progressPercent) / 100" style="transition: stroke-dashoffset 0.1s linear;" />
+      </svg>
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <span class="fs-2 fw-bold text-warning">{{ progressPercent | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div style="min-height: 90px; width: 100%; max-width: 400px;">
+      <h4 class="font-serif fw-bold text-white mb-2">{{ stageTitle }}</h4>
+      <p class="text-white-50 small">{{ stageDesc }}</p>
+    </div>
+    <div class="progress w-100 mb-2" style="max-width: 400px; height: 6px; background-color: rgba(255,255,255,0.08); border-radius: 3px;">
+      <div class="progress-bar bg-warning" [style.width.%]="progressPercent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Full-Screen Restore Progress Overlay -->
+<div class="progress-fullscreen" *ngIf="isRestoring">
+  <div class="d-flex flex-column align-items-center justify-content-center text-center text-white p-4 h-100">
+    <div class="d-flex align-items-center gap-5 mb-5 position-relative">
+      <div class="cloud-node p-4 rounded-circle" style="background-color: rgba(212, 175, 55, 0.1); border: 2px solid #d4af37;">
+        <i class="bi bi-cloud-arrow-down text-warning" style="font-size: 3.5rem;"></i>
+      </div>
+      <div class="transfer-pipeline position-relative" style="width: 150px; height: 4px; background-color: rgba(255,255,255,0.1); border-radius: 2px;"></div>
+      <div class="cloud-node p-4 rounded-circle" style="background-color: rgba(212, 175, 55, 0.1); border: 2px solid #d4af37;">
+        <i class="bi bi-database text-warning" style="font-size: 3.5rem;"></i>
+      </div>
+    </div>
+    <div class="position-relative mb-4" style="width: 160px; height: 160px;">
+      <svg class="w-100 h-100" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+        <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.08)" stroke-width="6" fill="transparent" />
+        <circle cx="50" cy="50" r="40" stroke="#d4af37" stroke-width="6" fill="transparent" stroke-dasharray="251.2"
+          [attr.stroke-dashoffset]="251.2 - (251.2 * progressPercent) / 100" style="transition: stroke-dashoffset 0.1s linear;" />
+      </svg>
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <span class="fs-2 fw-bold text-warning">{{ progressPercent | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+    <div style="min-height: 90px; width: 100%; max-width: 400px;">
+      <h4 class="font-serif fw-bold text-white mb-2">{{ stageTitle }}</h4>
+      <p class="text-white-50 small">{{ stageDesc }}</p>
+    </div>
+    <div class="progress w-100 mb-2" style="max-width: 400px; height: 6px; background-color: rgba(255,255,255,0.08); border-radius: 3px;">
+      <div class="progress-bar bg-warning" [style.width.%]="progressPercent"></div>
+    </div>
+  </div>
+</div>

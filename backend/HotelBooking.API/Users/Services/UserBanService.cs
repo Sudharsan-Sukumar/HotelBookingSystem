@@ -21,6 +21,7 @@ public class UserBanService : IUserBanService
         _notificationQueue = notificationQueue;
     }
 
+    // State Check + Queued Event Notification — suspends a user only if not already suspended, then queues a decoupled notification event.
     public async Task<bool> BanUserAsync(int userId, string reason, int adminId)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);

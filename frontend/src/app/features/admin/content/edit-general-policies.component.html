@@ -1,0 +1,55 @@
+<div class="text-start">
+  <h6 class="font-serif fw-bold text-purple mb-1">General Policies</h6>
+  <p class="text-secondary small mb-3">Manage the permanent hotel policies shown to customers in the footer (Privacy, Terms &amp; Conditions, Modification, Cancellation &amp; Refund). These are always in effect &mdash; not seasonal.</p>
+
+  <ul class="nav nav-pills nav-sm mb-3 flex-wrap gap-1">
+    <li class="nav-item" *ngFor="let tab of tabs">
+      <button type="button" class="nav-link btn btn-sm"
+              [class.active]="activeType === tab.type"
+              [class.btn-purple]="activeType === tab.type"
+              [class.btn-outline-purple]="activeType !== tab.type"
+              (click)="selectTab(tab.type)">{{ tab.label }}</button>
+    </li>
+  </ul>
+
+  <div *ngIf="loading" class="text-center text-muted py-4 small">Loading&hellip;</div>
+
+  <form #policyForm="ngForm" (ngSubmit)="onSubmit(policyForm)" novalidate *ngIf="!loading">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label small fw-semibold">Title *</label>
+        <input type="text" name="title" class="form-control form-control-sm" [(ngModel)]="title" (ngModelChange)="onTitleChange()" #titleField="ngModel" maxlength="200" required>
+        <div class="text-danger small mt-1" *ngIf="titleField.invalid && (titleField.dirty || policyForm.submitted)">Title is required.</div>
+      </div>
+      <div class="col-12">
+        <label class="form-label small fw-semibold">Content *</label>
+        <div class="d-flex flex-wrap gap-1 mb-2">
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Bold" (click)="format('bold')"><i class="bi bi-type-bold"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Italic" (click)="format('italic')"><i class="bi bi-type-italic"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Underline" (click)="format('underline')"><i class="bi bi-type-underline"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Heading" (click)="format('formatBlock', 'H6')"><i class="bi bi-type-h6"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Paragraph" (click)="format('formatBlock', 'P')"><i class="bi bi-paragraph"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Bullet List" (click)="format('insertUnorderedList')"><i class="bi bi-list-ul"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Numbered List" (click)="format('insertOrderedList')"><i class="bi bi-list-ol"></i></button>
+          <button type="button" class="btn btn-outline-purple btn-sm py-0 px-2" title="Clear Formatting" (click)="format('removeFormat')"><i class="bi bi-eraser"></i></button>
+        </div>
+        <div
+          #editorSurface
+          class="policy-wysiwyg-editor policy-content-body"
+          contenteditable="true"
+          data-placeholder="Type the policy text here..."
+          (input)="onEditorInput()"
+          (blur)="onEditorInput()">
+        </div>
+        <div class="form-text small">No HTML knowledge needed &mdash; use the buttons above to format headings, bold text and lists, just like the customer will see it.</div>
+        <div class="text-danger small mt-1" *ngIf="!content.trim() && policyForm.submitted">Content is required.</div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <span class="small text-muted" *ngIf="policies[activeType]?.updatedAt">Last Updated: {{ policies[activeType]?.updatedAt | date:'medium' }}</span>
+      <span class="small text-muted" *ngIf="!policies[activeType]?.updatedAt">Not yet edited by an admin.</span>
+      <button type="submit" class="btn btn-purple btn-sm" [disabled]="saving"><i class="bi bi-save me-1"></i> Publish Policy</button>
+    </div>
+  </form>
+</div>

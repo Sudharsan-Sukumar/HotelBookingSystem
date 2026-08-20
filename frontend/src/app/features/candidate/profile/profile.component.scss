@@ -1,0 +1,141 @@
+@import "../../../../scss/abstracts/variables";
+
+$brand-dark-purple: #1A0A2E;
+$brand-gold: #D4AF37;
+$bg-ivory: #FAF8F4;
+
+.profile-page {
+  background-color: $bg-ivory;
+  font-family: $font-family-sans-serif;
+  color: $text-primary;
+}
+
+.profile-title {
+  font-family: $font-family-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: $brand-dark-purple;
+}
+
+.profile-sub {
+  font-size: 0.95rem;
+}
+
+.notice-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba($brand-dark-purple, 0.08);
+  color: $brand-dark-purple;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.profile-card {
+  border-radius: 20px;
+  border: 1px solid rgba($brand-gold, 0.12);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+
+  .badge-icon-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: $brand-dark-purple;
+    color: $brand-gold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+  }
+
+  .section-title {
+    font-family: $font-family-serif;
+    font-size: 1.35rem;
+    color: $brand-dark-purple;
+  }
+
+  .custom-input-group {
+    height: 52px;
+    border: 1px solid #D0CCD5;
+    border-radius: 10px;
+    overflow: hidden;
+
+    input.form-control {
+      border: none;
+      height: 52px;
+      font-size: 0.95rem;
+      color: $brand-dark-purple;
+      box-shadow: none !important;
+    }
+
+    .input-group-text {
+      font-size: 1.1rem;
+    }
+  }
+
+  .invalid-feedback {
+    font-size: 0.8rem;
+    color: #E02424;
+    margin-top: 0.4rem;
+  }
+}
+
+.profile-avatar-circle {
+  .avatar-upload-btn {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: $brand-gold;
+    color: $brand-dark-purple;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    border: 2px solid #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #BF9A2E;
+    }
+  }
+}
+
+.bottom-security-banner-card {
+  background-color: rgba($brand-gold, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba($brand-gold, 0.2);
+  overflow: hidden;
+  padding: 1.5rem 2rem !important;
+
+  .badge-icon-circle-shield {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba($brand-gold, 0.12);
+    color: $brand-gold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-family: $font-family-serif;
+    font-size: 1.35rem;
+  }
+
+  .security-illustration {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin-left: auto;
+  }
+}

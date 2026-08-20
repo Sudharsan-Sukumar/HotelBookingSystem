@@ -1,7 +1,7 @@
-// Mirrors HotelBooking.API/Common/Models/ApiResponse.cs — every endpoint responds in this envelope.
+/** Mirrors the backend's Common/Models/ApiResponse envelope exactly. */
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
-  data: T | null;
+  data: T;
   errors: string[];
 }

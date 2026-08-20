@@ -34,8 +34,15 @@ public class AuthenticationTests
         });
         _context.SaveChanges();
 
-        var configuration = new ConfigurationBuilder().Build();
-        _service = new AuthService(_context, configuration, new FakeEmailQueue(), NullLogger<AuthService>.Instance);
+        // AuthService no longer falls back to a hardcoded signing key (fail-fast, matching Program.cs) —
+        // tests must supply a Jwt:Secret explicitly instead of relying on that removed insecure default.
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new System.Collections.Generic.Dictionary<string, string?>
+            {
+                ["Jwt:Secret"] = "Test-Only-Signing-Key-Not-For-Production-1234567890"
+            })
+            .Build();
+        _service = new AuthService(_context, configuration, new FakeEmailQueue(), NullLogger<AuthService>.Instance, new FakeSecurityAuditLogService());
     }
 
     [TearDown]

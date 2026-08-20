@@ -35,7 +35,8 @@ public class AdminUserService : IAdminUserService
                 RoleName = u.Role != null ? u.Role.Name : string.Empty,
                 Status = u.Status,
                 CreatedAt = u.CreatedAt,
-                ProfilePhotoUrl = u.ProfilePhotoUrl
+                ProfilePhotoUrl = u.ProfilePhotoUrl,
+                WalletBalance = u.WalletBalance
             })
             .ToListAsync();
     }
@@ -59,7 +60,8 @@ public class AdminUserService : IAdminUserService
             RoleName = user.Role != null ? user.Role.Name : string.Empty,
             Status = user.Status,
             CreatedAt = user.CreatedAt,
-            ProfilePhotoUrl = user.ProfilePhotoUrl
+            ProfilePhotoUrl = user.ProfilePhotoUrl,
+            WalletBalance = user.WalletBalance
         };
     }
 
@@ -70,6 +72,7 @@ public class AdminUserService : IAdminUserService
         _ => "CUST"
     };
 
+    // Factory-Style Sequential ID Generation — derives the next sequence number from existing prefixed IDs to mint a new role-scoped custom ID.
     private async Task<string> GenerateUserCustomIdAsync(string roleName)
     {
         var prefix = CustomIdPrefixFor(roleName);
@@ -136,7 +139,8 @@ public class AdminUserService : IAdminUserService
             RoleName = role != null ? role.Name : string.Empty,
             Status = user.Status,
             CreatedAt = user.CreatedAt,
-            ProfilePhotoUrl = user.ProfilePhotoUrl
+            ProfilePhotoUrl = user.ProfilePhotoUrl,
+            WalletBalance = user.WalletBalance
         };
     }
 
@@ -196,7 +200,8 @@ public class AdminUserService : IAdminUserService
             RoleName = updatedRole != null ? updatedRole.Name : string.Empty,
             Status = user.Status,
             CreatedAt = user.CreatedAt,
-            ProfilePhotoUrl = user.ProfilePhotoUrl
+            ProfilePhotoUrl = user.ProfilePhotoUrl,
+            WalletBalance = user.WalletBalance
         };
     }
 
@@ -230,6 +235,7 @@ public class AdminUserService : IAdminUserService
         if (hotel == null)
             throw new ArgumentException("Hotel not found. Please create the hotel first.");
 
+        // Guard Clause — blocks manager creation once the target hotel already has 2 managers assigned.
         if (hotel.ManagerIds.Count >= 2)
             throw new InvalidOperationException("Maximum manager limit (2) reached for this hotel.");
 
@@ -264,7 +270,22 @@ public class AdminUserService : IAdminUserService
         await _context.SaveChangesAsync();
 
         hotel.ManagerIds.Add(manager.Id);
-        await _context.SaveChangesAsync();
+
+        // Optimistic Concurrency Retry - a concurrent manager assignment to the same hotel (this call and AssignManagerAsync both use Hotel.RowVersion) can race past the count check above; on conflict, reload the hotel fresh and recheck the count exactly once before failing.
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _context.Entry(hotel).State = EntityState.Detached;
+            var refreshedHotel = await _context.Hotels.FindAsync(dto.AssignedHotelId);
+            if (refreshedHotel == null || refreshedHotel.ManagerIds.Count >= 2)
+                throw new InvalidOperationException("Maximum manager limit (2) reached for this hotel.");
+
+            refreshedHotel.ManagerIds.Add(manager.Id);
+            await _context.SaveChangesAsync();
+        }
 
         await _auditLogService.LogActionAsync(
             "User", manager.Id, "Create",
@@ -282,7 +303,8 @@ public class AdminUserService : IAdminUserService
             RoleName = managerRole.Name,
             Status = manager.Status,
             CreatedAt = manager.CreatedAt,
-            ProfilePhotoUrl = manager.ProfilePhotoUrl
+            ProfilePhotoUrl = manager.ProfilePhotoUrl,
+            WalletBalance = manager.WalletBalance
         };
     }
 }

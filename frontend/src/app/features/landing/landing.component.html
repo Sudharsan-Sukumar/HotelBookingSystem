@@ -1,0 +1,275 @@
+<app-navbar></app-navbar>
+
+<!-- HERO SECTION -->
+<header class="hero-section" [style.background-image]="'url(' + resolvedHeroBackgroundImage + ')'">
+  <div class="hero-content">
+    <h1 class="hero-title" [innerHTML]="heroTitle"></h1>
+    <p class="hero-subtitle">{{ heroSubtitle }}</p>
+  </div>
+</header>
+
+<!-- SEARCH WIDGET -->
+<section class="search-widget-container" aria-label="Search rooms form">
+  <div class="search-widget">
+    <div class="row w-100 g-3 align-items-end m-0">
+      <div class="col-xl-3 col-md-6 px-2">
+        <div class="search-field">
+          <label for="checkin">Check In</label>
+          <div class="input-wrapper">
+            <i class="bi bi-calendar3 left-icon"></i>
+            <input type="date" id="checkin" [(ngModel)]="checkin" [min]="today">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 px-2">
+        <div class="search-field">
+          <label for="checkout">Check Out</label>
+          <div class="input-wrapper">
+            <i class="bi bi-calendar3 left-icon"></i>
+            <input type="date" id="checkout" [(ngModel)]="checkout" [min]="checkin || today">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 px-2">
+        <div class="search-field dropdown">
+          <label for="guestsRoomsInput">Guests & Rooms</label>
+          <div class="input-wrapper" id="guestsRoomsDropdown" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+            <i class="bi bi-people left-icon"></i>
+            <input type="text" id="guestsRoomsInput" readonly [value]="guestsRoomsLabel">
+            <i class="bi bi-chevron-down right-icon"></i>
+          </div>
+
+          <div class="dropdown-menu guests-dropdown-menu p-3">
+            <div class="counter-row">
+              <div class="counter-label">Guests<span>Age 13 or above</span></div>
+              <div class="counter-controls">
+                <button type="button" class="btn-counter" (click)="adjustCounter('guests','minus')" [disabled]="guests <= 1">-</button>
+                <span class="counter-value">{{ guests }}</span>
+                <button type="button" class="btn-counter" (click)="adjustCounter('guests','plus')">+</button>
+              </div>
+            </div>
+            <hr class="my-2">
+            <div class="counter-row">
+              <div class="counter-label">Rooms</div>
+              <div class="counter-controls">
+                <button type="button" class="btn-counter" (click)="adjustCounter('rooms','minus')" [disabled]="rooms <= 1">-</button>
+                <span class="counter-value">{{ rooms }}</span>
+                <button type="button" class="btn-counter" (click)="adjustCounter('rooms','plus')">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 px-2">
+        <div class="search-field">
+          <label class="d-none d-xl-block" style="visibility: hidden; margin-bottom: 0.35rem;">Search</label>
+          <button class="btn btn-search w-100" type="button" (click)="searchRooms()">Search rooms</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED ROOMS -->
+<section class="featured-rooms-section">
+  <div class="mb-5">
+    <span class="section-tag">Featured Rooms</span>
+    <h2>Discover our most popular accommodations</h2>
+    <h6>Across Our Destinations</h6>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-4">
+      <article class="room-card">
+        <div class="room-image-wrapper">
+          <img src="/assets/images/room_classic.png" alt="Classic Elegance luxury room styling">
+          <span class="room-type-badge">Standard</span>
+          <div class="room-rating"><i class="bi bi-star-fill"></i> 4.8</div>
+        </div>
+        <div class="room-details">
+          <h3 class="room-title">Executive Studio Room</h3>
+          <p class="room-desc">A beautifully appointed standard room with modern amenities and classic decor.</p>
+          <div class="room-specs">
+            <span><i class="bi bi-people"></i> 2 Guests</span>
+            <span><span class="text-muted">|</span> <i class="bi bi-aspect-ratio"></i> 28 Sq. Mtrs</span>
+          </div>
+          <div class="room-amenities">
+            <span class="amenity-tag">WiFi</span>
+            <span class="amenity-tag">Air Conditioning</span>
+            <span class="amenity-tag">TV</span>
+            <span class="amenity-tag">+3 more</span>
+          </div>
+          <div class="room-footer">
+            <div class="room-price"><span>₹6500</span> / night</div>
+            <button class="btn btn-book" type="button" (click)="triggerRoomBook('studio')">Book Now</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <article class="room-card">
+        <div class="room-image-wrapper">
+          <img src="/assets/images/room_premium.png" alt="Premium Comfort hotel room space">
+          <span class="room-type-badge">Deluxe</span>
+          <div class="room-rating"><i class="bi bi-star-fill"></i> 4.9</div>
+        </div>
+        <div class="room-details">
+          <h3 class="room-title">Penthouse Ocean Suite</h3>
+          <p class="room-desc">Experience luxury in our deluxe room featuring a king-size bed, workspace, and premium decor.</p>
+          <div class="room-specs">
+            <span><i class="bi bi-people"></i> 3 Guests</span>
+            <span><span class="text-muted">|</span> <i class="bi bi-aspect-ratio"></i> 38 Sq. Mtrs</span>
+          </div>
+          <div class="room-amenities">
+            <span class="amenity-tag">WiFi</span>
+            <span class="amenity-tag">Air Conditioning</span>
+            <span class="amenity-tag">TV</span>
+            <span class="amenity-tag">+5 more</span>
+          </div>
+          <div class="room-footer">
+            <div class="room-price"><span>₹12500</span> / night</div>
+            <button class="btn btn-book" type="button" (click)="triggerRoomBook('penthouse')">Book Now</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <article class="room-card">
+        <div class="room-image-wrapper">
+          <img src="/assets/images/room_suite.png" alt="Executive Suite luxury living space">
+          <span class="room-type-badge">Suite</span>
+          <div class="room-rating"><i class="bi bi-star-fill"></i> 4.9</div>
+        </div>
+        <div class="room-details">
+          <h3 class="room-title">Executive Suite</h3>
+          <p class="room-desc">Our spacious suite offers a separate living area, marble bathroom, and premium room service.</p>
+          <div class="room-specs">
+            <span><i class="bi bi-people"></i> 2 Guests</span>
+            <span><span class="text-muted">|</span> <i class="bi bi-aspect-ratio"></i> 54 Sq. Mtrs</span>
+          </div>
+          <div class="room-amenities">
+            <span class="amenity-tag">WiFi</span>
+            <span class="amenity-tag">Air Conditioning</span>
+            <span class="amenity-tag">TV</span>
+            <span class="amenity-tag">+8 more</span>
+          </div>
+          <div class="room-footer">
+            <div class="room-price"><span>₹18500</span> / night</div>
+            <button class="btn btn-book" type="button" (click)="triggerRoomBook('Suite')">Book Now</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="view-all-rooms-card luxury-promo-card-wrapper position-relative overflow-hidden d-flex flex-column justify-content-between p-4 p-lg-5">
+        <div class="luxury-icon-wrapper-gold d-flex align-items-center justify-content-center">
+          <i class="bi bi-door-open"></i>
+        </div>
+        <div class="promo-body mt-4 text-start">
+          <h3 class="promo-heading text-white m-0">View all rooms</h3>
+          <div class="gold-divider-short my-3"></div>
+          <p class="promo-desc text-white">Explore our complete collection of luxury rooms and find the perfect stay for you.</p>
+        </div>
+        <div class="d-flex justify-content-end align-items-center mt-3">
+          <a routerLink="/hotels/search" class="brushed-gold-circle-btn d-flex align-items-center justify-content-center" aria-label="Explore all luxury rooms">
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMOTIONS -->
+<section class="why-choose-us-section pt-0" *ngIf="promotions.length > 0">
+  <div class="text-center mb-5">
+    <span class="section-tag">Special offers</span>
+    <h2>Current Promotions</h2>
+    <p class="text-muted col-lg-6 mx-auto">Save more on your next stay with these limited-time offers</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-3" *ngFor="let promo of promotions">
+      <div class="card feature-card h-100">
+        <div class="feature-icon-wrapper"><i class="bi bi-tag"></i></div>
+        <h3 class="feature-title">{{ promo.title }}</h3>
+        <p class="feature-desc">{{ promo.discountDescription }}</p>
+        <p class="feature-desc mb-1"><strong>Code:</strong> <code>{{ promo.couponCode }}</code></p>
+        <p class="feature-desc mb-0 small text-muted">Valid until {{ promo.validUntil | date:'mediumDate' }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="why-choose-us-section pt-0">
+  <div class="text-center mb-5">
+    <span class="section-tag">Why choose us</span>
+    <h2>{{ whyChooseUsHeading }}</h2>
+    <p class="text-muted col-lg-6 mx-auto">{{ whyChooseUsSubtitle }}</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card h-100">
+        <div class="feature-icon-wrapper"><i class="bi bi-star"></i></div>
+        <h3 class="feature-title">5 Star Service</h3>
+        <p class="feature-desc">Experience exceptional hospitality and personalized care.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card h-100">
+        <div class="feature-icon-wrapper"><i class="bi bi-award"></i></div>
+        <h3 class="feature-title">Award Winning</h3>
+        <p class="feature-desc">Recognized globally for excellence in luxury hospitality.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card h-100">
+        <div class="feature-icon-wrapper"><i class="bi bi-wifi"></i></div>
+        <h3 class="feature-title">Free High Speed Wifi</h3>
+        <p class="feature-desc">Stay connected with complimentary high-speed internet.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card h-100">
+        <div class="feature-icon-wrapper"><i class="bi bi-cup-hot"></i></div>
+        <h3 class="feature-title">Premium Amenities</h3>
+        <p class="feature-desc">Enjoy top-tier facilities and exclusive services.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer [previewMode]="previewMode"></app-footer>
+
+<!-- AI Assistant — additional feature only, not part of the existing landing-page layout/flow.
+     Hidden in the admin Content Management preview (previewMode) so the preview stays a pure,
+     non-interactive visual mirror. -->
+<app-ai-chatbot *ngIf="!previewMode"></app-ai-chatbot>
+
+<!-- LOCATION SELECTION MODAL -->
+<div class="modal fade" id="locationPromptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 text-start">
+        <h5 class="modal-title font-serif fw-bold" style="color: #1A0A2E; font-size: 1.25rem;">Select Hotel Branch</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">
+        <p class="mb-3 text-dark">Please select the branch location where you would like to book this room:</p>
+        <div class="d-flex flex-column gap-2">
+          <button type="button" class="btn text-start w-100 p-2" *ngFor="let branch of branches" (click)="selectBranchRedirect(branch)" style="border: 1px solid #1A0A2E; color: #1A0A2E; border-radius: 8px; font-weight: 500;">
+            <i class="bi bi-geo-alt-fill me-2 text-warning"></i>{{ branch.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

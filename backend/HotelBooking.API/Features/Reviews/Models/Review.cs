@@ -46,4 +46,8 @@ public class Review
     public DateTime? UpdatedAt { get; set; }
 
     public bool IsDeleted { get; set; }
+
+    // Optimistic Concurrency (RowVersion) - guards RespondToReviewAsync's upsert against two concurrent manager-response saves silently overwriting each other, mirroring the existing Hotel/Booking/RoomType pattern.
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
 }

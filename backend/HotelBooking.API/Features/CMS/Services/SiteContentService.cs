@@ -16,6 +16,7 @@ public class SiteContentService : ISiteContentService
         _context = context;
     }
 
+    // Lazy Initialization — creates and persists a default HeroContent row on first read if none exists yet.
     public async Task<HeroContentResponseDto> GetHeroAsync()
     {
         var hero = await _context.HeroContents.FirstOrDefaultAsync();

@@ -1,0 +1,71 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a routerLink="/admin/users" class="text-decoration-none">Users</a></li>
+      <li class="breadcrumb-item active">Manager Approvals</li>
+    </ol>
+  </nav>
+
+  <div class="mb-4 text-start d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h1 class="font-serif fw-bold text-purple h2 mb-1">Manager Approval Queue</h1>
+      <p class="text-secondary small mb-0">Review and action pending hotel manager registrations.</p>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARD -->
+  <div class="row g-3 mb-4 text-start">
+    <div class="col-md-3">
+      <div class="kpi-card p-3 d-flex align-items-center gap-3 h-100">
+        <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
+        <div>
+          <span class="text-secondary small d-block" style="font-size: 0.7rem;">Pending Approvals</span>
+          <strong class="fs-5 text-dark">{{ pendingManagers().length }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border shadow-sm bg-white p-3 mb-4" style="border-radius: 12px;">
+    <div class="table-responsive text-start">
+      <table class="table align-middle manager-premium-table small mb-0">
+        <thead>
+          <tr>
+            <th>Manager ID</th>
+            <th>Full Name</th>
+            <th>Email Address</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loading()">
+            <td colspan="7" class="text-center py-4 text-muted">Loading pending managers&hellip;</td>
+          </tr>
+          <tr *ngIf="!loading() && pendingManagers().length === 0">
+            <td colspan="7" class="text-center py-4 text-muted">No pending manager registrations.</td>
+          </tr>
+          <tr *ngFor="let m of pendingManagers()">
+            <td><strong>{{ m.userCustomId || m.id }}</strong></td>
+            <td>{{ m.firstName }} {{ m.lastName }}</td>
+            <td>{{ m.email }}</td>
+            <td>{{ m.phone || '-' }}</td>
+            <td><span class="badge bg-warning text-dark">{{ m.status }}</span></td>
+            <td>{{ createdDisplay(m) }}</td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-success py-0 px-2 me-1" [disabled]="actioningId() === m.id" (click)="approve(m.id)">Approve</button>
+              <button class="btn btn-sm btn-outline-danger py-0 px-2" [disabled]="actioningId() === m.id" (click)="reject(m.id)">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>

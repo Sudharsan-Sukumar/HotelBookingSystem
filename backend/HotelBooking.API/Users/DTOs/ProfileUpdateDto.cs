@@ -11,7 +11,7 @@ public class ProfileUpdateDto
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
-    [RegularExpression(ValidationRegexConstants.Name, ErrorMessage = "Name must be 2-80 characters (letters and spaces only).")]
+    [RegularExpression(ValidationRegexConstants.LastName, ErrorMessage = "Last Name must be 1-80 characters (letters and spaces only).")]
     public string LastName { get; set; } = string.Empty;
 
     [Required]

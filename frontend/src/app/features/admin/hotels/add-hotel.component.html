@@ -1,0 +1,109 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/hotels" class="text-decoration-none">Hotels</a></li>
+        <li class="breadcrumb-item active">Add Hotel</li>
+      </ol>
+    </nav>
+    <a routerLink="/admin/hotels" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Hotel Management</a>
+  </div>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Add New Hotel</h1>
+    <p class="text-secondary small mb-0">Establish a new hotel branch location profile config.</p>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto" style="border-radius: 16px; max-width: 900px;">
+    <form #addHotelForm="ngForm" novalidate (ngSubmit)="onSubmit()">
+      <div class="mb-3 text-danger small">* denotes that the field is mandatory</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Hotel Name *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('hotelName')" [(ngModel)]="hotelName" name="hotelName" required>
+          <div class="invalid-feedback" *ngIf="hasError('hotelName')">{{ errors['hotelName'] }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Branch Name *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('branchName')" [(ngModel)]="branchName" name="branchName" required>
+          <div class="invalid-feedback" *ngIf="hasError('branchName')">{{ errors['branchName'] }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">City *</label>
+          <select class="form-select form-select-sm" [class.is-invalid]="hasError('city')" [(ngModel)]="city" name="city" (ngModelChange)="onCityChange()" required>
+            <option value="">Select City/District</option>
+            <option value="Salem">Salem</option>
+            <option value="Coimbatore">Coimbatore</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Others">Others</option>
+          </select>
+          <div class="mt-2" *ngIf="isOtherCity">
+            <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('otherCity')" [(ngModel)]="otherCity" name="otherCity" placeholder="Specify district name">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Contact Number *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('contact')" [(ngModel)]="contact" name="contact" (input)="validateContact()" required>
+          <div class="invalid-feedback">{{ hasError('contact') ? errors['contact'] : 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.' }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Email Address *</label>
+          <input type="email" class="form-control form-control-sm" [class.is-invalid]="hasError('email')" [(ngModel)]="email" name="email" (input)="validateEmail()" required>
+          <div class="invalid-feedback">{{ hasError('email') ? errors['email'] : 'Please enter a valid email address.' }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Assigned Manager</label>
+          <select class="form-select form-select-sm" [(ngModel)]="managerId" name="managerId">
+            <option value="">Unassigned</option>
+            <option *ngFor="let m of managers" [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+          </select>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-semibold">Address *</label>
+          <textarea class="form-control small" rows="2" [class.is-invalid]="hasError('address')" [(ngModel)]="address" name="address" required></textarea>
+          <div class="invalid-feedback" *ngIf="hasError('address')">{{ errors['address'] }}</div>
+        </div>
+
+        <!-- Fields required by the backend HotelRequestDto that have no equivalent in the original mock form -->
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">State *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('state')" [(ngModel)]="state" name="state" required>
+          <div class="invalid-feedback" *ngIf="hasError('state')">{{ errors['state'] }}</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Country *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('country')" [(ngModel)]="country" name="country" required>
+          <div class="invalid-feedback" *ngIf="hasError('country')">{{ errors['country'] }}</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Zip Code *</label>
+          <input type="text" class="form-control form-control-sm" [class.is-invalid]="hasError('zipCode')" [(ngModel)]="zipCode" name="zipCode" required>
+          <div class="invalid-feedback" *ngIf="hasError('zipCode')">{{ errors['zipCode'] }}</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Star Rating *</label>
+          <select class="form-select form-select-sm" [class.is-invalid]="hasError('starRating')" [(ngModel)]="starRating" name="starRating" required>
+            <option [ngValue]="null">Select</option>
+            <option *ngFor="let s of [1,2,3,4,5]" [ngValue]="s">{{ s }} Star</option>
+          </select>
+          <div class="invalid-feedback" *ngIf="hasError('starRating')">{{ errors['starRating'] }}</div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-semibold">Description *</label>
+          <textarea class="form-control small" rows="2" [class.is-invalid]="hasError('description')" [(ngModel)]="description" name="description" required></textarea>
+          <div class="invalid-feedback" *ngIf="hasError('description')">{{ errors['description'] }}</div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-purple btn-sm" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn btn-purple btn-sm"><i class="bi bi-check-lg me-1"></i> Save Hotel</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

@@ -1,0 +1,119 @@
+@import "../../../../scss/abstracts/variables";
+
+$brand-dark-purple: #1A0A2E;
+$brand-hover: #2E1560;
+$brand-gold: #D4AF37;
+$bg-ivory: #FAF8F4;
+
+.transactions-page {
+  background-color: $bg-ivory;
+  font-family: $font-family-sans-serif;
+  color: $text-primary;
+}
+
+.transactions-title {
+  font-family: $font-family-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: $brand-dark-purple;
+}
+
+.transactions-sub {
+  font-size: 0.95rem;
+}
+
+.filter-row-container {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+  border-color: rgba($brand-gold, 0.1) !important;
+}
+
+.custom-select-filter {
+  height: 44px;
+  border-color: #D0CCD5;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: $brand-dark-purple;
+
+  &:focus {
+    border-color: $brand-gold;
+    box-shadow: 0 0 0 3px rgba($brand-gold, 0.15);
+  }
+}
+
+.table-card-wrapper {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  border-color: rgba($brand-gold, 0.12) !important;
+}
+
+.transactions-table {
+  thead {
+    background-color: #FDFCFB;
+    border-bottom: 1px solid rgba($brand-gold, 0.1);
+
+    th {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: $brand-dark-purple;
+      letter-spacing: 0.5px;
+      padding: 1.25rem 1.5rem;
+      border: none;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid rgba($brand-gold, 0.05);
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: 1.5rem;
+      border: none;
+    }
+  }
+}
+
+.booking-ref-number {
+  font-size: 0.95rem;
+}
+
+.help-desc-card {
+  background-color: rgba($brand-gold, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba($brand-gold, 0.2);
+
+  .help-badge-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba($brand-gold, 0.12);
+    color: $brand-gold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  .help-card-title {
+    font-family: $font-family-serif;
+    font-size: 1.35rem;
+  }
+
+  .btn-contact-support {
+    background-color: #FFFFFF;
+    color: $brand-dark-purple;
+    border: 1px solid rgba($brand-dark-purple, 0.25);
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: $brand-gold;
+      color: $brand-gold;
+    }
+  }
+}

@@ -26,6 +26,12 @@ public class RegisterDto : IValidatableObject
     [RegularExpression(ValidationRegexConstants.Password, ErrorMessage = "Password must be at least 8 characters with one digit and one special character.")]
     public string Password { get; set; } = string.Empty;
 
+    // BUG-002 fix: this field never existed, so a mismatched confirm-password from a direct API
+    // call (bypassing the Angular frontend's own client-side check) was silently accepted.
+    [Required]
+    [Compare("Password", ErrorMessage = "Passwords do not match.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
     [Required]
     [RegularExpression(ValidationRegexConstants.PhoneIndia, ErrorMessage = "Phone must be exactly 10 digits and start with 6, 7, 8, or 9.")]
     public string Phone { get; set; } = string.Empty;

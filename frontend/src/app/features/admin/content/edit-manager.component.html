@@ -1,0 +1,121 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/admin/users" class="text-decoration-none" style="color: #6c757d;">Users</a></li>
+        <li class="breadcrumb-item active" style="color: #1A0A2E; font-weight: 500;">Edit Manager</li>
+      </ol>
+    </nav>
+    <a routerLink="/admin/users" class="btn btn-outline-purple btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to User Management</a>
+  </div>
+
+  <div class="mb-4 text-start">
+    <h1 class="font-serif fw-bold text-purple h2 mb-1">Edit Manager</h1>
+    <p class="text-secondary small mb-0">Update manager profile information, assigned branch and operational access status.</p>
+  </div>
+
+  <div class="card border bg-white p-4 shadow-sm text-start mx-auto" style="border-radius: 16px; max-width: 900px;">
+
+    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+      <div class="profile-avatar-circle font-serif fw-bold text-purple bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; border-radius: 50%; border: 2px solid #D4AF37;">{{ initials }}</div>
+      <div>
+        <h4 class="m-0 font-serif fw-bold text-purple">{{ headerName }}</h4>
+        <p class="m-0 text-muted small">
+          <span class="badge me-2" [ngClass]="headerStatus === 'Active' ? 'bg-success-light text-success' : 'bg-secondary-light text-secondary'">{{ headerStatus }}</span>
+          Manager ID: <strong>{{ headerId }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <form #managerForm="ngForm" (ngSubmit)="onSubmit(managerForm)" novalidate>
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-person-fill me-2"></i>Personal Information</h5>
+        <hr class="my-2 opacity-10">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">First Name *</label>
+            <input type="text" name="firstName" class="form-control form-control-sm" [(ngModel)]="firstName" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Last Name *</label>
+            <input type="text" name="lastName" class="form-control form-control-sm" [(ngModel)]="lastName" required>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small fw-semibold">Email Address *</label>
+            <input type="email" name="email" class="form-control form-control-sm" [(ngModel)]="email" #emailField="ngModel" required>
+            <div class="text-danger small mt-1" *ngIf="emailInvalid && (emailField.dirty || managerForm.submitted)">Please enter a valid email address.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Phone Number *</label>
+            <input type="text" name="phone" class="form-control form-control-sm" [(ngModel)]="phone" #phoneField="ngModel" required>
+            <div class="text-danger small mt-1" *ngIf="phoneInvalid && (phoneField.dirty || managerForm.submitted)">Please enter a valid phone number.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Employee ID (Read Only)</label>
+            <input type="text" class="form-control form-control-sm bg-light" [value]="empId" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-shield-lock-fill me-2"></i>Account Information</h5>
+        <hr class="my-2 opacity-10">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Role</label>
+            <input type="text" class="form-control form-control-sm bg-light" value="Hotel Manager" readonly>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Branch *</label>
+            <select class="form-select form-select-sm" name="assignedHotelId" [(ngModel)]="assignedHotelId" required>
+              <option value="">Select branch</option>
+              <option *ngFor="let hotel of hotels" [value]="hotel.id">{{ hotel.name }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Status *</label>
+            <select class="form-select form-select-sm" name="status" [(ngModel)]="status" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-key-fill me-2"></i>Account Security</h5>
+        <hr class="my-2 opacity-10">
+        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded" style="border: 1.5px dashed rgba(0,0,0,0.15);">
+          <div>
+            <strong class="d-block small text-dark">Password Reset Actions</strong>
+            <span class="text-muted" style="font-size: 0.7rem;">Generate a new temporary code and dispatch update to the manager's email profile.</span>
+          </div>
+          <button type="button" class="btn btn-outline-purple btn-sm" (click)="resetPassword()">Reset Password</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h5 class="font-serif fw-bold text-purple mb-2"><i class="bi bi-sticky-fill me-2"></i>Admin Notes</h5>
+        <hr class="my-2 opacity-10">
+        <textarea class="form-control small" name="adminNotes" rows="3" placeholder="Internal administrator notes..." maxlength="250" [(ngModel)]="adminNotes" (input)="onNotesInput()"></textarea>
+        <div class="text-end text-muted small" style="font-size: 0.65rem;">{{ adminNotes.length }} / 250 characters</div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="deactivate()">Deactivate Manager</button>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-purple btn-sm" routerLink="/admin/users">Cancel</button>
+          <button type="submit" class="btn btn-purple btn-sm"><i class="bi bi-check-lg me-1"></i> Save Changes</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+</div>

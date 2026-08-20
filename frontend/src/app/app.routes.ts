@@ -1,40 +1,17 @@
 import { Routes } from '@angular/router';
+import { LandingComponent } from './features/landing/landing.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard, managerGuard, customerGuard } from './core/guards/role.guard';
+import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.component';
 
 export const routes: Routes = [
-  {
-    path: '',
-    pathMatch: 'full',
-    loadComponent: () => import('./features/landing/landing/landing').then((m) => m.Landing),
-  },
-  {
-    path: 'hotels',
-    loadComponent: () => import('./features/hotels/search-results/search-results').then((m) => m.SearchResults),
-  },
-  {
-    path: 'hotels/:id',
-    loadComponent: () => import('./features/hotels/hotel-details/hotel-details').then((m) => m.HotelDetails),
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
-  },
-  {
-    path: 'verify-email',
-    loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
-  },
-  {
-    path: 'forgot-password',
-    loadComponent: () => import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
-  },
-  {
-    path: 'sessions',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/auth/sessions/sessions').then((m) => m.Sessions),
-  },
-  { path: '**', redirectTo: '' },
+  { path: '', component: LandingComponent },
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'auth', loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES) },
+  { path: 'hotels', loadChildren: () => import('./features/hotels/hotels.routes').then(m => m.HOTELS_ROUTES) },
+  { path: 'bookings', canActivate: [authGuard], loadChildren: () => import('./features/bookings/bookings.routes').then(m => m.BOOKINGS_ROUTES) },
+  { path: 'candidate', canActivate: [customerGuard], loadChildren: () => import('./features/candidate/candidate.routes').then(m => m.CANDIDATE_ROUTES) },
+  { path: 'admin', canActivate: [adminGuard], loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES) },
+  { path: 'manager', canActivate: [managerGuard], loadChildren: () => import('./features/manager/manager.routes').then(m => m.MANAGER_ROUTES) },
+  { path: '**', redirectTo: '' }
 ];

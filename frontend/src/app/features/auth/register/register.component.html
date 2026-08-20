@@ -1,0 +1,177 @@
+<div class="container-fluid p-0 login-container register-page">
+  <div class="row g-0 min-vh-100">
+
+    <!-- Left Panel (Resort exterior image column) -->
+    <div class="col-lg-5 d-none d-lg-block position-relative image-panel-column">
+      <div class="image-panel" style="background-image: url('/assets/images/forgot_hero.jpg');">
+        <div class="curved-border-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Right Panel (Registration form column) -->
+    <div class="col-lg-7 col-12 d-flex align-items-center justify-content-center form-panel-column bg-light-ivory">
+      <div class="w-100 py-4 form-inner-wrapper">
+
+        <!-- Hero Heading -->
+        <div class="text-center mb-4 px-3">
+          <h1 class="login-hero-heading text-uppercase">Customer Registration</h1>
+          <p class="login-hero-sub">Create an account to search and book hotels</p>
+        </div>
+
+        <!-- Registration Container Card -->
+        <div class="login-card mx-auto">
+
+          <!-- Mandatory Field helper instruction text -->
+          <p class="mandatory-note text-start mb-3"><span class="mandatory-star">*</span> Indicates a mandatory field</p>
+
+          <div class="alert mb-3 small py-2 px-3 text-center fw-bold" [ngClass]="'alert-' + statusAlert.type" *ngIf="statusAlert" role="alert">{{ statusAlert.message }}</div>
+
+          <form novalidate *ngIf="view === 'register'" (submit)="onSubmit(); $event.preventDefault()">
+
+            <!-- First Name & Last Name (Side by Side) -->
+            <div class="row g-3 mb-3">
+              <div class="col-6 text-start">
+                <label for="firstName" class="form-label">First Name <span class="mandatory-star">*</span></label>
+                <input type="text" id="firstName" name="firstName" class="form-control" [class.is-invalid]="hasError('firstName')" placeholder="First Name" required aria-required="true"
+                  [(ngModel)]="firstName" (input)="validateFirstName()" (blur)="validateFirstName()">
+                <span class="invalid-feedback-msg" *ngIf="hasError('firstName')">{{ errors['firstName'] }}</span>
+              </div>
+              <div class="col-6 text-start">
+                <label for="lastName" class="form-label">Last Name <span class="mandatory-star">*</span></label>
+                <input type="text" id="lastName" name="lastName" class="form-control" [class.is-invalid]="hasError('lastName')" placeholder="Last Name" required aria-required="true"
+                  [(ngModel)]="lastName" (input)="validateLastName()" (blur)="validateLastName()">
+                <span class="invalid-feedback-msg" *ngIf="hasError('lastName')">{{ errors['lastName'] }}</span>
+              </div>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="mb-3 text-start">
+              <label for="registerDob" class="form-label">Date of Birth <span class="mandatory-star">*</span></label>
+              <input type="date" id="registerDob" name="registerDob" class="form-control" [class.is-invalid]="hasError('dob')" required aria-required="true"
+                [attr.min]="dobMin" [attr.max]="dobMax"
+                [(ngModel)]="dob" (change)="validateDob()" (blur)="validateDob()">
+              <span class="invalid-feedback-msg" *ngIf="hasError('dob')">{{ errors['dob'] }}</span>
+            </div>
+
+            <!-- Email Address -->
+            <div class="mb-3 text-start">
+              <label for="registerEmail" class="form-label">Email Address <span class="mandatory-star">*</span></label>
+              <input type="email" id="registerEmail" name="registerEmail" class="form-control" [class.is-invalid]="hasError('email')" placeholder="example@domain.com" required aria-required="true"
+                [(ngModel)]="email" (input)="validateEmail()" (blur)="validateEmail()">
+              <span class="invalid-feedback-msg" *ngIf="hasError('email')">{{ errors['email'] }}</span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="mb-3 text-start">
+              <label for="registerPhone" class="form-label">Phone Number <span class="mandatory-star">*</span></label>
+              <input type="tel" id="registerPhone" name="registerPhone" class="form-control" [class.is-invalid]="hasError('phone')" placeholder="+91 XXXXX XXXXX" required aria-required="true"
+                [(ngModel)]="phone" (input)="validatePhone()" (blur)="validatePhone()">
+              <span class="invalid-feedback-msg" *ngIf="hasError('phone')">{{ errors['phone'] }}</span>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3 text-start">
+              <label for="registerPassword" class="form-label">Password <span class="mandatory-star">*</span></label>
+              <input [type]="passwordType" id="registerPassword" name="registerPassword" class="form-control" [class.is-invalid]="hasError('password')" placeholder="Create password" required aria-required="true"
+                [(ngModel)]="password" (input)="validatePassword(); onPasswordInput()" (blur)="validatePassword()">
+              <span class="invalid-feedback-msg" *ngIf="hasError('password')">{{ errors['password'] }}</span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3 text-start">
+              <label for="confirmRegisterPassword" class="form-label">Confirm Password <span class="mandatory-star">*</span></label>
+              <input [type]="passwordType" id="confirmRegisterPassword" name="confirmRegisterPassword" class="form-control" [class.is-invalid]="hasError('confirmPassword')" placeholder="Confirm password" required aria-required="true"
+                [(ngModel)]="confirmPassword" (input)="validateConfirmPassword()" (blur)="validateConfirmPassword()">
+              <span class="invalid-feedback-msg" *ngIf="hasError('confirmPassword')">{{ errors['confirmPassword'] }}</span>
+            </div>
+
+            <!-- Show Password Checkbox -->
+            <div class="mb-3 form-check text-start d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input" id="showPassword" name="showPassword" [(ngModel)]="showPassword">
+              <label class="form-check-label checkbox-label" for="showPassword">Show Password</label>
+            </div>
+
+            <!-- Policies Agreement Checkbox -->
+            <div class="mb-3 form-check text-start d-flex align-items-start gap-2">
+              <input type="checkbox" class="form-check-input mt-1" id="agreePolicies" name="agreePolicies" required
+                [(ngModel)]="agreePolicies" (change)="validatePolicies()">
+              <label class="form-check-label checkbox-label" for="agreePolicies">
+                I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#policiesModal">Registration Policies</a>, privacy guidelines, and terms of service.
+              </label>
+              <span class="invalid-feedback-msg d-block" style="font-size: 0.75rem; color: #dc3545;" *ngIf="hasError('agreePolicies')">{{ errors['agreePolicies'] }}</span>
+            </div>
+
+            <!-- Registration Policies Modal -->
+            <div class="modal fade" id="policiesModal" tabindex="-1" aria-labelledby="policiesModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color: #F8F7F4; border: 1.5px solid #D4AF37; border-radius: 16px; box-shadow: 0 8px 30px rgba(26,10,46,0.15);">
+                  <div class="modal-header border-0 pb-0 text-start">
+                    <h5 class="modal-title font-serif fw-bold text-purple" id="policiesModalLabel" style="color: #1A0A2E; font-size: 1.25rem;">Registration Policies</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-start small text-secondary" style="line-height: 1.6;">
+                    <p class="mb-3">Welcome to Elegant Enclave. Before registering, please read and agree to our booking policies:</p>
+                    <ol class="ps-3 mb-0 d-flex flex-column gap-2 text-dark">
+                      <li><strong>Account Security:</strong> Your customer account credentials are personal, confidential, and non-transferable.</li>
+                      <li><strong>Data Capture Accuracy:</strong> All personal registration details, email coordinates, and contact numbers must be valid and kept up to date.</li>
+                      <li><strong>Booking Timelines:</strong> Reservation modifications or cancellations must comply with hotel-specific cancellation time window limits.</li>
+                      <li><strong>Privacy Guidelines:</strong> Guest check-in records, personal identifiers, and transaction history are stored securely and encrypted.</li>
+                    </ol>
+                  </div>
+                  <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-purple btn-sm" data-bs-dismiss="modal" style="background-color: #1A0A2E; color: white; border: none; padding: 6px 16px; border-radius: 8px;">I Understand</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Register button -->
+            <div class="mb-3">
+              <button type="submit" id="btnSubmitRegister" class="btn btn-login-submit w-100" [disabled]="!isFormValid || isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {{ isSubmitting ? ' Processing...' : 'Register' }}
+              </button>
+            </div>
+
+            <!-- Back to Login button -->
+            <div>
+              <a routerLink="/auth/login" class="btn btn-login-register w-100 d-flex align-items-center justify-content-center">Back to Login</a>
+            </div>
+
+          </form>
+
+          <!-- Email Verification Step (shown after successful registration) -->
+          <form novalidate *ngIf="view === 'verifyEmail'" (submit)="onVerifyEmail(); $event.preventDefault()">
+            <p class="mandatory-note text-start mb-3">A 6-digit verification code was sent to <strong>{{ email }}</strong>. Enter it below to activate your account.</p>
+
+            <div class="mb-3 text-start">
+              <label for="verifyOtp" class="form-label">Verification Code <span class="mandatory-star">*</span></label>
+              <input type="text" id="verifyOtp" name="verifyOtp" class="form-control text-center fw-bold" [class.is-invalid]="otpInvalid" placeholder="6-digit OTP" maxlength="6" required aria-required="true"
+                [(ngModel)]="otp" (input)="validateOtp()" (blur)="validateOtp()">
+              <span class="invalid-feedback-msg" *ngIf="otpInvalid">{{ otpError }}</span>
+            </div>
+
+            <div class="mb-3">
+              <button type="submit" id="btnVerifyEmail" class="btn btn-login-submit w-100" [disabled]="isVerifying">
+                <span *ngIf="isVerifying" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {{ isVerifying ? ' Verifying...' : 'Verify Email' }}
+              </button>
+            </div>
+
+            <div class="mb-3">
+              <button type="button" id="btnResendCode" class="btn btn-login-register w-100" [disabled]="isResending" (click)="onResendCode()">
+                {{ isResending ? 'Resending...' : 'Resend Code' }}
+              </button>
+            </div>
+
+            <div>
+              <a routerLink="/auth/login" class="btn btn-login-register w-100 d-flex align-items-center justify-content-center">Back to Login</a>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

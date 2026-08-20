@@ -1,4 +1,4 @@
-// Mirrors HotelBooking.API/Features/Hotels/DTOs
+/** Mirrors Features/Hotels/DTOs/*.cs and Features/Rooms/DTOs/RoomTypeResponseDto.cs exactly. */
 
 export interface HotelResponseDto {
   id: number;
@@ -17,6 +17,28 @@ export interface HotelResponseDto {
   rowVersion: string;
 }
 
+export interface HotelRequestDto {
+  name: string;
+  description: string;
+  location: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+  starRating: number;
+  isActive: boolean;
+  rowVersion?: string | null;
+}
+
+export interface SearchRequestDto {
+  destinationCity: string;
+  checkInDate: string;
+  checkOutDate: string;
+  guests: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
 export interface SearchHotelResultDto {
   hotelId: number;
   hotelCustomId: string;
@@ -28,11 +50,46 @@ export interface SearchHotelResultDto {
   isAvailable: boolean;
 }
 
-export interface SearchRequestParams {
-  destinationCity: string;
-  checkInDate: string; // yyyy-MM-dd
-  checkOutDate: string; // yyyy-MM-dd
-  guests: number;
-  pageNumber?: number;
-  pageSize?: number;
+export interface RoomTypeResponseDto {
+  id: number;
+  hotelId: number;
+  name: string;
+  description: string;
+  basePrice: number;
+  capacity: number;
+  totalRooms: number;
+  isActive: boolean;
+  isUnderMaintenance: boolean;
+}
+
+export interface RoomTypeRequestDto {
+  name: string;
+  description: string;
+  basePrice: number;
+  capacity: number;
+  totalRooms: number;
+}
+
+export interface BlockedDateResponseDto {
+  id: number;
+  roomTypeId: number;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  createdAt: string;
+}
+
+export interface BlockedDateRequestDto {
+  roomTypeId: number;
+  startDate: string;
+  endDate: string;
+  reason: string;
+}
+
+export interface PricingOverrideRequestDto {
+  roomTypeId: number;
+  startDate: string;
+  endDate: string;
+  price: number;
+  isActive?: boolean;
 }

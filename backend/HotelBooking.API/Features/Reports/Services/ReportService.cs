@@ -38,6 +38,7 @@ public class ReportService : IReportService
             .ToListAsync();
     }
 
+    // Specification Pattern — builds the customer's payments query incrementally from optional date filters before executing.
     public async Task<IEnumerable<CustomerTransactionReportDto>> GetCustomerTransactionsAsync(int userId, DateTime? startDate, DateTime? endDate)
     {
         var query = _context.Payments
@@ -82,6 +83,7 @@ public class ReportService : IReportService
             throw new KeyNotFoundException("Hotel not found.");
 
         page = page < 1 ? 1 : page;
+        // Pagination Pattern — clamps pageSize to a hard maximum regardless of caller-supplied value.
         pageSize = pageSize < 1 ? 100 : Math.Min(pageSize, 500); // Admin Edge Case #16: hard cap per page
 
         var query = _context.Bookings
@@ -129,6 +131,7 @@ public class ReportService : IReportService
             PageSize = pageSize,
             Reservations = pageOfBookings.Select(b => new ReservationDetailDto
             {
+                Id = b.Id,
                 BookingCustomId = b.BookingCustomId,
                 CustomerName = $"{b.User.FirstName} {b.User.LastName}",
                 RoomTypeName = b.RoomType.Name,
@@ -182,6 +185,7 @@ public class ReportService : IReportService
         // Group by HotelId (a scalar, SQL-translatable key) rather than the Hotel navigation object —
         // grouping by an entity reference can't be pushed down to SQL and forces a full client-side
         // materialization, exactly the OOM risk this fix is closing.
+        // SQL-Pushed Aggregation (Read Model) — groups by scalar HotelId in SQL to avoid materializing millions of rows client-side.
         var perHotelStats = await query
             .GroupBy(b => b.HotelId)
             .Select(g => new

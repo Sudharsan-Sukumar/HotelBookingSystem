@@ -1,0 +1,309 @@
+<div class="payment-portal-page">
+
+  <app-navbar></app-navbar>
+
+  <!-- TOP HEADER SECTION -->
+  <header class="container px-xl-5 py-4 mt-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="payment-title m-0">Payment Portal Gateway</h1>
+        <p class="payment-sub text-muted m-0">Select a payment option to complete your booking transaction. Fields marked with <span class="text-danger">*</span> are mandatory.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 text-success fw-bold text-nowrap">
+        <i class="bi bi-shield-lock-fill"></i> 100% Secure Payment
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN TWO COLUMN WORKSPACE GRID -->
+  <main class="container px-xl-5 pb-5">
+    <div class="row g-4">
+
+      <!-- Left Column: Razorpay Unified Payment Panel -->
+      <section class="col-lg-8">
+
+        <div class="payment-form-card p-4 p-md-5 text-start">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="panel-badge-icon"><i class="bi bi-shield-lock"></i></span>
+            <div>
+              <h2 class="panel-section-title m-0">Secure Payment</h2>
+              <p class="text-muted small m-0">All payments are processed securely via Razorpay</p>
+            </div>
+          </div>
+
+          <!-- Dynamic Amount Box -->
+          <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, #1A0A2E 0%, #2D1B5E 100%);">
+            <p class="small mb-1 text-uppercase fw-semibold" style="color: rgba(255,255,255,0.55); letter-spacing:0.08em;">{{ lblPaymentLabel }}</p>
+            <h2 class="fw-bold m-0" style="color: #D4AF37; font-size: 2.4rem; font-family: 'Playfair Display', serif;">{{ lblRazorpayAmount }}</h2>
+            <p class="small mt-2 mb-0" style="color: rgba(255,255,255,0.5);">{{ lblPaymentNote }}</p>
+          </div>
+
+          <!-- Pre-filled Customer Info (read-only) -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted text-uppercase" style="letter-spacing:0.05em;">Name on Account</label>
+              <div class="form-control custom-form-control d-flex align-items-center gap-2" style="background:#f8f9fa; cursor:default; pointer-events:none;">
+                <i class="bi bi-person text-muted"></i>
+                <span class="text-dark">{{ displayName }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted text-uppercase" style="letter-spacing:0.05em;">Email Address</label>
+              <div class="form-control custom-form-control d-flex align-items-center gap-2" style="background:#f8f9fa; cursor:default; pointer-events:none;">
+                <i class="bi bi-envelope text-muted"></i>
+                <span class="text-dark">{{ displayEmail }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment method selection (backend only accepts these 4 exact values) -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3" *ngFor="let m of paymentMethods">
+              <div class="payment-method-card p-3 border rounded cursor-pointer text-center"
+                   [class.selected-method]="selectedMethod === m" (click)="selectMethod(m)">
+                <span class="fw-semibold text-dark">{{ m }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mb-3" *ngIf="methodError">Please select a payment method to continue.</div>
+
+          <!-- Dynamic Component Loading: the panel below is instantiated at runtime via
+               ViewContainerRef.createComponent (see payment-portal.component.ts's loadMethodPanel),
+               one distinct component per payment method, not an *ngSwitch over the method string. -->
+          <div class="mb-4" #methodPanelHost></div>
+
+          <!-- Security note -->
+          <div class="info-alert-card p-3 mb-5 d-flex align-items-center gap-3">
+            <span class="alert-icon-circular"><i class="bi bi-shield-check"></i></span>
+            <span class="small text-secondary"><strong>We never store your card details.</strong> Razorpay's hosted payment page handles all card/UPI/net-banking data directly.</span>
+          </div>
+
+          <div class="text-danger small mb-3" *ngIf="linkError">{{ linkError }}</div>
+
+          <!-- Pay Now: creates a Razorpay payment link server-side and opens the hosted page -->
+          <button type="button" class="btn btn-confirm-pay w-100 py-3 d-flex align-items-center justify-content-center gap-3"
+                  [disabled]="payButtonDisabled" (click)="payNow()" style="font-size:1.05rem;" *ngIf="paymentState === 'idle' || paymentState === 'failed'">
+            <i class="bi bi-lock-fill"></i>
+            <span>{{ payButtonText }}</span>
+          </button>
+
+          <!-- Waiting-for-confirmation state -->
+          <div class="text-center py-3" *ngIf="paymentState === 'waiting'">
+            <div class="spinner-border text-warning mb-2"></div>
+            <p class="fw-semibold mb-1">Waiting for payment confirmation…</p>
+            <p class="text-muted small mb-0">Complete the payment in the Razorpay tab that just opened. This page will update automatically.</p>
+            <a *ngIf="paymentUrl" [href]="paymentUrl" target="_blank" rel="noopener" class="small d-inline-block mt-2">Re-open payment page</a>
+          </div>
+
+          <!-- Timed-out state -->
+          <div class="text-center py-3" *ngIf="paymentState === 'timeout'">
+            <p class="text-danger fw-semibold mb-1">We haven't received confirmation of your payment yet.</p>
+            <p class="text-muted small mb-3">If you completed the payment, it may take a little longer to reflect. You can check again or retry.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-outline-secondary" (click)="checkStatusOnce()">Check Again</button>
+              <button class="btn btn-confirm-pay" (click)="resetToIdle()">Retry Payment</button>
+            </div>
+          </div>
+
+          <p class="text-muted small text-center mt-3 mb-0" *ngIf="paymentState === 'idle'">
+            <i class="bi bi-info-circle me-1"></i>
+            Clicking "Pay Now" opens Razorpay's real hosted payment page in a new tab.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Booking Summary Card Panel -->
+      <aside class="col-lg-4 text-start">
+        <div class="summary-card p-4">
+          <h2 class="summary-card-title mb-4"><i class="bi bi-file-earmark-text text-warning me-2"></i>Booking Summary</h2>
+
+          <img [src]="summaryHotelImg" alt="Hotel facade" class="summary-hotel-img rounded mb-3">
+          <h3 class="summary-hotel-name m-0">{{ summaryHotelName }}</h3>
+          <p class="summary-hotel-branch text-muted mb-4">{{ summaryHotelBranchRoom }}</p>
+
+          <ul class="summary-meta-list ps-0 mb-4">
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-secondary"><i class="bi bi-calendar-check me-2"></i>Check-In</span>
+              <span class="fw-semibold text-dark">{{ summaryCheckIn }}</span>
+            </li>
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-secondary"><i class="bi bi-calendar-x me-2"></i>Check-Out</span>
+              <span class="fw-semibold text-dark">{{ summaryCheckOut }}</span>
+            </li>
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-secondary"><i class="bi bi-moon me-2"></i>Duration</span>
+              <span class="fw-semibold text-dark">{{ summaryDuration }}</span>
+            </li>
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-secondary"><i class="bi bi-people me-2"></i>Guests</span>
+              <span class="fw-semibold text-dark">{{ summaryGuests }}</span>
+            </li>
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-secondary"><i class="bi bi-tag me-2"></i>Booking ID</span>
+              <span class="fw-bold text-dark">{{ summaryBookingId }}</span>
+            </li>
+          </ul>
+
+          <div class="price-breakdown-box border-top pt-3">
+            <div class="d-flex justify-content-between py-1">
+              <span class="text-secondary small">Base Room Charge</span>
+              <span class="fw-semibold text-dark">{{ summaryBaseCharge }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1">
+              <span class="text-secondary small">Taxes & Fees (18% GST)</span>
+              <span class="fw-semibold text-dark">{{ summaryTaxes }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center border-top mt-2 pt-2">
+              <strong class="text-dark">Total Amount</strong>
+              <strong class="text-warning fs-5">{{ summaryTotalAmount }}</strong>
+            </div>
+          </div>
+
+          <p class="small text-muted mt-4 mb-0 text-center"><i class="bi bi-info-circle me-1"></i> By proceeding, you agree to our <strong>Terms of Service &amp; Cancellation Policy</strong></p>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- BOTTOM INFORMATIONAL BADGES ROW -->
+    <div class="row g-3 justify-content-between mt-5 text-start">
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-shield-check"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Secure Payments</strong>
+            <span class="small text-muted">PCI DSS Compliant</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-lightning"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Instant Confirmation</strong>
+            <span class="small text-muted">Get booking instantly</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-award"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">Best Price Guarantee</strong>
+            <span class="small text-muted">Always the best rates</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="info-card-badge p-3 d-flex align-items-center gap-3">
+          <span class="badge-icon"><i class="bi bi-telephone-inbound"></i></span>
+          <div>
+            <strong class="d-block text-dark small uppercase">24/7 Support</strong>
+            <span class="small text-muted">We're here to help</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM MEMBER BENEFITS BANNER -->
+    <div class="member-benefits-banner p-4 mt-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3 text-start">
+        <span class="benefits-banner-icon"><i class="bi bi-gift"></i></span>
+        <div>
+          <h3 class="benefits-banner-title text-dark m-0">Exclusive Member Benefits</h3>
+          <p class="benefits-banner-sub text-muted m-0">Earn reward points on every booking and unlock exclusive offers.</p>
+        </div>
+      </div>
+      <button class="btn btn-join-save py-3 px-4">Join &amp; Save More <i class="bi bi-arrow-right"></i></button>
+    </div>
+
+  </main>
+
+  <!-- Processing overlay while creating the payment link -->
+  <div class="payment-loader-overlay" *ngIf="showProgressOverlay">
+    <div class="spinner-border text-warning mb-3" style="width: 3.5rem; height: 3.5rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h3 class="text-white font-serif">Setting up secure payment...</h3>
+    <p class="text-white-50">Please do not refresh or navigate away from this window.</p>
+  </div>
+
+  <!-- PAYMENT FAILED STATE DIALOG (rendered inline, no bootstrap JS modal dependency) -->
+  <div class="payment-loader-overlay" *ngIf="paymentState === 'failed'" style="background: rgba(26,10,46,0.85);">
+    <div class="custom-modal-content border-0 p-4 text-center" style="border-radius: 18px; max-width: 420px; background-color: #FAF8F4;">
+      <span class="d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 68px; height: 68px; border-radius: 50%; background-color: #FDE8E8; color: #F05252; font-size: 2.2rem;">
+        <i class="bi bi-x-circle"></i>
+      </span>
+      <h4 class="text-dark font-serif fw-bold">Payment Failed</h4>
+      <p class="text-secondary small">{{ failReason }}</p>
+
+      <div class="d-flex flex-column gap-2 mt-4">
+        <button class="btn btn-confirm-pay w-100 py-3" (click)="resetToIdle()" style="background-color: #1A0A2E; color: #FFFFFF;">Try Again</button>
+        <a routerLink="/" class="btn btn-action-outline-cancel w-100 py-2" style="text-decoration: none;">Return to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATEWAY-UNAVAILABLE FALLBACK (Razorpay took too long to respond) -->
+  <div class="payment-loader-overlay" *ngIf="paymentState === 'gatewayUnavailable'" style="background: rgba(26,10,46,0.85);">
+    <div class="custom-modal-content border-0 p-4 text-center" style="border-radius: 18px; max-width: 460px; background-color: #FAF8F4;">
+      <span class="d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 68px; height: 68px; border-radius: 50%; background-color: #FDF3D8; color: #D4AF37; font-size: 2.2rem;">
+        <i class="bi bi-hourglass-split"></i>
+      </span>
+      <h4 class="text-dark font-serif fw-bold">Payment Gateway Unavailable</h4>
+      <p class="text-secondary small mb-1">Razorpay didn't respond in time for the selected payment method, so we've stopped waiting rather than leave you staring at a spinner. This is usually a temporary, method-specific hiccup.</p>
+      <p class="text-secondary small">Try a different payment method below — UPI, Card, or Net Banking each go through a separate path, so one being slow doesn't mean the others will be too.</p>
+
+      <div class="d-flex flex-column gap-2 mt-2">
+        <button class="btn btn-confirm-pay w-100 py-3" (click)="retryWithDifferentMethod()" style="background-color: #1A0A2E; color: #FFFFFF;">Choose a Different Payment Method</button>
+        <a routerLink="/" class="btn btn-action-outline-cancel w-100 py-2" style="text-decoration: none;">Return to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPLIT-PAYMENT FALLBACK (this Razorpay account's single-link cap is below the outstanding
+       balance, so it's being collected in successive chunks — this one just confirmed) -->
+  <div class="payment-loader-overlay" *ngIf="paymentState === 'partiallyPaid'" style="background: rgba(26,10,46,0.85);">
+    <div class="custom-modal-content border-0 p-4 text-center" style="border-radius: 18px; max-width: 460px; background-color: #FAF8F4;">
+      <span class="d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 68px; height: 68px; border-radius: 50%; background-color: #E7F6EC; color: #0E9F6E; font-size: 2.2rem;">
+        <i class="bi bi-check-circle"></i>
+      </span>
+      <h4 class="text-dark font-serif fw-bold">Part Payment Received</h4>
+      <p class="text-secondary small mb-1">Your booking's total exceeds what can be charged in a single payment right now, so it's being collected in parts. This part of your payment was successful.</p>
+      <p class="text-secondary small">Your booking will be confirmed once the remaining amount is paid — nothing else has changed.</p>
+
+      <div class="p-3 bg-light rounded small text-start mb-3">
+        <div class="d-flex justify-content-between"><span class="text-muted">Booking ID</span><span class="fw-bold text-dark">{{ summaryBookingId }}</span></div>
+        <div class="d-flex justify-content-between"><span class="text-muted">Remaining Amount</span><span class="fw-bold text-dark">{{ lblRazorpayAmount }}</span></div>
+      </div>
+
+      <div class="d-flex flex-column gap-2 mt-2">
+        <button class="btn btn-confirm-pay w-100 py-3" (click)="payRemainingAmount()" style="background-color: #1A0A2E; color: #FFFFFF;">Pay Remaining Amount</button>
+        <a routerLink="/candidate/my-bookings" class="btn btn-action-outline-cancel w-100 py-2" style="text-decoration: none;">Finish This Later (My Bookings)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION-EXPIRED FALLBACK (this booking's payment window has closed and can't be reopened here) -->
+  <div class="payment-loader-overlay" *ngIf="paymentState === 'sessionExpired'" style="background: rgba(26,10,46,0.85);">
+    <div class="custom-modal-content border-0 p-4 text-center" style="border-radius: 18px; max-width: 460px; background-color: #FAF8F4;">
+      <span class="d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 68px; height: 68px; border-radius: 50%; background-color: #FDF3D8; color: #D4AF37; font-size: 2.2rem;">
+        <i class="bi bi-clock-history"></i>
+      </span>
+      <h4 class="text-dark font-serif fw-bold">This Payment Window Has Closed</h4>
+      <p class="text-secondary small mb-1">The time allowed to pay for this booking has passed, so we can't open a new payment here automatically — this happens regardless of which payment method you use.</p>
+      <p class="text-secondary small">Your reservation is still on hold. Head back to My Bookings — if a fresh payment window has opened for it, you'll see a Complete Payment option there again.</p>
+
+      <div class="p-3 bg-light rounded small text-start mb-3">
+        <div class="d-flex justify-content-between"><span class="text-muted">Booking ID</span><span class="fw-bold text-dark">{{ summaryBookingId }}</span></div>
+      </div>
+
+      <div class="d-flex flex-column gap-2 mt-2">
+        <a routerLink="/candidate/my-bookings" class="btn btn-confirm-pay w-100 py-3 d-inline-flex align-items-center justify-content-center" style="background-color: #1A0A2E; color: #FFFFFF; text-decoration: none;">Back to My Bookings</a>
+        <a routerLink="/" class="btn btn-action-outline-cancel w-100 py-2" style="text-decoration: none;">Return to Home</a>
+      </div>
+    </div>
+  </div>
+
+</div>

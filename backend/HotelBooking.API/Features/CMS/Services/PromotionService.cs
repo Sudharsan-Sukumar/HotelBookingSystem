@@ -39,6 +39,7 @@ public class PromotionService : IPromotionService
 
     public async Task<Promotion> CreatePromotionAsync(PromotionRequestDto dto)
     {
+        // Guard Clause — rejects a new promotion whose CouponCode already exists before insert.
         var existing = await _context.Promotions.FirstOrDefaultAsync(p => p.CouponCode == dto.CouponCode);
         if (existing != null)
         {
@@ -66,6 +67,7 @@ public class PromotionService : IPromotionService
         var promo = await _context.Promotions.FindAsync(id);
         if (promo == null) return false;
 
+        // Guard Clause (excluding self) — re-checks coupon-code collision against other promotions before applying edits.
         var existing = await _context.Promotions.FirstOrDefaultAsync(p => p.CouponCode == dto.CouponCode && p.Id != id);
         if (existing != null)
         {

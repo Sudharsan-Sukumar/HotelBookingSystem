@@ -1,0 +1,132 @@
+<div class="container-fluid p-0 login-container login-page">
+  <div class="row g-0 min-vh-100">
+
+    <!-- Left Panel (Luxury Image Column) -->
+    <div class="col-lg-5 d-none d-lg-block position-relative image-panel-column">
+      <div class="image-panel" style="background-image: url('/assets/images/login_hero.png');">
+        <div class="curved-border-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Right Panel (Login Form Column) -->
+    <div class="col-lg-7 col-12 d-flex align-items-center justify-content-center form-panel-column bg-light-ivory">
+      <div class="w-100 py-5 form-inner-wrapper">
+
+        <!-- Back to Home navigation option -->
+        <div class="text-center mb-4">
+          <a routerLink="/" class="back-home-link">
+            <i class="bi bi-arrow-left"></i> Back to Home
+          </a>
+        </div>
+
+        <!-- Hero Heading -->
+        <div class="text-center mb-5 px-3">
+          <h1 class="login-hero-heading text-uppercase">Experience Timeless Luxury</h1>
+          <p class="login-hero-sub">Sign in to discover exclusive stays, personalized experiences, and exceptional hospitality.</p>
+        </div>
+
+        <!-- Login Container Card -->
+        <div class="login-card mx-auto">
+          <form novalidate (submit)="onSubmit(); $event.preventDefault()">
+            <p class="text-muted small text-start mb-4"><span class="text-danger">*</span> denotes that the field is mandatory</p>
+
+            <!-- Email Field -->
+            <div class="mb-4 text-start form-group">
+              <label for="loginEmail" class="form-label text-dark">Email Address <span class="text-danger">*</span></label>
+              <div class="input-group custom-input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control border-start-0 ps-0" [class.is-invalid]="emailInvalid" id="loginEmail" name="loginEmail" placeholder="Enter your email address" [(ngModel)]="email" required>
+              </div>
+              <div class="invalid-feedback-msg" *ngIf="emailInvalid">{{ emailError }}</div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4 text-start form-group">
+              <div class="d-flex justify-content-between">
+                <label for="loginPassword" class="form-label text-dark">Password <span class="text-danger">*</span></label>
+                <a routerLink="/auth/forgot-password" class="forgot-pwd-link text-decoration-none">Forgot password?</a>
+              </div>
+              <div class="input-group custom-input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                <input [type]="passwordVisible ? 'text' : 'password'" class="form-control border-start-0 ps-0" [class.is-invalid]="passwordInvalid" id="loginPassword" name="loginPassword" placeholder="Enter your password" [(ngModel)]="password" required>
+                <span class="input-group-text bg-white border-start-0 cursor-pointer text-muted" (click)="togglePasswordVisibility()">
+                  <i class="bi" [class.bi-eye]="!passwordVisible" [class.bi-eye-slash]="passwordVisible"></i>
+                </span>
+              </div>
+              <div class="invalid-feedback-msg" *ngIf="passwordInvalid">{{ passwordError }}</div>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="mb-3 form-check text-start d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" [(ngModel)]="rememberMe">
+              <label class="form-check-label checkbox-label" for="rememberMe">Remember Me</label>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mb-3 mt-5">
+              <button type="submit" class="btn btn-login-submit w-100" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {{ isSubmitting ? ' Authenticating...' : 'Login' }}
+              </button>
+            </div>
+
+            <!-- Register button link -->
+            <div>
+              <a routerLink="/auth/register" class="btn btn-login-register w-100 d-flex align-items-center justify-content-center">Register as Customer</a>
+            </div>
+
+          </form>
+
+          <!-- Google OAuth — traditional email/password auth above verifies a password this app
+               stores; this instead verifies a Google-issued identity, with no password ever
+               exchanged or stored for that account. Existing customers can also use this to sign
+               in for the first time, and it links to their existing email/password account
+               (see AuthService.GoogleLoginAsync on the backend). -->
+          <div class="d-flex align-items-center my-4">
+            <hr class="flex-grow-1">
+            <span class="px-3 text-muted small">or</span>
+            <hr class="flex-grow-1">
+          </div>
+          <div class="d-flex justify-content-center">
+            <app-google-signin-button (idToken)="onGoogleLogin($event)"></app-google-signin-button>
+          </div>
+          <div class="invalid-feedback-msg d-block text-center mt-2" *ngIf="googleError">{{ googleError }}</div>
+        </div>
+
+        <!-- Credentials Helper Panel for External Verification -->
+        <div class="login-card mx-auto mt-4 p-4 text-start" style="background-color: rgba(26, 10, 46, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px;">
+          <h3 class="font-serif text-dark mb-3" style="font-size: 1rem; font-weight: bold; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 8px;">
+            <i class="bi bi-info-circle text-warning"></i> Demo Accounts (Login Credentials)
+          </h3>
+
+          <div class="row g-2" style="font-size: 0.75rem;">
+            <!-- Customer -->
+            <div class="col-md-6 border-end border-light pe-2">
+              <strong class="text-secondary d-block">👤 Customer Account</strong>
+              <span class="text-dark d-block">Email: <code class="text-dark font-monospace">vijay@hbs.local</code></span>
+              <span class="text-dark d-block">Password: <code class="text-dark font-monospace">Customer@123</code></span>
+            </div>
+
+            <!-- Manager -->
+            <div class="col-md-6 ps-2">
+              <strong class="text-secondary d-block">💼 Manager Account (Salem)</strong>
+              <span class="text-dark d-block">Email: <code class="text-dark font-monospace">salemmanager@hbs.local</code></span>
+              <span class="text-dark d-block">Password: <code class="text-dark font-monospace">Manager@123</code></span>
+            </div>
+
+            <hr class="my-2 opacity-10">
+
+            <!-- Admin -->
+            <div class="col-12">
+              <strong class="text-secondary d-block">⚙️ System Administrator</strong>
+              <span class="text-dark d-block">Email: <code class="text-dark font-monospace">admin@hbs.local</code></span>
+              <span class="text-dark d-block">Password: <code class="text-dark font-monospace">Admin@123</code></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,1281 @@
+@import "abstracts/variables";
+
+// Override Bootstrap configuration before importing Bootstrap
+$body-bg: $bg-light;
+$body-color: $text-primary;
+$font-family-base: $font-family-sans-serif;
+$primary: $primary-dark;
+$warning: $primary-gold;
+
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+// -------------------------------------------------------------
+// Base & Global Styles
+// -------------------------------------------------------------
+body {
+  font-family: $font-family-sans-serif;
+  color: $text-secondary;
+  background-color: $bg-light;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: $font-family-serif;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+// -------------------------------------------------------------
+// Navbar Styles (Redesigned & Aligned)
+// -------------------------------------------------------------
+.custom-navbar {
+  background-color: $primary-dark;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  min-height: 80px;
+  max-height: 90px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  z-index: 1050;
+  transition: all 0.3s ease;
+
+  .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar-brand {
+    font-family: $font-family-serif;
+    color: #FFFFFF;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    font-size: 1.45rem;
+    margin-right: 0;
+
+    .brand-logo-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 1px solid $primary-gold;
+      box-shadow: $gold-glow;
+    }
+    
+    span {
+      font-weight: 400;
+      color: $primary-gold;
+    }
+  }
+
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .nav-link {
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.5rem 1.1rem !important;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 1.1rem;
+      right: 1.1rem;
+      height: 2px;
+      background-color: $primary-gold;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      color: $primary-gold;
+      &::after {
+        transform: scaleX(1);
+      }
+    }
+
+    &.active {
+      color: $primary-gold;
+      font-weight: 600;
+      &::after {
+        transform: scaleX(1);
+      }
+    }
+  }
+
+  // Reduced width search bar with integrated button
+  .search-input-group {
+    background-color: $dark-surface;
+    border: 1px solid rgba($primary-gold, 0.3);
+    border-radius: $border-radius-sm;
+    display: flex;
+    align-items: center;
+    width: 210px;
+    height: 38px;
+    padding: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &:focus-within {
+      width: 240px;
+      border-color: $primary-gold;
+      box-shadow: 0 0 0 3px rgba($primary-gold, 0.15);
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      outline: none;
+      font-size: 0.8rem;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    .search-submit-btn {
+      background-color: $hover-purple;
+      border: none;
+      border-left: 1px solid rgba($primary-gold, 0.3);
+      color: #FFFFFF;
+      height: 100%;
+      padding: 0 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $primary-gold;
+        color: $primary-dark;
+      }
+    }
+  }
+
+  // Authentication Buttons (Logged-out state)
+  .btn-auth-outline {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    height: 38px;
+    padding: 0 1.25rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: $primary-gold;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: $primary-gold;
+    }
+  }
+
+  .btn-auth-gold {
+    background-color: $primary-gold;
+    color: $primary-dark;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    height: 38px;
+    padding: 0 1.25rem;
+    border-radius: 10px;
+    border: none;
+    box-shadow: $gold-glow;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: $soft-gold;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+      color: $primary-dark;
+    }
+  }
+
+  // User Profile Section (Logged-in state)
+  .auth-logged-in {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #FFFFFF;
+    height: 38px;
+
+    .user-info {
+      line-height: 1.1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .user-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 1px;
+        color: #FFFFFF;
+      }
+      .user-role {
+        font-size: 0.7rem;
+        color: $primary-gold;
+        margin-bottom: 1px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+      .user-email {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 0;
+      }
+    }
+
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: radial-gradient(circle, $primary-gold, $soft-gold);
+      border: 1px solid $primary-gold;
+      box-shadow: $gold-glow;
+      align-self: center;
+    }
+  }
+}
+
+// Media Query for collapsing state styling
+@media (max-width: 1199.98px) {
+  .custom-navbar {
+    max-height: none;
+    padding: 1rem 0;
+
+    .navbar-collapse {
+      background-color: $primary-dark;
+      padding: 1.5rem;
+      border-radius: $border-radius-md;
+      margin-top: 1rem;
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+
+    .navbar-nav {
+      align-items: flex-start !important;
+      gap: 0.75rem !important;
+      margin-bottom: 1.5rem;
+      width: 100%;
+
+      .nav-link {
+        padding: 0.5rem 0 !important;
+        width: 100%;
+        &::after {
+          left: 0;
+          right: 0;
+        }
+      }
+    }
+
+    .search-input-group {
+      width: 100% !important;
+    }
+
+    .auth-logged-in {
+      text-align: left;
+      .user-info {
+        text-align: left !important;
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Hero Section & Search Bar Widget
+// -------------------------------------------------------------
+.hero-section {
+  position: relative;
+  border-radius: $border-radius-lg;
+  margin: 1.5rem;
+  height: 520px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 10, 46, 0.35); // Subtle dark brand overlay
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding-left: 5%;
+    max-width: 600px;
+    color: #FFFFFF;
+
+    .hero-title {
+      font-size: 4rem;
+      line-height: 1.1;
+      color: #FFFFFF;
+      margin-bottom: 1.5rem;
+
+      span {
+        display: block;
+        color: $primary-dark;
+      }
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+.search-widget-container {
+  position: relative;
+  z-index: 10;
+  margin-top: -50px;
+  padding: 0 4rem;
+
+  .search-widget {
+    background-color: #FFFFFF;
+    border-radius: 24px;
+    padding: 1.5rem 2.5rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba($primary-gold, 0.1);
+    display: flex;
+    align-items: center;
+
+    .search-field {
+      width: 100%;
+
+      label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: $text-secondary;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.45rem;
+        display: block;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        input, select, .dropdown-trigger {
+          width: 100%;
+          height: 56px;
+          border: 1px solid $border-color;
+          border-radius: 12px;
+          padding: 0.5rem 1rem 0.5rem 3rem;
+          font-size: 16px;
+          color: $text-primary;
+          font-weight: 500;
+          background-color: #FFFFFF;
+          outline: none;
+          transition: all 0.3s ease;
+          cursor: pointer;
+
+          &:focus {
+            border-color: $primary-gold;
+            box-shadow: 0 0 0 3px rgba($primary-gold, 0.15);
+          }
+        }
+
+        // Left positioned icon
+        .left-icon {
+          position: absolute;
+          left: 1.25rem;
+          color: $primary-gold;
+          font-size: 1.15rem;
+          pointer-events: none;
+        }
+
+        // Right positioned icon (Chevron/Arrow)
+        .right-icon {
+          position: absolute;
+          right: 1.25rem;
+          color: $text-secondary;
+          font-size: 0.95rem;
+          pointer-events: none;
+        }
+
+        // Hide native browser calendar icon to style custom icon overlay cleanly
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          background: transparent;
+          bottom: 0;
+          color: transparent;
+          cursor: pointer;
+          height: auto;
+          left: 0;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: auto;
+        }
+      }
+    }
+
+    .btn-search {
+      background-color: $primary-dark;
+      color: #FFFFFF;
+      border: none;
+      height: 56px;
+      font-weight: 600;
+      font-size: 18px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: $hover-purple;
+        color: #FFFFFF;
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Why Choose Us Section
+// -------------------------------------------------------------
+.section-tag {
+  color: $primary-gold;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.why-choose-us-section {
+  padding: 5rem 3rem 4rem;
+
+  .feature-card {
+    background-color: #FFFFFF;
+    border-radius: $border-radius-md;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border: none;
+    box-shadow: $card-shadow;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background-color: $primary-gold;
+      border-radius: 2px;
+    }
+
+    .feature-icon-wrapper {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 1.5rem;
+      background-color: rgba($primary-gold, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+
+      i {
+        font-size: 2rem;
+        color: $primary-gold;
+      }
+    }
+
+    .feature-title {
+      font-family: $font-family-serif;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: $text-primary;
+    }
+
+    .feature-desc {
+      font-size: 0.85rem;
+      color: $text-secondary;
+      line-height: 1.6;
+    }
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(26, 10, 46, 0.08);
+
+      .feature-icon-wrapper {
+        background-color: $primary-gold;
+        i {
+          color: $primary-dark;
+        }
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Featured Rooms Section
+// -------------------------------------------------------------
+.featured-rooms-section {
+  padding: 1rem 3rem 5rem;
+
+  .room-card {
+    background: #FFFFFF;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    box-shadow: $card-shadow;
+    border: 1px solid rgba($border-color, 0.6);
+    transition: all 0.4s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .room-image-wrapper {
+      position: relative;
+      height: 240px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+
+      .room-type-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background-color: $primary-dark;
+        color: $soft-gold;
+        padding: 0.35rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 50px;
+        text-transform: capitalize;
+        backdrop-filter: blur(4px);
+      }
+
+      .room-rating {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: rgba(255, 255, 255, 0.95);
+        color: $text-primary;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        backdrop-filter: blur(4px);
+
+        i {
+          color: $primary-gold;
+        }
+      }
+    }
+
+    .room-details {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+
+      .room-title {
+        font-family: $font-family-serif;
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+        color: $text-primary;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $primary-gold;
+        }
+      }
+
+      .room-desc {
+        font-size: 0.85rem;
+        color: $text-secondary;
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+      }
+
+      .room-specs {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: $text-primary;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        align-items: center;
+
+        i {
+          color: $primary-gold;
+          margin-right: 0.25rem;
+        }
+      }
+
+      .room-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+
+        .amenity-tag {
+          font-size: 0.75rem;
+          background-color: $card-bg;
+          color: $text-secondary;
+          padding: 0.25rem 0.6rem;
+          border-radius: 4px;
+          border: 1px solid rgba($border-color, 0.6);
+        }
+      }
+
+      .room-footer {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid $border-color;
+
+        .room-price {
+          font-size: 0.9rem;
+          color: $text-secondary;
+
+          span {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: $text-primary;
+          }
+        }
+
+        .btn-book {
+          background-color: $primary-dark;
+          color: #FFFFFF;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 0.5rem 1.2rem;
+          border-radius: 6px;
+          border: none;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background-color: $hover-purple;
+            color: #FFFFFF;
+          }
+        }
+      }
+    }
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(26, 10, 46, 0.1);
+
+      .room-image-wrapper img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  // View all rooms card
+  // View all rooms card
+  .view-all-rooms-card {
+    background: radial-gradient(circle at 50% 50%, #2E1560 0%, #1A0A2E 70%), url('/assets/images/view_rooms_bg.png');
+    background-size: cover;
+    background-blend-mode: overlay;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    padding: 3rem 2.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #FFFFFF;
+    position: relative;
+    border: 1px solid rgba($primary-gold, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 45px rgba(212, 175, 55, 0.15);
+      border-color: rgba($primary-gold, 0.4);
+
+      .brushed-gold-circle-btn {
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
+        i {
+          transform: translateX(5px);
+        }
+      }
+    }
+
+    .luxury-icon-wrapper-gold {
+      width: 56px;
+      height: 56px;
+      border: 1.5px solid $primary-gold;
+      border-radius: 50%;
+      color: $primary-gold;
+      font-size: 1.6rem;
+      align-self: flex-start;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    .promo-body {
+      .promo-heading {
+        font-family: $font-family-serif;
+        font-size: 54px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .gold-divider-short {
+        width: 55px;
+        height: 3px;
+        background-color: $primary-gold;
+        border-radius: 2px;
+      }
+
+      .promo-desc {
+        font-family: $font-family-sans-serif;
+        font-size: 20px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+
+    .brushed-gold-circle-btn {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #FBE69C 0%, #D4AF37 50%, #AA8010 100%);
+      border: 2px solid $primary-gold;
+      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+      color: $primary-dark;
+      font-size: 3rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      text-decoration: none;
+
+      i {
+        transition: transform 0.3s ease;
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Footer Styles
+// -------------------------------------------------------------
+.custom-footer {
+  background-color: $dark-surface;
+  color: #E5E1EA;
+  padding: 5rem 3rem 0;
+  border-top: 1px solid rgba($primary-gold, 0.15);
+
+  .footer-brand-title {
+    font-family: $font-family-serif;
+    color: #FFFFFF;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+
+    .brand-logo-img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 1px solid $primary-gold;
+      margin-right: 0.75rem;
+    }
+    span {
+      color: $primary-gold;
+    }
+  }
+
+  .footer-desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: #E5E1EA;
+    opacity: 0.8;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 0.75rem;
+
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      transition: all 0.3s ease;
+      text-decoration: none;
+
+      &:hover {
+        background-color: $primary-gold;
+        color: $primary-dark;
+        border-color: $primary-gold;
+      }
+    }
+  }
+
+  .footer-heading {
+    color: $primary-gold;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background-color: $primary-gold;
+    }
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.75rem;
+
+      a {
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+
+        &::before {
+          content: '›';
+          margin-right: 0.5rem;
+          color: $primary-gold;
+          font-size: 1rem;
+          transition: transform 0.3s ease;
+        }
+
+        &:hover {
+          color: $primary-gold;
+          padding-left: 4px;
+        }
+      }
+    }
+  }
+
+  .contact-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #E5E1EA;
+      display: flex;
+      gap: 0.75rem;
+
+      i {
+        color: $primary-gold;
+        font-size: 1rem;
+        margin-top: 0.1rem;
+      }
+    }
+  }
+
+  // Help widget
+  .help-widget-card {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba($primary-gold, 0.15);
+    border-radius: $border-radius-md;
+    overflow: hidden;
+
+    .help-img-wrapper {
+      height: 120px;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .help-content {
+      padding: 1.25rem;
+
+      .help-title {
+        font-size: 1rem;
+        color: #FFFFFF;
+        margin-bottom: 0.35rem;
+      }
+
+      .help-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+
+      .btn-contact-reception {
+        width: 100%;
+        background-color: $primary-gold;
+        color: $primary-dark;
+        border: none;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.6rem;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: $soft-gold;
+          color: $primary-dark;
+        }
+      }
+    }
+  }
+
+  .footer-bottom-bar {
+    margin-top: 4rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba($primary-gold, 0.15);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+
+    .bottom-links {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: flex-end;
+
+      a {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $primary-gold;
+        }
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Guests and Rooms Dropdown Component
+// -------------------------------------------------------------
+.guests-dropdown-menu {
+  width: 280px;
+  padding: 1.25rem;
+  border-radius: $border-radius-md;
+  box-shadow: 0 10px 30px rgba(26,10,46,0.15);
+  border: 1px solid rgba($primary-gold, 0.2);
+
+  .counter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .counter-label {
+      font-weight: 600;
+      color: $text-primary;
+      font-size: 0.85rem;
+
+      span {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: $text-secondary;
+      }
+    }
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .btn-counter {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid $border-color;
+        background: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: $text-primary;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          border-color: $primary-gold;
+          color: $primary-gold;
+        }
+
+        &:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+      }
+
+      .counter-value {
+        font-weight: 700;
+        font-size: 0.9rem;
+        width: 15px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Premium Social Redirect Warning Dialog Styles
+// -------------------------------------------------------------
+.social-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+
+    .social-modal-content {
+      transform: scale(1);
+    }
+  }
+
+  .social-modal-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 10, 46, 0.4);
+    backdrop-filter: blur(5px);
+  }
+
+  .social-modal-content {
+    background-color: #FFFFFF;
+    border-radius: 18px;
+    padding: 2.25rem 2rem;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 15px 45px rgba(26, 10, 46, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    position: relative;
+    z-index: 10;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-gold-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background-color: rgba(212, 175, 55, 0.12);
+    color: #D4AF37;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-title {
+    font-family: $font-family-serif;
+    color: #1A0A2E;
+    font-size: 1.55rem;
+  }
+
+  .modal-msg {
+    font-size: 0.95rem;
+    color: #62596D;
+    line-height: 1.5;
+  }
+
+  .btn-modal-cancel {
+    background-color: #FFFFFF;
+    color: #1A0A2E;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: 10px;
+    padding: 0.65rem 1.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #D4AF37;
+      color: #D4AF37;
+    }
+  }
+
+  .btn-modal-continue {
+    background-color: #1A0A2E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    padding: 0.65rem 1.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(26, 10, 46, 0.15);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #2E1560;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Floating Back-to-Top (ported from session.js dynamic injection)
+// -------------------------------------------------------------
+.floating-back-to-top {
+  display: block;
+  text-align: center;
+  line-height: 48px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.9);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+  &:hover {
+    background-color: #EFD98C;
+    box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+    transform: translateY(-3px) scale(1.05);
+  }
+  i {
+    font-size: 1.4rem;
+    color: #1A0A2E;
+  }
+}
+
+// -------------------------------------------------------------
+// General Policy content (Privacy/Terms/Modification/Cancellation & Refund) — styles plain tags
+// (h6, ul, li, p, strong) produced by the Admin's WYSIWYG policy editor, so admin-authored text
+// keeps the original look without the admin ever having to type Bootstrap utility classes by hand.
+// -------------------------------------------------------------
+.policy-content-body {
+  h1, h2, h3, h4, h5, h6 {
+    color: #6a1b9a;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  ul, ol {
+    padding-left: 1.1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: #212529;
+  }
+  p {
+    margin-bottom: 0.75rem;
+    color: #212529;
+  }
+  strong { color: #1A0A2E; }
+}
+
+.policy-wysiwyg-editor {
+  min-height: 220px;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  background-color: #fff;
+
+  &:focus {
+    outline: none;
+    border-color: #1A0A2E;
+    box-shadow: 0 0 0 0.2rem rgba(26,10,46,0.15);
+  }
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: #adb5bd;
+  }
+}
+

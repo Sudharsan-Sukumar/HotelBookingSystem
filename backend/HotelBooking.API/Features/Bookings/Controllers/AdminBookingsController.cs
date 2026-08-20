@@ -51,4 +51,25 @@ public class AdminBookingsController : ControllerBase
             return Conflict(ApiResponse<object?>.ErrorResponse(ex.Message));
         }
     }
+
+    // Admin invoice download (Booking History) — same CSV a customer downloads from My Bookings
+    // (GET /api/bookings/{id}/invoice), resolved by booking id alone since an admin can view any
+    // booking's invoice. Reuses BookingService's shared invoice-building logic; no new format.
+    [HttpGet("{id}/invoice")]
+    public async Task<IActionResult> DownloadInvoice(int id)
+    {
+        try
+        {
+            var csvBytes = await _bookingService.GenerateInvoiceCsvForAdminAsync(id);
+            return File(csvBytes, "text/csv", $"invoice-{id}.csv");
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<object?>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<object?>.ErrorResponse(ex.Message));
+        }
+    }
 }

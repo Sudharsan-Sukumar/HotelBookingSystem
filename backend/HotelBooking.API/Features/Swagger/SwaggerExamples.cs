@@ -37,6 +37,7 @@ public class RegisterDtoExample : IExamplesProvider<RegisterDto>
             LastName = "Doe",
             Email = "john.doe@example.com",
             Password = "Password123!",
+            ConfirmPassword = "Password123!",
             Phone = "9876543210"
         };
     }

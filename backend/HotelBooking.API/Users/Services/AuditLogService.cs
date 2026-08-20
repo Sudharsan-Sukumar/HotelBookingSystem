@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HotelBooking.API.Common.Services;
@@ -10,17 +13,20 @@ using HotelBooking.API.Users.Models;
 
 namespace HotelBooking.API.Users.Services;
 
+// Audit Trail Pattern — persists a durable record of Admin governance actions (bans, role changes, approvals) separately from operational logs.
 public class AuditLogService : IAuditLogService
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<AuditLogService> _logger;
+    private readonly IWebHostEnvironment _environment;
 
     private const int MaxAttempts = 3;
 
-    public AuditLogService(ApplicationDbContext context, ILogger<AuditLogService> logger)
+    public AuditLogService(ApplicationDbContext context, ILogger<AuditLogService> logger, IWebHostEnvironment environment)
     {
         _context = context;
         _logger = logger;
+        _environment = environment;
     }
 
     public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync()
@@ -63,6 +69,7 @@ public class AuditLogService : IAuditLogService
 
         _context.AuditLogs.Add(audit);
 
+        // Retry-with-Backoff — retries a transient-failing audit insert with increasing delay so a lock-contention hiccup never fails the calling business operation.
         for (var attempt = 1; attempt <= MaxAttempts; attempt++)
         {
             try
@@ -80,6 +87,9 @@ public class AuditLogService : IAuditLogService
                     _logger.LogError(ex,
                         "Failed to write audit log ({EntityName}/{Action}, EntityId={EntityId}) after {Attempts} attempts — giving up without failing the calling operation.",
                         entityName, action, entityId, MaxAttempts);
+
+                    // Durable Dead-Letter Fallback - retries are exhausted, so append the failed entry to a local file instead of losing it, for later manual reconciliation.
+                    await TryWriteDeadLetterAsync(audit);
                     return;
                 }
 
@@ -88,6 +98,33 @@ public class AuditLogService : IAuditLogService
                     entityName, action, attempt, MaxAttempts);
                 await Task.Delay(100 * attempt);
             }
+        }
+    }
+
+    private async Task TryWriteDeadLetterAsync(AuditLog audit)
+    {
+        try
+        {
+            var dataDir = Path.Combine(_environment.ContentRootPath, "App_Data");
+            Directory.CreateDirectory(dataDir);
+            var filePath = Path.Combine(dataDir, "failed-audit-logs.jsonl");
+            var line = JsonSerializer.Serialize(new
+            {
+                audit.EntityName,
+                audit.EntityId,
+                audit.Action,
+                audit.Changes,
+                audit.ChangedByUserId,
+                audit.Timestamp
+            });
+            await File.AppendAllTextAsync(filePath, line + Environment.NewLine);
+        }
+        catch (Exception fileEx)
+        {
+            // The dead-letter write itself is a last-resort fallback — if it fails too, just log it.
+            // It must never throw and break the calling business operation.
+            _logger.LogError(fileEx, "Failed to write dead-letter file for audit log ({EntityName}/{Action}, EntityId={EntityId}).",
+                audit.EntityName, audit.Action, audit.EntityId);
         }
     }
 }

@@ -1,0 +1,193 @@
+<div class="d-flex admin-layout admin-body">
+<app-admin-top-nav></app-admin-top-nav>
+
+<div class="container-fluid px-4 py-4 flex-grow-1 admin-content overflow-auto">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a routerLink="/admin/hotels" class="text-decoration-none">Hotels</a></li>
+      <li class="breadcrumb-item active">Details</li>
+    </ol>
+  </nav>
+
+  <div class="alert alert-warning text-start" *ngIf="notFound">Hotel not found. <a routerLink="/admin/hotels">Back to Hotel Management</a></div>
+
+  <ng-container *ngIf="hotel">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 text-start">
+      <div>
+        <h1 class="font-serif fw-bold text-purple h2 mb-1 d-flex align-items-center gap-2">
+          Hotel Details &ndash; {{ hotel.id }}
+          <span class="badge small" style="font-size: 0.75rem;" [class.bg-success]="hotel.status === 'Active'" [class.bg-secondary]="hotel.status !== 'Active'">{{ hotel.status }}</span>
+        </h1>
+        <p class="text-secondary small mb-0">View all properties, inventory layouts, and assigned managers configuration.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-purple btn-sm" (click)="back()"><i class="bi bi-arrow-left me-1"></i> Back to Hotels</button>
+        <button class="btn btn-purple btn-sm" (click)="editHotel()"><i class="bi bi-pencil-fill me-1"></i> Edit Hotel</button>
+      </div>
+    </div>
+
+    <div class="row g-4 text-start">
+      <div class="col-lg-6">
+        <div class="card border bg-white p-4 shadow-sm h-100" style="border-radius: 16px;">
+          <h5 class="font-serif fw-bold text-purple mb-3"><i class="bi bi-building-fill me-2"></i> Hotel Information</h5>
+          <hr class="opacity-10 my-2">
+          <div class="row g-3 small">
+            <div class="col-sm-4 text-secondary">Hotel Name</div>
+            <div class="col-sm-8 text-dark fw-semibold">{{ hotel.name }}</div>
+
+            <div class="col-sm-4 text-secondary">Hotel ID</div>
+            <div class="col-sm-8 text-dark">{{ hotel.id }}</div>
+
+            <div class="col-sm-4 text-secondary">Branch Type</div>
+            <div class="col-sm-8 text-dark">{{ hotel.branch || 'Main Branch' }}</div>
+
+            <div class="col-sm-4 text-secondary">City</div>
+            <div class="col-sm-8 text-dark">{{ hotel.city }}</div>
+
+            <div class="col-sm-4 text-secondary">Address</div>
+            <div class="col-sm-8 text-dark">{{ hotel.address || '-' }}</div>
+
+            <div class="col-sm-4 text-secondary">Phone</div>
+            <div class="col-sm-8 text-dark">{{ hotel.contact || '-' }}</div>
+
+            <div class="col-sm-4 text-secondary">Email</div>
+            <div class="col-sm-8 text-dark">{{ hotel.email || '-' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card border bg-white p-4 shadow-sm h-100" style="border-radius: 16px;">
+          <h5 class="font-serif fw-bold text-purple mb-3"><i class="bi bi-person-badge-fill me-2"></i> Assigned Manager & Statistics</h5>
+          <hr class="opacity-10 my-2">
+          <div class="row g-3 small">
+            <div class="col-sm-4 text-secondary">Manager</div>
+            <div class="col-sm-8 text-dark fw-semibold">{{ managerName }}</div>
+
+            <div class="col-sm-4 text-secondary">Total Rooms</div>
+            <div class="col-sm-8 text-dark">{{ totalRooms }}</div>
+
+            <div class="col-sm-4 text-secondary">Active Rooms</div>
+            <div class="col-sm-8 text-success fw-semibold">{{ activeRooms }}</div>
+
+            <div class="col-sm-4 text-secondary">Disabled Rooms</div>
+            <div class="col-sm-8 text-danger">{{ disabledRooms }}</div>
+
+            <div class="col-sm-4 text-secondary">Occupancy Rate</div>
+            <div class="col-sm-8 text-dark">{{ occupancyRate }}%</div>
+
+            <div class="col-sm-4 text-secondary">Status</div>
+            <div class="col-sm-8"><span class="badge bg-success">{{ hotel.status }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE / KPI SUMMARY CARDS -->
+    <div class="row g-3 my-4 text-start">
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-currency-rupee"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">This Month Revenue</span>
+            <strong class="fs-5 text-dark">{{ monthlyRevenue }}</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Current month</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success" style="font-size: 1.25rem;"><i class="bi bi-calendar-check-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Bookings</span>
+            <strong class="fs-5 text-dark">{{ monthlyBookingsCount }}</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">This month</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Avg Occupancy</span>
+            <strong class="fs-5 text-dark">{{ occupancyRate }}%</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">All room types</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="kpi-card p-3 d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-star-fill"></i></div>
+          <div>
+            <span class="text-secondary small d-block" style="font-size: 0.7rem;">Customer Rating</span>
+            <strong class="fs-5 text-dark">{{ hotel.rating || '4.6' }}/5</strong>
+            <span class="small text-muted d-block" style="font-size: 0.65rem;">Based on reviews</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOM TYPES OVERVIEW TABLE -->
+    <div class="card border shadow-sm bg-white p-4 mb-4 text-start" style="border-radius: 16px;">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h5 class="font-serif fw-bold text-purple mb-0"><i class="bi bi-door-open-fill me-2"></i> Room Type Overview</h5>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select form-select-sm" style="width: auto;" [ngModel]="typeRowsPerPage()" (ngModelChange)="onTypeRowsChange($event)">
+            <option value="5">5 rows</option>
+            <option value="10">10 rows</option>
+            <option value="20">20 rows</option>
+          </select>
+        </div>
+      </div>
+      <hr class="opacity-10 my-2">
+      <div class="table-responsive">
+        <table class="table align-middle manager-premium-table small mb-0">
+          <thead>
+            <tr>
+              <th>Room Type</th>
+              <th>Total Rooms</th>
+              <th>Occupied</th>
+              <th>Available</th>
+              <th>Base Price (per night)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="pagedRoomTypes().length === 0">
+              <td colspan="6" class="text-center text-muted">No rooms configured for this hotel.</td>
+            </tr>
+            <tr *ngFor="let type of pagedRoomTypes()">
+              <td><strong>{{ type.name }}</strong></td>
+              <td>{{ typeCountFor(type) }}</td>
+              <td>{{ typeOccupiedFor(type) }}</td>
+              <td>{{ typeAvailableFor(type) }}</td>
+              <td>&#8377;{{ typeBasePrice(type) }}</td>
+              <td>
+                <span *ngIf="!type.isUnderMaintenance" class="badge bg-success">Active</span>
+                <span *ngIf="type.isUnderMaintenance" class="badge bg-warning text-dark">Maintenance</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <span class="small text-muted">{{ typePaginationInfo() }}</span>
+        <nav>
+          <ul class="pagination pagination-sm mb-0 admin-pagination">
+            <li class="page-item" [class.disabled]="typeCurrentPage() === 1">
+              <a class="page-link" href="javascript:void(0)" (click)="goToTypePage(typeCurrentPage() - 1)">Previous</a>
+            </li>
+            <li class="page-item" *ngFor="let p of typePageNumbers()" [class.active]="p === typeCurrentPage()">
+              <a class="page-link" href="javascript:void(0)" (click)="goToTypePage(p)">{{ p }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="typeCurrentPage() === typeTotalPages()">
+              <a class="page-link" href="javascript:void(0)" (click)="goToTypePage(typeCurrentPage() + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </ng-container>
+</div>
+</div>

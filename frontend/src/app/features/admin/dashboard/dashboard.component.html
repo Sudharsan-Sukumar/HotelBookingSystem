@@ -1,0 +1,151 @@
+<div class="d-flex admin-layout admin-body">
+  <app-admin-top-nav></app-admin-top-nav>
+
+  <div class="flex-grow-1 d-flex flex-column bg-light admin-content">
+    <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom sticky-top shadow-sm">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0 font-serif fw-bold text-dark">Admin Dashboard</h5>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a routerLink="/admin/notifications" class="position-relative text-dark p-2" style="text-decoration: none;">
+          <i class="bi bi-bell-fill fs-5 text-warning"></i>
+        </a>
+      </div>
+    </header>
+
+    <div class="container-fluid px-4 py-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a routerLink="/admin/dashboard" class="text-decoration-none" style="color: #6c757d;">Home</a></li>
+            <li class="breadcrumb-item active" style="color: #1a0a2e; font-weight: 500;">Dashboard</li>
+          </ol>
+        </nav>
+        <div class="bg-white border rounded px-3 py-2 text-dark font-serif fw-bold small">
+          <i class="bi bi-calendar3 text-warning me-2"></i>{{ today | date: 'd MMMM y' }}
+        </div>
+      </div>
+
+      <div class="mb-4 text-start">
+        <h1 class="font-serif fw-bold text-purple h2 mb-1">System Dashboard</h1>
+        <p class="text-secondary small mb-0">Overview of system operations and key metrics.</p>
+      </div>
+
+      <!-- SUMMARY CARDS -->
+      <div class="row g-3 mb-4 text-start">
+        <div class="col-md">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3" [routerLink]="['/admin/users']">
+            <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary" style="font-size: 1.25rem;"><i class="bi bi-people-fill"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Active Users</span>
+              <strong class="fs-5 text-dark">{{ totalActiveUsers }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3" [routerLink]="['/admin/reports']">
+            <div class="rounded-circle p-2 bg-opacity-10" style="font-size: 1.25rem; color:#1a0a2e; background-color: rgba(26,10,46,0.1);"><i class="bi bi-currency-rupee"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Total Revenue</span>
+              <strong class="fs-5 text-dark">{{ formatCurrency(totalRevenue) }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3" [routerLink]="['/admin/content']">
+            <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning" style="font-size: 1.25rem;"><i class="bi bi-megaphone-fill"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Active Promotions</span>
+              <strong class="fs-5 text-dark">{{ activePromotionsCount }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="kpi-card p-3 d-flex align-items-center gap-3" [routerLink]="['/admin/backup']">
+            <div class="rounded-circle p-2 bg-info bg-opacity-10 text-info" style="font-size: 1.25rem;"><i class="bi bi-hdd-fill"></i></div>
+            <div>
+              <span class="text-secondary small d-block" style="font-size: 0.7rem;">Last Backup Status</span>
+              <strong class="fs-6 text-dark">{{ lastBackupStatus }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 text-start">
+        <!-- Left Column: New Registrations -->
+        <div class="col-lg-6">
+          <div class="card border bg-white shadow-sm p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="m-0 font-serif fw-bold text-dark"><i class="bi bi-person-plus me-2 text-purple"></i>Recent Registrations</h5>
+              <button class="btn btn-outline-purple btn-sm" [routerLink]="['/admin/users']">View All</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle text-start manager-premium-table small mb-0">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of registrations">
+                    <td><strong>{{ row.label }}</strong></td>
+                    <td>{{ row.role }}</td>
+                    <td>{{ row.time }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="row.status === 'Active' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'">{{ row.status }}</span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!registrations.length">
+                    <td colspan="4" class="text-center text-muted py-3">No registrations found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Booking Statistics -->
+        <div class="col-lg-6">
+          <div class="card border bg-white shadow-sm p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="m-0 font-serif fw-bold text-dark"><i class="bi bi-graph-up-arrow me-2 text-purple"></i>Booking Statistics</h5>
+              <button class="btn btn-outline-purple btn-sm" [routerLink]="['/admin/monitoring']">View Report</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle text-start manager-premium-table small mb-0">
+                <thead>
+                  <tr>
+                    <th>Hotel</th>
+                    <th>Bookings</th>
+                    <th>Revenue</th>
+                    <th>Cancellation %</th>
+                    <th>Occupancy %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of hotelPerformances">
+                    <td>{{ row.hotelName }}</td>
+                    <td>{{ row.bookingsCount }}</td>
+                    <td>{{ formatCurrency(row.revenue) }}</td>
+                    <td>{{ row.cancellationRate | number:'1.0-1' }}%</td>
+                    <td>{{ row.occupancyRate | number:'1.0-1' }}%</td>
+                  </tr>
+                  <tr *ngIf="!hotelPerformances.length">
+                    <td colspan="5" class="text-center text-muted py-3">No booking data found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="py-4 text-center mt-5" style="background-color: #1a0a2e; border-top: 2px solid #d4af37;">
+      <p class="text-white small mb-0">&copy; 2026 Elegant Enclave. All rights reserved.</p>
+    </footer>
+  </div>
+</div>
