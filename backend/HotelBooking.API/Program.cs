@@ -424,17 +424,14 @@ using (var scope = app.Services.CreateScope())
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<IdempotencyMiddleware>();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/Customer/swagger.json", "Customer API");
-        c.SwaggerEndpoint("/swagger/Manager/swagger.json", "Manager API");
-        c.SwaggerEndpoint("/swagger/Admin/swagger.json", "Admin API");
-        c.DocumentTitle = "The Elegant Enclave's Booking Application";
-    });
-}
+    c.SwaggerEndpoint("/swagger/Customer/swagger.json", "Customer API");
+    c.SwaggerEndpoint("/swagger/Manager/swagger.json", "Manager API");
+    c.SwaggerEndpoint("/swagger/Admin/swagger.json", "Admin API");
+    c.DocumentTitle = "The Elegant Enclave's Booking Application";
+});
 
 // Local dev note: always run this API with `dotnet run --launch-profile http` (the default
 // profile) alongside the Angular dev server. The Angular environment.ts points at the plain
